@@ -23,7 +23,8 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@modules/*": ["./src/modules/*"],
-      "@technical/*": ["./src/technical/*"]
+      "@technical/*": ["./src/technical/*"],
+      "@utils/*": ["./src/utils/*"]
     }
   }
 }

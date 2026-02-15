@@ -23,7 +23,10 @@
     "migration:create": "tsx db/create-migration.ts",
     "migration:run": "tsx ./node_modules/typeorm/cli.js migration:run -d db/migrations-datasource.ts",
     "migration:list": "tsx ./node_modules/typeorm/cli.js migration:show -d db/migrations-datasource.ts",
-    "migration:revert": "tsx ./node_modules/typeorm/cli.js migration:revert -d db/migrations-datasource.ts"
+    "migration:revert": "tsx ./node_modules/typeorm/cli.js migration:revert -d db/migrations-datasource.ts",
+    "dev:migration:run": "NODE_ENV=development tsx ./node_modules/typeorm/cli.js migration:run -d db/migrations-datasource.ts",
+    "dev:migration:list": "NODE_ENV=development tsx ./node_modules/typeorm/cli.js migration:show -d db/migrations-datasource.ts",
+    "dev:migration:revert": "NODE_ENV=development tsx ./node_modules/typeorm/cli.js migration:revert -d db/migrations-datasource.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
