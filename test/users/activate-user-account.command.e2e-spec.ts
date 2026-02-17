@@ -6,34 +6,37 @@ import { AppTestingFixture } from 'test/helpers/app-testing-fixture';
 import { ActivateUserAccountCommand } from '@modules/users/commands/activate-user-account.command';
 import { UserOutboxEntity } from '@modules/users/entities/users-outbox.entity';
 import { EmailVerificationTokenExpiredError } from '@modules/users/errors/email-verification-token-expired.error';
-import { CreateUserAccountCommand } from '@modules/users/commands/create-user-account.command';
 import { UsersFixture } from 'test/fixtures/users-fixture';
 import { InvalidVerificationTokenError } from '@modules/users/errors/invalid-verification-token.error';
-import { subDays } from 'date-fns';
+import { addDays } from 'date-fns';
 import { UserAccountAlreadyActivatedError } from '@modules/users/errors/user-account-already-activated.error';
 import { UserEvents } from '@domain/users/events.enum';
+import { DatetimeService } from '@technical/datetime/datetime.service';
+import { vi } from 'vitest';
 
 describe(ActivateUserAccountCommand.name, () => {
   let testingFixture: AppTestingFixture;
   let app: INestApplication<App>;
   let command: ActivateUserAccountCommand;
-  let createUserCommand: CreateUserAccountCommand;
   let usersRepository: Repository<UserEntity>;
   let usersFixture: UsersFixture;
+  let datetimeService: DatetimeService;
 
   beforeAll(async () => {
     testingFixture = await AppTestingFixture.create();
     app = testingFixture.getApp();
     command = app.get(ActivateUserAccountCommand);
-    createUserCommand = app.get(CreateUserAccountCommand);
     usersRepository = testingFixture.getRepository(UserEntity);
     usersFixture = testingFixture.getUsersFixture();
+    datetimeService = app.get(DatetimeService);
   });
 
   beforeEach(async () => await testingFixture.truncateDatabase());
 
+  afterEach(() => vi.resetAllMocks());
+
   afterAll(async () => {
-    app.close();
+    await app.close();
   });
 
   describe('when user account does not exist', () => {
@@ -48,16 +51,26 @@ describe(ActivateUserAccountCommand.name, () => {
 
   describe('when token expired', () => {
     it('should throw EmailVerificationTokenExpiredError', async () => {
+      const now = new Date('2026-02-01');
+      vi.spyOn(datetimeService, 'new').mockReturnValue(now);
       const user = await usersFixture.createUser();
 
-      await usersRepository.update(
-        {
-          id: user.id,
-        },
-        {
-          activationTokenExpiresAt: subDays(user.activationTokenExpiresAt, 2),
-        },
-      );
+      vi.spyOn(datetimeService, 'new').mockReturnValue(addDays(now, 2));
+      await expect(
+        command.execute({
+          token: user.activationToken,
+        }),
+      ).rejects.toThrow(EmailVerificationTokenExpiredError);
+    });
+
+    it('should throw EmailVerificationTokenExpiredError after 24 hours', async () => {
+      const now = new Date('2026-02-01');
+      vi.spyOn(datetimeService, 'new').mockReturnValue(now);
+      const user = await usersFixture.createUser();
+      // 1ms after 24h from now
+      const expiredDate = new Date(addDays(now, 1).getTime() + 1);
+      // vi.resetAllMocks();
+      vi.spyOn(datetimeService, 'new').mockReturnValue(expiredDate);
 
       await expect(
         command.execute({
@@ -92,6 +105,43 @@ describe(ActivateUserAccountCommand.name, () => {
     it('should be possible to activate it', async () => {
       const user = await usersFixture.createUser();
 
+      await expect(
+        command.execute({
+          token: user.activationToken,
+        }),
+      ).toResolve();
+
+      const events = await usersFixture.getOutboxEvents(user.id);
+      // user created + account activated
+      expect(events).toHaveLength(2);
+
+      const userActivatedEvent = events.filter(
+        (ev) => ev.eventType === UserEvents.USER_ACCOUNT_ACTIVATED,
+      )[0];
+
+      expect(userActivatedEvent).toBeDefined();
+      expect(userActivatedEvent).toMatchObject<UserOutboxEntity>({
+        id: expect.any(String),
+        aggregateId: user.id,
+        eventType: UserEvents.USER_ACCOUNT_ACTIVATED,
+        payload: {
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        },
+        processed: false,
+        processedAt: null,
+        createdAt: expect.any(Date),
+      });
+    });
+
+    it('should be possible to activate it within 24 hours', async () => {
+      const now = new Date('2026-01-01');
+      vi.spyOn(datetimeService, 'new').mockReturnValue(now);
+      const user = await usersFixture.createUser();
+
+      // upper datetime constraint
+      vi.spyOn(datetimeService, 'new').mockReturnValue(addDays(now, 1));
       await expect(
         command.execute({
           token: user.activationToken,

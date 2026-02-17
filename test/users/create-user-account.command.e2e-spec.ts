@@ -31,7 +31,7 @@ describe(CreateUserAccountCommand.name, () => {
   beforeEach(async () => await testingFixture.truncateDatabase());
 
   afterAll(async () => {
-    app.close();
+    await app.close();
   });
 
   describe('when user account with given email does not exist', () => {
@@ -94,7 +94,6 @@ describe(CreateUserAccountCommand.name, () => {
       const password = Password.create('Qwerty12345!');
       const firstName = 'Existing';
       const lastName = 'Example';
-      let existingUser: UserEntity;
 
       await createUserAccountCommand.execute({
         email,
@@ -103,7 +102,7 @@ describe(CreateUserAccountCommand.name, () => {
         lastName,
       });
 
-      existingUser = await usersRepository.findOneByOrFail({
+      const existingUser = await usersRepository.findOneByOrFail({
         email: email.getValue(),
       });
 
@@ -135,6 +134,8 @@ describe(CreateUserAccountCommand.name, () => {
           UserEvents.USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT,
         payload: {
           email: email.getValue(),
+          firstName,
+          lastName,
         },
         processed: false,
         processedAt: null,

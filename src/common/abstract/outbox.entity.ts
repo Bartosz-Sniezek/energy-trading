@@ -1,7 +1,10 @@
 import type { Nullable } from '@utils/nullable';
 import { Column, CreateDateColumn, PrimaryGeneratedColumn } from 'typeorm';
 
-export abstract class OutboxEntity<TEvent extends string> {
+export abstract class OutboxEntity<
+  TEvent extends string,
+  TPayload extends object,
+> {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -21,7 +24,7 @@ export abstract class OutboxEntity<TEvent extends string> {
     name: 'payload',
     type: 'jsonb',
   })
-  payload: unknown;
+  payload: TPayload;
 
   @Column({
     name: 'processed',

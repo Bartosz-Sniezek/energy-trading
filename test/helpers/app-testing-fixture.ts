@@ -22,7 +22,7 @@ export class AppTestingFixture {
       imports: [AppModule],
     }).compile();
 
-    const app = moduleFixture.createNestApplication();
+    const app = moduleFixture.createNestApplication<INestApplication<App>>();
 
     return new AppTestingFixture(app);
   }
