@@ -5,7 +5,6 @@ import { UserEntity } from '@modules/users/entities/user.entity';
 import { AppTestingFixture } from 'test/helpers/app-testing-fixture';
 import { ActivateUserAccountCommand } from '@modules/users/commands/activate-user-account.command';
 import { UserOutboxEntity } from '@modules/users/entities/users-outbox.entity';
-import { DatetimeService } from '@technical/datetime/datetime.service';
 import { EmailVerificationTokenExpiredError } from '@modules/users/errors/email-verification-token-expired.error';
 import { CreateUserAccountCommand } from '@modules/users/commands/create-user-account.command';
 import { UsersFixture } from 'test/fixtures/users-fixture';
@@ -20,8 +19,6 @@ describe(ActivateUserAccountCommand.name, () => {
   let command: ActivateUserAccountCommand;
   let createUserCommand: CreateUserAccountCommand;
   let usersRepository: Repository<UserEntity>;
-  let usersOutboxRepository: Repository<UserOutboxEntity>;
-  let datetimeService: DatetimeService;
   let usersFixture: UsersFixture;
 
   beforeAll(async () => {
@@ -30,8 +27,6 @@ describe(ActivateUserAccountCommand.name, () => {
     command = app.get(ActivateUserAccountCommand);
     createUserCommand = app.get(CreateUserAccountCommand);
     usersRepository = testingFixture.getRepository(UserEntity);
-    usersOutboxRepository = testingFixture.getRepository(UserOutboxEntity);
-    datetimeService = app.get(DatetimeService);
     usersFixture = testingFixture.getUsersFixture();
   });
 
