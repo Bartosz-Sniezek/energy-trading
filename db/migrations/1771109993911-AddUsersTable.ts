@@ -11,17 +11,10 @@ export class AddUsersTable1771109993911 implements MigrationInterface {
             first_name VARCHAR(100) NOT NULL,
             last_name VARCHAR(100) NOT NULL,
             is_active BOOLEAN NOT NULL DEFAULT FALSE,
+            activation_token VARCHAR(255) NOT NULL UNIQUE,
+            activation_token_expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
             created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-        );
-
-        -- Email verification tokens
-        CREATE TABLE email_verification_tokens (
-            id UUID PRIMARY KEY DEFAULT uuidv7(),
-            user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-            token VARCHAR(255) NOT NULL UNIQUE,
-            expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
-            created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
         );
 
         -- Outbox table
@@ -38,8 +31,8 @@ export class AddUsersTable1771109993911 implements MigrationInterface {
         -- Indexes
         CREATE INDEX idx_users_email ON users(email);
         CREATE INDEX idx_users_is_active ON users(is_active);
-        CREATE INDEX idx_verification_tokens_token ON email_verification_tokens(token);
-        CREATE INDEX idx_verification_tokens_expires ON email_verification_tokens(expires_at);
+        CREATE INDEX idx_users_activation_token ON users(activation_token);
+        CREATE INDEX idx_users_activation_token_expires ON users(activation_token_expires_at);
         CREATE INDEX idx_outbox_processed ON users_outbox(processed, created_at) WHERE NOT processed;
         CREATE INDEX idx_outbox_aggregate ON users_outbox(aggregate_id, event_type);        
     `);
@@ -47,7 +40,6 @@ export class AddUsersTable1771109993911 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-        DROP TABLE email_verification_tokens;
         DROP TABLE users_outbox;
         DROP TABLE users;
     `);

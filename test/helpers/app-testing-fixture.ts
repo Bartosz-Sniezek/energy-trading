@@ -1,14 +1,15 @@
 import { INestApplication, Type } from '@nestjs/common';
 import { TestingModule, Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { AppModule } from '@src/app.module';
+import { AppModule } from 'src/app.module';
 import { App } from 'supertest/types';
+import { UsersFixture } from 'test/fixtures/users-fixture';
 import { DataSource, ObjectLiteral, Repository } from 'typeorm';
 
 export class AppTestingFixture {
   private readonly dataSource: DataSource;
 
-  constructor(private readonly _app: INestApplication<App>) {
+  private constructor(private readonly _app: INestApplication<App>) {
     this.dataSource = _app.get(DataSource);
   }
 
@@ -41,5 +42,9 @@ export class AppTestingFixture {
       const repository = this.dataSource.getRepository(entity.name);
       await repository.query(`TRUNCATE TABLE "${entity.tableName}" CASCADE;`);
     }
+  }
+
+  getUsersFixture(): UsersFixture {
+    return new UsersFixture(this._app);
   }
 }

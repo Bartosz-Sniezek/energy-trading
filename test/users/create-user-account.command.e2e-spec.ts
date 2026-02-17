@@ -4,32 +4,27 @@ import { CreateUserAccountCommand } from '@modules/users/commands/create-user-ac
 import { Email } from '@domain/users/value-objects/email';
 import { Password } from '@domain/users/value-objects/password';
 import { Repository } from 'typeorm';
-import { UserEntity } from '@src/modules/users/entities/user.entity';
-import { UserOutboxEntity } from '@src/modules/users/entities/users-outbox.entity';
-import { EmailVerificationTokenEntity } from '@src/modules/users/entities/email-verification-token.entity';
-import { UserEvents } from '@src/domain/users/events.enum';
-import { DatetimeService } from '@src/technical/datetime/datetime.service';
 import { randomEmail } from 'test/faker/random-email';
 import { AppTestingFixture } from 'test/helpers/app-testing-fixture';
+import { UserEvents } from '@domain/users/events.enum';
+import { UserEntity } from '@modules/users/entities/user.entity';
+import { UserOutboxEntity } from '@modules/users/entities/users-outbox.entity';
+import { DatetimeService } from '@technical/datetime/datetime.service';
 
 describe(CreateUserAccountCommand.name, () => {
   let testingFixture: AppTestingFixture;
   let app: INestApplication<App>;
-  let usersService: CreateUserAccountCommand;
+  let createUserAccountCommand: CreateUserAccountCommand;
   let usersRepository: Repository<UserEntity>;
   let usersOutboxRepository: Repository<UserOutboxEntity>;
-  let emailVerificationRepository: Repository<EmailVerificationTokenEntity>;
   let datetimeService: DatetimeService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     testingFixture = await AppTestingFixture.create();
     app = testingFixture.getApp();
-    usersService = app.get(CreateUserAccountCommand);
+    createUserAccountCommand = app.get(CreateUserAccountCommand);
     usersRepository = testingFixture.getRepository(UserEntity);
     usersOutboxRepository = testingFixture.getRepository(UserOutboxEntity);
-    emailVerificationRepository = testingFixture.getRepository(
-      EmailVerificationTokenEntity,
-    );
     datetimeService = app.get(DatetimeService);
   });
 
@@ -47,7 +42,7 @@ describe(CreateUserAccountCommand.name, () => {
       const lastName = 'Example';
 
       await expect(
-        usersService.execute({
+        createUserAccountCommand.execute({
           email,
           password,
           firstName,
@@ -58,10 +53,6 @@ describe(CreateUserAccountCommand.name, () => {
       const user = await usersRepository.findOneByOrFail({
         email: email.getValue(),
       });
-      const emailVerificationToken =
-        await emailVerificationRepository.findOneByOrFail({
-          userId: user.id,
-        });
       const userOutboxEvent = await usersOutboxRepository.findOneByOrFail({
         aggregateId: user.id,
         eventType: UserEvents.USER_ACCOUNT_REGISTERED,
@@ -74,20 +65,12 @@ describe(CreateUserAccountCommand.name, () => {
         firstName,
         lastName,
         isActive: false,
+        activationToken: expect.toBeString(),
+        activationTokenExpiresAt: expect.toBeDate(),
         updatedAt: expect.toBeDate(),
         createdAt: expect.toBeDate(),
       });
       expect(user.passwordHash).not.toBe(password.getValue());
-
-      expect(
-        emailVerificationToken,
-      ).toMatchObject<EmailVerificationTokenEntity>({
-        id: expect.toBeString(),
-        userId: user.id,
-        token: expect.toBeString(),
-        expiresAt: expect.toBeDate(),
-        createdAt: expect.toBeDate(),
-      });
 
       expect(userOutboxEvent).toMatchObject<UserOutboxEntity>({
         id: expect.toBeString(),
@@ -113,7 +96,7 @@ describe(CreateUserAccountCommand.name, () => {
       const lastName = 'Example';
       let existingUser: UserEntity;
 
-      await usersService.execute({
+      await createUserAccountCommand.execute({
         email,
         password,
         firstName,
@@ -125,7 +108,7 @@ describe(CreateUserAccountCommand.name, () => {
       });
 
       await expect(
-        usersService.execute({
+        createUserAccountCommand.execute({
           email,
           password,
           firstName,
@@ -166,13 +149,13 @@ describe(CreateUserAccountCommand.name, () => {
       const password = Password.create('Qwerty12345!');
 
       await Promise.all([
-        usersService.execute({
+        createUserAccountCommand.execute({
           email,
           password,
           firstName: 'Test',
           lastName: 'User',
         }),
-        usersService.execute({
+        createUserAccountCommand.execute({
           email,
           password,
           firstName: 'Test',
@@ -191,13 +174,13 @@ describe(CreateUserAccountCommand.name, () => {
       const password2 = Password.create('Qwerty12345!');
 
       await Promise.all([
-        usersService.execute({
+        createUserAccountCommand.execute({
           email: email1,
           password: password1,
           firstName: 'Test',
           lastName: 'User',
         }),
-        usersService.execute({
+        createUserAccountCommand.execute({
           email: email2,
           password: password2,
           firstName: 'Test',
@@ -212,23 +195,14 @@ describe(CreateUserAccountCommand.name, () => {
         email: email2.getValue(),
       });
 
-      const user1Token = await emailVerificationRepository.findBy({
-        userId: user1.id,
-      });
-      const user2Token = await emailVerificationRepository.findBy({
-        userId: user2.id,
-      });
-
-      expect(user1Token).toHaveLength(1);
-      expect(user2Token).toHaveLength(1);
-      expect(user1Token[0].token).not.toBe(user2Token[0].token);
+      expect(user1.activationToken).not.toBe(user2.activationToken);
     });
 
     it('should set correct token expiration time', async () => {
       const email = randomEmail();
       const password1 = Password.create('Qwerty12345!');
 
-      await usersService.execute({
+      await createUserAccountCommand.execute({
         email: email,
         password: password1,
         firstName: 'Test',
@@ -239,11 +213,7 @@ describe(CreateUserAccountCommand.name, () => {
         email: email.getValue(),
       });
 
-      const { expiresAt } = await emailVerificationRepository.findOneByOrFail({
-        userId: user.id,
-      });
-
-      expect(expiresAt.getTime()).toBe(
+      expect(user.activationTokenExpiresAt.getTime()).toBe(
         datetimeService.getDateIn24Hours(user.createdAt).getTime(),
       );
     });

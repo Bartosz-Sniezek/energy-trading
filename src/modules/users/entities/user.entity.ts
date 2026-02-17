@@ -11,6 +11,8 @@ import type { Hash, UserId } from '../types';
 @Entity('users')
 @Index(['email'])
 @Index(['isActive'])
+@Index(['activationToken'])
+@Index(['activationTokenExpiresAt'])
 export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   readonly id: UserId;
@@ -46,6 +48,19 @@ export class UserEntity {
     default: false,
   })
   isActive: boolean;
+
+  @Column({
+    name: 'activation_token',
+    type: 'varchar',
+    unique: true,
+  })
+  activationToken: string;
+
+  @Column({
+    name: 'activation_token_expires_at',
+    type: 'timestamp with time zone',
+  })
+  activationTokenExpiresAt: Date;
 
   @CreateDateColumn({
     name: 'created_at',

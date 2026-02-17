@@ -3,7 +3,6 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { UserEntity } from '../entities/user.entity';
 import { DataSource, EntityManager } from 'typeorm';
 import { UserOutboxEntity } from '../entities/users-outbox.entity';
-import { EmailVerificationTokenEntity } from '../entities/email-verification-token.entity';
 import { DatetimeService } from '@technical/datetime/datetime.service';
 import { HashingService } from '../hashing.service';
 import { UserEvents } from '@domain/users/events.enum';
@@ -40,19 +39,26 @@ export class CreateUserAccountCommand {
       const usersRepository = entityManager.getRepository(UserEntity);
       const usersOutboxRepository =
         entityManager.getRepository(UserOutboxEntity);
-      const emailVerificationTokenRepository = entityManager.getRepository(
-        EmailVerificationTokenEntity,
-      );
 
       try {
         await entityManager.query('SAVEPOINT user_creation_attempt');
+        const now = this.datetimeService.new();
+        const activationTokenExpiresAt =
+          this.datetimeService.getDateIn24Hours(now);
+
         const userAccount = await usersRepository
-          .save({
-            email: params.email.getValue(),
-            passwordHash,
-            firstName: params.firstName,
-            lastName: params.lastName,
-          })
+          .save(
+            usersRepository.create({
+              email: params.email.getValue(),
+              passwordHash,
+              firstName: params.firstName,
+              lastName: params.lastName,
+              activationToken: token,
+              activationTokenExpiresAt,
+              createdAt: now,
+              updatedAt: now,
+            }),
+          )
           .catch((error) => handleUniqueViolation(error));
 
         await entityManager.query('RELEASE SAVEPOINT user_creation_attempt');
@@ -64,14 +70,6 @@ export class CreateUserAccountCommand {
             firstName: userAccount.firstName,
             lastName: userAccount.lastName,
           },
-        });
-
-        await emailVerificationTokenRepository.save({
-          userId: userAccount.id,
-          token,
-          expiresAt: this.datetimeService.getDateIn24Hours(
-            userAccount.createdAt,
-          ),
         });
 
         return;

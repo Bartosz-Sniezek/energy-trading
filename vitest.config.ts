@@ -14,12 +14,13 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      'test': './test',
-      '@src': './src',
       '@modules': './src/modules',
       '@technical': './src/technical',
       '@utils': './src/utils',
       '@domain': './src/domain',
+      '@common': './src/common',
+      test: './test',
+      src: './src',
     },
   },
   plugins: [swc.vite()],
