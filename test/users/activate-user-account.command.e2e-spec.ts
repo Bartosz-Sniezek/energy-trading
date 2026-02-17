@@ -13,7 +13,6 @@ import { InvalidVerificationTokenError } from '@modules/users/errors/invalid-ver
 import { subDays } from 'date-fns';
 import { UserAccountAlreadyActivatedError } from '@modules/users/errors/user-account-already-activated.error';
 import { UserEvents } from '@domain/users/events.enum';
-import { OutboxEntity } from '@common/abstract/outbox.entity';
 
 describe(ActivateUserAccountCommand.name, () => {
   let testingFixture: AppTestingFixture;
