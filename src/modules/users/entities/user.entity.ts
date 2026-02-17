@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import type { UserId } from '../types';
+import type { Hash, UserId } from '../types';
 
 @Entity('users')
 @Index(['email'])
@@ -26,7 +26,7 @@ export class UserEntity {
     name: 'password_hash',
     type: 'varchar',
   })
-  passwordHash: string;
+  passwordHash: Hash;
 
   @Column({
     name: 'first_name',
