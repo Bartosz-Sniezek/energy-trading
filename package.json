@@ -29,6 +29,7 @@
     "dev:migration:revert": "NODE_ENV=development tsx ./node_modules/typeorm/cli.js migration:revert -d db/migrations-datasource.ts"
   },
   "dependencies": {
+    "@confluentinc/kafka-javascript": "^1.8.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
