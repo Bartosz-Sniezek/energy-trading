@@ -4,7 +4,7 @@ import { UserEntity } from './entities/user.entity';
 import { UserOutboxEntity } from './entities/users-outbox.entity';
 import { CreateUserAccountCommand } from '@modules/users/commands/create-user-account.command';
 import { DatetimeModule } from '@technical/datetime/datetime.module';
-import { TokensService } from '@modules/token.service';
+import { TokensService } from '@modules/users/token.service';
 import { HashingService } from './hashing.service';
 import { HASHING_SERVICE_SALT_ROUNDS } from './constants';
 import { ActivateUserAccountCommand } from './commands/activate-user-account.command';

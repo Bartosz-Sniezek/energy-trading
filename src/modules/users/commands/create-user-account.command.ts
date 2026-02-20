@@ -5,7 +5,7 @@ import { DataSource, EntityManager } from 'typeorm';
 import { UserOutboxEntity } from '../entities/users-outbox.entity';
 import { DatetimeService } from '@technical/datetime/datetime.service';
 import { HashingService } from '../hashing.service';
-import { TokensService } from '../../token.service';
+import { TokensService } from '../token.service';
 import { Email } from '@domain/users/value-objects/email';
 import { Password } from '@domain/users/value-objects/password';
 import { handleUniqueViolation } from '@technical/database/helpers/handle-unique-violation';
