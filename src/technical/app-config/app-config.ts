@@ -5,6 +5,7 @@ import z from 'zod';
 const appConfigSchema = z.object({
   PORT: z.coerce.number().default(8000),
   DATABASE_URL: z.string(),
+  KAFKA_BROKER: z.string(),
 });
 
 export type AppEnvConfig = z.infer<typeof appConfigSchema>;

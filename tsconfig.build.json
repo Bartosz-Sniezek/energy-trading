@@ -6,6 +6,8 @@
     "dist",
     "**/*spec.ts",
     "db",
-    "vitest.config.ts"
+    "vitest.config.ts",
+    "vitest.config.unit.ts",
+    "vitest.config.e2e.ts"
   ]
 }

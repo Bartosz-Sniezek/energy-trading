@@ -10,4 +10,7 @@ async function bootstrap() {
     console.log(`Server is listening on the port ${appConfig.values.PORT}`);
   });
 }
-bootstrap();
+
+bootstrap().catch((error) => {
+  throw error;
+});
