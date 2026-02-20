@@ -21,10 +21,9 @@ export class AddUsersTable1771109993911 implements MigrationInterface {
         CREATE TABLE users_outbox (
             id UUID PRIMARY KEY DEFAULT uuidv7(),
             aggregate_id UUID NOT NULL,
+            aggregate_type VARCHAR(255) NOT NULL DEFAULT 'USER',
             event_type VARCHAR(255) NOT NULL,
             payload JSONB NOT NULL,
-            processed BOOLEAN NOT NULL DEFAULT FALSE,
-            processed_at TIMESTAMP WITH TIME ZONE,
             created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
         );
 
@@ -33,7 +32,7 @@ export class AddUsersTable1771109993911 implements MigrationInterface {
         CREATE INDEX idx_users_is_active ON users(is_active);
         CREATE INDEX idx_users_activation_token ON users(activation_token);
         CREATE INDEX idx_users_activation_token_expires ON users(activation_token_expires_at);
-        CREATE INDEX idx_outbox_processed ON users_outbox(processed, created_at) WHERE NOT processed;
+        CREATE INDEX idx_outbox_created_at ON users_outbox(created_at);
         CREATE INDEX idx_outbox_aggregate ON users_outbox(aggregate_id, event_type);        
     `);
   }

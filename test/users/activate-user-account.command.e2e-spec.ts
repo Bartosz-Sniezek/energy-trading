@@ -13,6 +13,7 @@ import { UserAccountAlreadyActivatedError } from '@modules/users/errors/user-acc
 import { UserEvents } from '@domain/users/events.enum';
 import { DatetimeService } from '@technical/datetime/datetime.service';
 import { vi } from 'vitest';
+import { UserAccountActivatedPayload } from '@modules/users/entities/schemas/outbox-payload.schema';
 
 describe(ActivateUserAccountCommand.name, () => {
   let testingFixture: AppTestingFixture;
@@ -23,7 +24,7 @@ describe(ActivateUserAccountCommand.name, () => {
   let datetimeService: DatetimeService;
 
   beforeAll(async () => {
-    testingFixture = await AppTestingFixture.create();
+    testingFixture = await AppTestingFixture.create({ mockKafka: true });
     app = testingFixture.getApp();
     command = app.get(ActivateUserAccountCommand);
     usersRepository = testingFixture.getRepository(UserEntity);
@@ -124,13 +125,11 @@ describe(ActivateUserAccountCommand.name, () => {
         id: expect.any(String),
         aggregateId: user.id,
         eventType: UserEvents.USER_ACCOUNT_ACTIVATED,
-        payload: {
+        payload: expect.objectContaining<UserAccountActivatedPayload>({
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
-        },
-        processed: false,
-        processedAt: null,
+        }),
         createdAt: expect.any(Date),
       });
     });
@@ -161,13 +160,11 @@ describe(ActivateUserAccountCommand.name, () => {
         id: expect.toBeString(),
         aggregateId: user.id,
         eventType: UserEvents.USER_ACCOUNT_ACTIVATED,
-        payload: {
+        payload: expect.objectContaining<UserAccountActivatedPayload>({
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
-        },
-        processed: false,
-        processedAt: null,
+        }),
         createdAt: expect.toBeDate(),
       });
     });

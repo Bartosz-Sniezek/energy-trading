@@ -10,6 +10,10 @@ import { UserEvents } from '@domain/users/events.enum';
 import { UserEntity } from '@modules/users/entities/user.entity';
 import { UserOutboxEntity } from '@modules/users/entities/users-outbox.entity';
 import { DatetimeService } from '@technical/datetime/datetime.service';
+import {
+  UserAccountCreatedPayload,
+  UserAccountRegistrationAttemptedPayload,
+} from '@modules/users/entities/schemas/outbox-payload.schema';
 
 describe(CreateUserAccountCommand.name, () => {
   let testingFixture: AppTestingFixture;
@@ -20,7 +24,7 @@ describe(CreateUserAccountCommand.name, () => {
   let datetimeService: DatetimeService;
 
   beforeAll(async () => {
-    testingFixture = await AppTestingFixture.create();
+    testingFixture = await AppTestingFixture.create({ mockKafka: true });
     app = testingFixture.getApp();
     createUserAccountCommand = app.get(CreateUserAccountCommand);
     usersRepository = testingFixture.getRepository(UserEntity);
@@ -76,13 +80,14 @@ describe(CreateUserAccountCommand.name, () => {
         id: expect.toBeString(),
         aggregateId: user.id,
         eventType: UserEvents.USER_ACCOUNT_REGISTERED,
-        payload: {
+        payload: expect.objectContaining<UserAccountCreatedPayload>({
           email: email.getValue(),
           firstName,
           lastName,
-        },
-        processed: false,
-        processedAt: null,
+          activationToken: user.activationToken,
+          activationTokenExpirationDate:
+            user.activationTokenExpiresAt.toISOString(),
+        }),
         createdAt: expect.toBeDate(),
       });
     });
@@ -132,13 +137,12 @@ describe(CreateUserAccountCommand.name, () => {
         aggregateId: existingUser.id,
         eventType:
           UserEvents.USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT,
-        payload: {
-          email: email.getValue(),
-          firstName,
-          lastName,
-        },
-        processed: false,
-        processedAt: null,
+        payload:
+          expect.objectContaining<UserAccountRegistrationAttemptedPayload>({
+            email: email.getValue(),
+            firstName,
+            lastName,
+          }),
         createdAt: expect.toBeDate(),
       });
     });

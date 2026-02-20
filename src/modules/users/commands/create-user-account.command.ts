@@ -5,7 +5,6 @@ import { DataSource, EntityManager } from 'typeorm';
 import { UserOutboxEntity } from '../entities/users-outbox.entity';
 import { DatetimeService } from '@technical/datetime/datetime.service';
 import { HashingService } from '../hashing.service';
-import { UserEvents } from '@domain/users/events.enum';
 import { TokensService } from '../../token.service';
 import { Email } from '@domain/users/value-objects/email';
 import { Password } from '@domain/users/value-objects/password';
@@ -62,15 +61,16 @@ export class CreateUserAccountCommand {
           .catch((error) => handleUniqueViolation(error));
 
         await entityManager.query('RELEASE SAVEPOINT user_creation_attempt');
-        await usersOutboxRepository.save({
-          aggregateId: userAccount.id,
-          eventType: UserEvents.USER_ACCOUNT_REGISTERED,
-          payload: {
+        await usersOutboxRepository.save(
+          UserOutboxEntity.userAccountRegistered(userAccount.id, {
             email: userAccount.email,
             firstName: userAccount.firstName,
             lastName: userAccount.lastName,
-          },
-        });
+            activationToken: userAccount.activationToken,
+            activationTokenExpirationDate:
+              userAccount.activationTokenExpiresAt.toISOString(),
+          }),
+        );
 
         return;
       } catch (error) {
@@ -115,13 +115,15 @@ export class CreateUserAccountCommand {
         email,
       });
 
-    await entityManager.getRepository(UserOutboxEntity).save({
-      aggregateId: userAccount.id,
-      eventType:
-        UserEvents.USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT,
-      payload: {
-        email: userAccount.email,
-      },
-    });
+    await entityManager.getRepository(UserOutboxEntity).save(
+      UserOutboxEntity.userAccountRegistrationAttemptedWithExistingAccount(
+        userAccount.id,
+        {
+          email: userAccount.email,
+          firstName: userAccount.firstName,
+          lastName: userAccount.lastName,
+        },
+      ),
+    );
   }
 }

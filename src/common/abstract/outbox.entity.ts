@@ -1,4 +1,3 @@
-import type { Nullable } from '@utils/nullable';
 import { Column, CreateDateColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 export abstract class OutboxEntity<
@@ -25,20 +24,6 @@ export abstract class OutboxEntity<
     type: 'jsonb',
   })
   payload: TPayload;
-
-  @Column({
-    name: 'processed',
-    type: 'boolean',
-    default: false,
-  })
-  processed: boolean;
-
-  @Column({
-    name: 'processed_at',
-    type: 'timestamp with time zone',
-    nullable: true,
-  })
-  processedAt: Nullable<Date>;
 
   @CreateDateColumn({
     name: 'created_at',

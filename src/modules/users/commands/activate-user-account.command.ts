@@ -4,7 +4,6 @@ import { UserEntity } from '../entities/user.entity';
 import { DataSource } from 'typeorm';
 import { UserOutboxEntity } from '../entities/users-outbox.entity';
 import { DatetimeService } from '@technical/datetime/datetime.service';
-import { UserEvents } from '@domain/users/events.enum';
 import { EmailVerificationTokenExpiredError } from '../errors/email-verification-token-expired.error';
 import { UserAccountAlreadyActivatedError } from '../errors/user-account-already-activated.error';
 import { InvalidVerificationTokenError } from '../errors/invalid-verification-token.error';
@@ -44,15 +43,13 @@ export class ActivateUserAccountCommand {
 
       user.isActive = true;
       await usersRepository.save(user);
-      await usersOutboxRepository.save({
-        aggregateId: user.id,
-        eventType: UserEvents.USER_ACCOUNT_ACTIVATED,
-        payload: {
+      await usersOutboxRepository.save(
+        UserOutboxEntity.userAccountActivated(user.id, {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
-        },
-      });
+        }),
+      );
     });
   }
 }

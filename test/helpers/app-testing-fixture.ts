@@ -1,10 +1,16 @@
+import { KAFKA_SERVICE } from '@modules/kafka/kafka.module';
+import { HASHING_SERVICE_SALT_ROUNDS } from '@modules/users/constants';
 import { INestApplication, Type } from '@nestjs/common';
-import { TestingModule, Test } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AppModule } from 'src/app.module';
 import { App } from 'supertest/types';
 import { UsersFixture } from 'test/fixtures/users-fixture';
 import { DataSource, ObjectLiteral, Repository } from 'typeorm';
+
+export interface CreateOptions {
+  mockKafka: true;
+}
 
 export class AppTestingFixture {
   private readonly dataSource: DataSource;
@@ -17,12 +23,21 @@ export class AppTestingFixture {
     return this._app.get(getRepositoryToken(entity));
   }
 
-  static async create(): Promise<AppTestingFixture> {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+  static async create(options?: CreateOptions): Promise<AppTestingFixture> {
+    const moduleFixture = Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    });
 
-    const app = moduleFixture.createNestApplication<INestApplication<App>>();
+    // Minimal hashing rounds to speed up tests
+    // Intention: Validate flows, not the hashing algorithm itself
+    moduleFixture.overrideProvider(HASHING_SERVICE_SALT_ROUNDS).useValue(4);
+
+    if (options?.mockKafka)
+      moduleFixture.overrideProvider(KAFKA_SERVICE).useValue({});
+
+    const app = (await moduleFixture.compile()).createNestApplication<
+      INestApplication<App>
+    >();
 
     return new AppTestingFixture(app);
   }

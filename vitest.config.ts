@@ -19,6 +19,7 @@ export default defineConfig({
       '@utils': './src/utils',
       '@domain': './src/domain',
       '@common': './src/common',
+      '@config': './src/config',
       test: './test',
       src: './src',
     },
