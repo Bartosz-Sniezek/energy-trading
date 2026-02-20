@@ -41,34 +41,33 @@ export class CreateUserAccountCommand {
 
       try {
         await entityManager.query('SAVEPOINT user_creation_attempt');
+
         const now = this.datetimeService.new();
         const activationTokenExpiresAt =
           this.datetimeService.getDateIn24Hours(now);
+        const newUserAccount = UserEntity.create({
+          email: params.email,
+          passwordHash,
+          firstName: params.firstName,
+          lastName: params.lastName,
+          activationToken: token,
+          activationTokenExpiresAt,
+          createdAt: now,
+        });
 
-        const userAccount = await usersRepository
-          .save(
-            usersRepository.create({
-              email: params.email.getValue(),
-              passwordHash,
-              firstName: params.firstName,
-              lastName: params.lastName,
-              activationToken: token,
-              activationTokenExpiresAt,
-              createdAt: now,
-              updatedAt: now,
-            }),
-          )
+        await usersRepository
+          .save(newUserAccount)
           .catch((error) => handleUniqueViolation(error));
 
         await entityManager.query('RELEASE SAVEPOINT user_creation_attempt');
         await usersOutboxRepository.save(
-          UserOutboxEntity.userAccountRegistered(userAccount.id, {
-            email: userAccount.email,
-            firstName: userAccount.firstName,
-            lastName: userAccount.lastName,
-            activationToken: userAccount.activationToken,
+          UserOutboxEntity.userAccountRegistered(newUserAccount.id, {
+            email: newUserAccount.email,
+            firstName: newUserAccount.firstName,
+            lastName: newUserAccount.lastName,
+            activationToken: newUserAccount.activationToken,
             activationTokenExpirationDate:
-              userAccount.activationTokenExpiresAt.toISOString(),
+              newUserAccount.activationTokenExpiresAt.toISOString(),
           }),
         );
 

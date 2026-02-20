@@ -7,6 +7,18 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import type { Hash, UserId } from '../types';
+import { Email } from '@domain/users/value-objects/email';
+import { v7 } from 'uuid';
+
+export interface CreateUserOptions {
+  email: Email;
+  passwordHash: Hash;
+  firstName: string;
+  lastName: string;
+  activationToken: string;
+  activationTokenExpiresAt: Date;
+  createdAt: Date;
+}
 
 @Entity('users')
 @Index(['email'])
@@ -73,4 +85,19 @@ export class UserEntity {
     type: 'timestamp with time zone',
   })
   updatedAt: Date;
+
+  static create(options: CreateUserOptions): UserEntity {
+    return Object.assign(new UserEntity(), {
+      id: v7(),
+      email: options.email.getValue(),
+      passwordHash: options.passwordHash,
+      firstName: options.firstName,
+      lastName: options.lastName,
+      isActive: false,
+      activationToken: options.activationToken,
+      activationTokenExpiresAt: options.activationTokenExpiresAt,
+      createdAt: options.createdAt,
+      updatedAt: options.createdAt,
+    });
+  }
 }
