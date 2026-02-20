@@ -64,9 +64,9 @@ describe(UserOutboxEntity.name, () => {
     });
 
     it(`should throw ${InvalidPayloadDataError.name} for invalid payload`, () => {
-      expect(() => UserOutboxEntity.userAccountRegistered(userId, {} as any)).toThrow(
-        InvalidPayloadDataError,
-      );
+      expect(() =>
+        UserOutboxEntity.userAccountRegistered(userId, {} as any),
+      ).toThrow(InvalidPayloadDataError);
     });
 
     it(`should include field errors in ${InvalidPayloadDataError.name}`, () => {
