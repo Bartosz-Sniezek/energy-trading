@@ -1,4 +1,4 @@
-import { TokensService } from '@modules/token.service';
+import { TokensService } from '@modules/users/token.service';
 
 describe(TokensService.name, () => {
   const service = new TokensService();
