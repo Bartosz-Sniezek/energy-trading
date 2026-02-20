@@ -6,10 +6,11 @@ const userOutboxBasePayloadSchema = z.object({
   lastName: z.string(),
 });
 
-export const userAccountCreatedPayloadSchema = userOutboxBasePayloadSchema.extend({
-  activationToken: z.string(),
-  activationTokenExpirationDate: z.string().datetime(),
-});
+export const userAccountCreatedPayloadSchema =
+  userOutboxBasePayloadSchema.extend({
+    activationToken: z.string(),
+    activationTokenExpirationDate: z.string().datetime(),
+  });
 
 export const userAccountActivatedPayloadSchema = userOutboxBasePayloadSchema;
 
@@ -29,4 +30,5 @@ export type UserAccountRegistrationAttemptedPayload = z.infer<
 export type UserOutboxPayload =
   | UserAccountCreatedPayload
   | UserAccountActivatedPayload
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
   | UserAccountRegistrationAttemptedPayload;
