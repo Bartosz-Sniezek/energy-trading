@@ -23,6 +23,7 @@ export type TUserAccountCreatedEvent = z.infer<
 >;
 
 export class UserAccountCreatedEvent implements TUserAccountCreatedEvent {
+  readonly __type: UserEvents.USER_ACCOUNT_REGISTERED;
   readonly id: string;
   readonly userId: string;
   readonly email: Email;

@@ -20,6 +20,7 @@ export type TUserAccountRegistrationAttemptedWithExistingAccountEvent = z.infer<
 >;
 
 export class UserAccountRegistrationAttemptedWithExistingAccountEvent implements TUserAccountRegistrationAttemptedWithExistingAccountEvent {
+  readonly __type: UserEvents.USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT;
   readonly id: string;
   readonly userId: string;
   readonly email: Email;
