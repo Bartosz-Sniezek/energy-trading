@@ -22,7 +22,7 @@ describe(UserAccountActivatedEvent.name, () => {
   const validEventData: DebeziumOutboxMessage = {
     id: v7(),
     aggregateId: v7(),
-    eventType: UserEvents.USER_ACCOUNT_REGISTERED,
+    eventType: UserEvents.USER_ACCOUNT_ACTIVATED,
     timestamp,
     payload: validEventPayload,
   };
@@ -85,7 +85,7 @@ describe(UserAccountActivatedEvent.name, () => {
       expect(() =>
         UserAccountActivatedEvent.parse({
           ...validEventData,
-          eventType: UserEvents.USER_ACCOUNT_ACTIVATED,
+          eventType: UserEvents.USER_ACCOUNT_REGISTERED,
         }),
       ).toThrow(InvalidEventTypeError);
       expect(() =>

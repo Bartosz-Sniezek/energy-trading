@@ -31,7 +31,7 @@ export class UserAccountActivatedEvent implements TUserAccountActivatedEvent {
   }
 
   static parse(event: DebeziumOutboxMessage): UserAccountActivatedEvent {
-    if (event.eventType !== UserEvents.USER_ACCOUNT_REGISTERED) {
+    if (event.eventType !== UserEvents.USER_ACCOUNT_ACTIVATED) {
       throw new InvalidEventTypeError(event.eventType);
     }
 
