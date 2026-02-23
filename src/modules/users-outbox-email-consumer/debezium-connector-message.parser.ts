@@ -7,20 +7,25 @@ const debeziumMessageSchema = z.object({
   aggregateId: z.string(),
   eventType: z.string(),
   timestamp: z.string(),
-  payload: z.unknown(),
+  payload: z.record(z.string(), z.unknown()),
 });
 
 export type DebeziumOutboxMessage = z.infer<typeof debeziumMessageSchema>;
 
 @Injectable()
 export class DebeziumConnectorMessageParser {
-  async parse(message: KafkaJS.Message): Promise<DebeziumOutboxMessage> {
-    const key = message.key ? JSON.parse(message.key.toString()) : null;
-    const value = message.value ? JSON.parse(message.value.toString()) : null;
-    const payload = value['payload'] ? JSON.parse(value['payload']) : null;
+  parse(message: KafkaJS.Message): DebeziumOutboxMessage {
+    const key = message.key ? this.parseJSON(message.key.toString()) : null;
+    const value = message.value
+      ? this.parseJSON(message.value.toString())
+      : null;
+    const payload =
+      value?.['payload'] && typeof value['payload'] === 'string'
+        ? this.parseJSON(value['payload'])
+        : null;
 
     const id = message.headers?.['id']?.toString();
-    const aggregateId = key['payload'];
+    const aggregateId = key?.['payload'];
     const eventType = message.headers?.['event_type']?.toString();
 
     const eventRawData = <DebeziumOutboxMessage>{
@@ -37,5 +42,9 @@ export class DebeziumConnectorMessageParser {
     }
 
     return data;
+  }
+
+  private parseJSON(data: string): Record<string, unknown> {
+    return JSON.parse(data) as Record<string, unknown>;
   }
 }

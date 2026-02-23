@@ -39,7 +39,7 @@ export class UserAccountRegistrationAttemptedWithExistingAccountEvent implements
   ): UserAccountRegistrationAttemptedWithExistingAccountEvent {
     if (
       event.eventType !==
-      UserEvents.USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT
+      UserEvents.USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT.toString()
     ) {
       throw new InvalidEventTypeError(event.eventType);
     }
