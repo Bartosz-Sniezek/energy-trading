@@ -14,30 +14,34 @@ describe(UsersOutboxMessageHandler.name, () => {
     messageParserMock,
     eventHandlerRegistryMock,
   );
-  const kafkaMessageMock = mock<EachMessagePayload>();
+  const kafkaMessagePayloadMock = mock<EachMessagePayload>();
 
   beforeEach(() => {
     mockReset(messageParserMock);
     mockReset(eventHandlerRegistryMock);
-    mockReset(kafkaMessageMock);
+    mockReset(kafkaMessagePayloadMock);
   });
 
   describe(UsersOutboxMessageHandler.prototype.handleMessage.name, () => {
     it('should parse incoming message', async () => {
-      await messageHandler.handleMessage(kafkaMessageMock);
+      await messageHandler.handleMessage(kafkaMessagePayloadMock);
 
       expect(messageParserMock.parse).toHaveBeenCalledOnce();
-      expect(messageParserMock.parse).toHaveBeenCalledWith(kafkaMessageMock);
+      expect(messageParserMock.parse).toHaveBeenCalledWith(
+        kafkaMessagePayloadMock.message,
+      );
     });
 
     it('should process message with EventHandlerRegistry ', async () => {
       const debeziumEventMock = mock<DebeziumOutboxMessage>();
       messageParserMock.parse.mockResolvedValue(debeziumEventMock);
 
-      await messageHandler.handleMessage(kafkaMessageMock);
+      await messageHandler.handleMessage(kafkaMessagePayloadMock);
 
       expect(messageParserMock.parse).toHaveBeenCalledOnce();
-      expect(messageParserMock.parse).toHaveBeenCalledWith(kafkaMessageMock);
+      expect(messageParserMock.parse).toHaveBeenCalledWith(
+        kafkaMessagePayloadMock.message,
+      );
       expect(eventHandlerRegistryMock.handle).toHaveBeenCalledOnce();
       expect(eventHandlerRegistryMock.handle).toHaveBeenCalledWith(
         debeziumEventMock,
