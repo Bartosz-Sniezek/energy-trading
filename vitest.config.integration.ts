@@ -6,13 +6,11 @@ const e2eConfig = defineConfig({
     typecheck: {
       enabled: true,
       checker: 'tsc',
-      include: ['./test/**/*.e2e-spec.ts'],
+      include: ['./test/**/*.int-spec.ts'],
     },
-    include: ['./test/**/*.e2e-spec.ts'],
+    include: ['./test/**/*.int-spec.ts'],
     globalSetup: ['./test/setup/setup.ts'],
     isolate: false,
-    // remove that line with first e2e tests
-    passWithNoTests: true,
     maxWorkers: 1,
     maxConcurrency: 1,
     testTimeout: 5000,
