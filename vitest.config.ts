@@ -11,6 +11,7 @@ export default defineConfig({
     setupFiles: ['./test/setup/setup-jest-extended'],
     root: './',
     logHeapUsage: true,
+    pool: 'forks',
   },
   resolve: {
     alias: {

@@ -9,7 +9,6 @@ const unitConfig = defineConfig({
       include: ['**/*.spec.ts'],
     },
     include: ['./src/**/*.spec.ts'],
-    pool: 'forks',
     testTimeout: 5000,
     hookTimeout: 5000,
     teardownTimeout: 5000,
