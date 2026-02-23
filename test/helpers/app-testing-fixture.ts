@@ -1,4 +1,4 @@
-import { KAFKA_SERVICE } from '@modules/kafka/kafka.module';
+import { KAFKA_SERVICE } from '@modules/kafka/constants';
 import { HASHING_SERVICE_SALT_ROUNDS } from '@modules/users/constants';
 import { INestApplication, Type } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
