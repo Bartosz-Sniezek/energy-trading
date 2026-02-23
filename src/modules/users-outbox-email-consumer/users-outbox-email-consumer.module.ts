@@ -7,6 +7,7 @@ import { DebeziumConnectorMessageParser } from './debezium-connector-message.par
 import { MailingModule } from '@technical/mailing/mailing.module';
 import { EventHandlerRegistry } from './event-handler-registry';
 import { UserAccountCreatedHandler } from './handlers/user-account-created.handler';
+import { UsersOutboxMessageHandler } from './users-outbox-message.handler';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { UserAccountCreatedHandler } from './handlers/user-account-created.handl
     UsersOutboxConsumer,
     UserAccountCreatedHandler,
     EventHandlerRegistry,
+    UsersOutboxMessageHandler,
   ],
 })
 export class UsersOutboxEmailConsumerModule {}

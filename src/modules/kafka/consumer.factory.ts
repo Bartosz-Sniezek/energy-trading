@@ -1,6 +1,6 @@
 import { KafkaJS } from '@confluentinc/kafka-javascript';
 import { Inject, Injectable } from '@nestjs/common';
-import { KAFKA_SERVICE } from './kafka.module';
+import { KAFKA_SERVICE } from './constants';
 import { EachMessageHandler } from '@confluentinc/kafka-javascript/types/kafkajs';
 
 export interface ConsumerFactoryCreateOptions {

@@ -16,7 +16,7 @@ import { EachMessagePayload } from '@confluentinc/kafka-javascript/types/kafkajs
 @Injectable()
 export class UsersOutboxConsumer implements OnModuleInit, OnModuleDestroy {
   private readonly logger: Logger;
-  private consumer: KafkaJS.Consumer;
+  private consumer: KafkaJS.Consumer | null = null;
 
   constructor(
     private readonly consumerFactory: ConsumerFactory,
@@ -46,12 +46,14 @@ export class UsersOutboxConsumer implements OnModuleInit, OnModuleDestroy {
   }
 
   async onModuleDestroy(): Promise<void> {
-    await this.consumer.disconnect();
+    await this.consumer?.disconnect();
   }
 
   private async handleMessage(
     messagePayload: KafkaJS.EachMessagePayload,
   ): Promise<void> {
+    if (this.consumer == null) throw new Error('Consumer not initialized');
+
     this.logger.verbose(messagePayload);
     await this.messageHandler.handleMessage(messagePayload);
     await commitOffset({

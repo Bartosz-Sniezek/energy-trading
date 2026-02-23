@@ -4,8 +4,7 @@ import { createTopics, CreateTopticOptions } from './create-topics';
 import { AppConfig } from '@technical/app-config/app-config';
 import { AppConfigModule } from '@technical/app-config/app-config.module';
 import { ConsumerFactory } from './consumer.factory';
-
-export const KAFKA_SERVICE = Symbol('KAFKA_SERVICE');
+import { KAFKA_SERVICE } from './constants';
 
 export interface KafkaModuleOptions {
   clientId: string;
@@ -34,6 +33,7 @@ export class KafkaModule {
             return kafka;
           },
         },
+        ConsumerFactory,
       ],
       exports: [KAFKA_SERVICE, ConsumerFactory],
     };
