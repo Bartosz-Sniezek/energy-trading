@@ -5,6 +5,7 @@ import { UserOutboxMessageHandler } from './interfaces/user-outbox-message-handl
 import { UserEvents } from '@domain/users/events.enum';
 import { UnsupportedEventTypeError } from './errors/unsupported-event-type.error';
 import { UserAccountActivatedHandler } from './handlers/user-account-activated.handler';
+import { UserAccountRegistrationAttemptedWithExistingEmaildHandler } from './handlers/user-account-registration-attempted-with-existing-email.handler';
 
 @Injectable()
 export class EventHandlerRegistry {
@@ -14,6 +15,7 @@ export class EventHandlerRegistry {
   constructor(
     userAccountCreatedHandler: UserAccountCreatedHandler,
     userAccountActivatedHandler: UserAccountActivatedHandler,
+    userAccountRegistrationAttemptedWithExistingEmaildHandler: UserAccountRegistrationAttemptedWithExistingEmaildHandler,
     @Optional()
     logger?: Logger,
   ) {
@@ -21,6 +23,10 @@ export class EventHandlerRegistry {
     this.handlers = new Map<string, UserOutboxMessageHandler>([
       [UserEvents.USER_ACCOUNT_REGISTERED, userAccountCreatedHandler],
       [UserEvents.USER_ACCOUNT_ACTIVATED, userAccountActivatedHandler],
+      [
+        UserEvents.USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT,
+        userAccountRegistrationAttemptedWithExistingEmaildHandler,
+      ],
     ]);
   }
 

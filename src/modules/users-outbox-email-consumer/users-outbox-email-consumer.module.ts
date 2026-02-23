@@ -19,6 +19,7 @@ import { SimpleUserAccountRegisteredEmailTemplateStrategy } from './strategies/s
 import { UserAccountRegisteredEmailTemplateStrategy } from './interfaces/user-account-registered-email-template.strategy';
 import { SimpleUserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy } from './strategies/simple-user-account-registration-attempted-with-existing-email-email-template.strategy';
 import { UserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy } from './interfaces/user-account-registration-attempted-with-existing-email-email-template.strategy';
+import { UserAccountRegistrationAttemptedWithExistingEmaildHandler } from './handlers/user-account-registration-attempted-with-existing-email.handler';
 
 @Module({
   imports: [
@@ -46,8 +47,9 @@ import { UserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrateg
     DebeziumConnectorMessageParser,
     UsersOutboxConsumer,
     UserAccountCreatedHandler,
-    EventHandlerRegistry,
     UsersOutboxMessageHandler,
+    UserAccountRegistrationAttemptedWithExistingEmaildHandler,
+    EventHandlerRegistry,
   ],
 })
 export class UsersOutboxEmailConsumerModule {}
