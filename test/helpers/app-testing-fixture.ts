@@ -4,6 +4,7 @@ import { INestApplication, Type } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AppModule } from 'src/app.module';
+import { configureApp } from 'src/configure-app';
 import { App } from 'supertest/types';
 import { UsersFixture } from 'test/fixtures/users-fixture';
 import { DataSource, ObjectLiteral, Repository } from 'typeorm';
@@ -38,6 +39,7 @@ export class AppTestingFixture {
     const app = (await moduleFixture.compile()).createNestApplication<
       INestApplication<App>
     >();
+    configureApp(app);
 
     return new AppTestingFixture(app);
   }
