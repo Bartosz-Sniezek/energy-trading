@@ -8,6 +8,7 @@ import { TokensService } from '@modules/users/token.service';
 import { HashingService } from './hashing.service';
 import { HASHING_SERVICE_SALT_ROUNDS } from './constants';
 import { ActivateUserAccountCommand } from './commands/activate-user-account.command';
+import { UsersController } from './sample.controller';
 
 @Module({
   imports: [
@@ -25,5 +26,6 @@ import { ActivateUserAccountCommand } from './commands/activate-user-account.com
     HashingService,
   ],
   exports: [CreateUserAccountCommand, ActivateUserAccountCommand],
+  controllers: [UsersController],
 })
 export class UsersModule {}

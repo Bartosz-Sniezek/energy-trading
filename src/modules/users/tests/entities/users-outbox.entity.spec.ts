@@ -5,7 +5,7 @@ import {
   UserAccountRegistrationAttemptedPayload,
 } from '@modules/users/entities/schemas/outbox-payload.schema';
 import { UserOutboxEntity } from '@modules/users/entities/users-outbox.entity';
-import { InvalidPayloadDataError } from '@modules/users/errors/invalid-payload-data.error';
+import { InvalidPayloadDataError } from '@common/errors/invalid-payload-data.error';
 import { UserId } from '@modules/users/types';
 import { randomBytes } from 'crypto';
 import { randomEmail } from 'test/faker/random-email';

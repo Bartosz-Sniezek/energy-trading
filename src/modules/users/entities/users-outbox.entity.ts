@@ -12,7 +12,7 @@ import {
   UserOutboxPayload,
 } from './schemas/outbox-payload.schema';
 import z from 'zod';
-import { InvalidPayloadDataError } from '../errors/invalid-payload-data.error';
+import { InvalidPayloadDataError } from '../../../common/errors/invalid-payload-data.error';
 
 @Entity('users_outbox')
 export class UserOutboxEntity extends OutboxEntity<
