@@ -11,7 +11,6 @@ const e2eConfig = defineConfig({
     include: ['./test/**/*.e2e-spec.ts'],
     globalSetup: ['./test/setup/setup.ts'],
     isolate: false,
-    pool: 'threads',
     maxWorkers: 1,
     maxConcurrency: 1,
     testTimeout: 5000,
