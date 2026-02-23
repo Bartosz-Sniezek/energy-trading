@@ -1,3 +1,5 @@
+import { InvalidPasswordError } from '../errors/invalid-password.error';
+
 export class Password {
   private static readonly MIN_LENGTH = 8;
   private static readonly UPPERCASE_PATTERN = /(?=.*[A-Z])/;
@@ -31,7 +33,7 @@ export class Password {
     }
 
     if (errors.length > 0) {
-      throw new Error(`Invalid password: ${errors.join(', ')}`);
+      throw new InvalidPasswordError(errors);
     }
   }
 
