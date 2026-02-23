@@ -19,6 +19,7 @@ export type TUserAccountActivatedEvent = z.infer<
 >;
 
 export class UserAccountActivatedEvent implements TUserAccountActivatedEvent {
+  readonly __type: UserEvents.USER_ACCOUNT_ACTIVATED;
   readonly id: string;
   readonly userId: string;
   readonly email: Email;

@@ -4,6 +4,7 @@ import {
   CLIENT_ID,
   USER_ACCOUNT_ACTIVATED_EMAIL_TEMPLATE as USER_ACCOUNT_ACTIVATED_EMAIL_TEMPLATE_STRATEGY,
   USER_ACCOUNT_REGISTERED_EMAIL_TEMPLATE as USER_ACCOUNT_REGISTERED_EMAIL_TEMPLATE_STRATEGY,
+  USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT_EMAIL_TEMPLATE_STRATEGY,
 } from './constants';
 import { UsersOutboxConsumer } from './users-outbox.consumer';
 import { AppConfigModule } from '@technical/app-config/app-config.module';
@@ -16,6 +17,8 @@ import { UserAccountActivatedEmailTemplateStrategy } from './interfaces/user-acc
 import { SimpleUserAccountActivatedEmailTemplateStrategy } from './strategies/simple-user-account-activated-email-template.strategy';
 import { SimpleUserAccountRegisteredEmailTemplateStrategy } from './strategies/simple-user-account-registered-email-template.strategy';
 import { UserAccountRegisteredEmailTemplateStrategy } from './interfaces/user-account-registered-email-template.strategy';
+import { SimpleUserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy } from './strategies/simple-user-account-registration-attempted-with-existing-email-email-template.strategy';
+import { UserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy } from './interfaces/user-account-registration-attempted-with-existing-email-email-template.strategy';
 
 @Module({
   imports: [
@@ -34,6 +37,12 @@ import { UserAccountRegisteredEmailTemplateStrategy } from './interfaces/user-ac
       provide: USER_ACCOUNT_REGISTERED_EMAIL_TEMPLATE_STRATEGY,
       useClass: SimpleUserAccountRegisteredEmailTemplateStrategy,
     } satisfies Provider<UserAccountRegisteredEmailTemplateStrategy>,
+    {
+      provide:
+        USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT_EMAIL_TEMPLATE_STRATEGY,
+      useClass:
+        SimpleUserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy,
+    } satisfies Provider<UserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy>,
     DebeziumConnectorMessageParser,
     UsersOutboxConsumer,
     UserAccountCreatedHandler,
