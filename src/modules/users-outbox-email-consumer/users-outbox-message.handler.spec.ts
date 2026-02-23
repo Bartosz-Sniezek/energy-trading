@@ -34,7 +34,7 @@ describe(UsersOutboxMessageHandler.name, () => {
 
     it('should process message with EventHandlerRegistry ', async () => {
       const debeziumEventMock = mock<DebeziumOutboxMessage>();
-      messageParserMock.parse.mockResolvedValue(debeziumEventMock);
+      messageParserMock.parse.mockReturnValue(debeziumEventMock);
 
       await messageHandler.handleMessage(kafkaMessagePayloadMock);
 

@@ -6,7 +6,6 @@ import { v7 } from 'uuid';
 import { UserEvents } from '@domain/users/events.enum';
 import { randomFirstName } from 'test/faker/random-first-name';
 import { randomLastName } from 'test/faker/random-last-name';
-import { randomToken } from 'test/faker/random-token';
 import { randomEmail } from 'test/faker/random-email';
 import { Logger } from '@nestjs/common';
 import { InvalidEventTypeError } from '@common/errors/invalid-event-type.error';
@@ -37,9 +36,6 @@ describe(UserAccountActivatedHandler.name, () => {
 
   it(`should successfully execute with valid event data`, async () => {
     const email = randomEmail();
-    const activationTokenExpirationDate = new Date().toISOString();
-    const activationToken = randomToken();
-
     const event: DebeziumOutboxMessage = {
       id: v7(),
       aggregateId: v7(),

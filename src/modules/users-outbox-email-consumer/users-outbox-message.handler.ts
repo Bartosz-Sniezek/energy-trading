@@ -12,7 +12,7 @@ export class UsersOutboxMessageHandler implements MessageHandler {
   ) {}
 
   async handleMessage(messagePayload: EachMessagePayload): Promise<void> {
-    const event = await this.messageParser.parse(messagePayload.message);
+    const event = this.messageParser.parse(messagePayload.message);
     await this.eventHandlerRegistry.handle(event);
   }
 }
