@@ -16,6 +16,7 @@
     "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test:unit": "vitest --config vitest.config.unit.ts run",
     "test:unit:watch": "vitest --config vitest.config.unit.ts",
+    "test:integration": "vitest --config vitest.config.integration.ts run",
     "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
     "test:cov": "vitest run --coverage",
     "test:debug": "vitest --inspect-brk --inspect --logHeapUsage --threads=false",

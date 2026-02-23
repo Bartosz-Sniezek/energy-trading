@@ -8,6 +8,7 @@
     "db",
     "vitest.config.ts",
     "vitest.config.unit.ts",
+    "vitest.config.integration.ts",
     "vitest.config.e2e.ts"
   ]
 }
