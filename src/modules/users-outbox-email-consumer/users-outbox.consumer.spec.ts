@@ -5,6 +5,7 @@ import { AppConfig } from '@technical/app-config/app-config';
 import { UsersOutboxMessageHandler } from './users-outbox-message.handler';
 import { ConsumerFactory } from '@modules/kafka/consumer.factory';
 import { EachMessagePayload } from '@confluentinc/kafka-javascript/types/kafkajs';
+import { loggerMock } from 'test/helpers/logger.mock';
 
 describe(UsersOutboxConsumer.name, () => {
   const appConfig = mock<AppConfig>();
@@ -22,6 +23,7 @@ describe(UsersOutboxConsumer.name, () => {
       consumerFactory,
       appConfig,
       messageHandler,
+      loggerMock,
     );
 
     beforeEach(() => {
@@ -58,6 +60,7 @@ describe(UsersOutboxConsumer.name, () => {
         consumerFactory,
         appConfig,
         messageHandler,
+        loggerMock,
       );
     });
 

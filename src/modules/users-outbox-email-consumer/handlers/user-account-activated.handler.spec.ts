@@ -1,5 +1,5 @@
 import { mock, mockReset } from 'vitest-mock-extended';
-import { UserAccountCreatedHandler } from './user-account-created.handler';
+import { UserAccountActivatedHandler } from './user-account-activated.handler';
 import { MailService } from '@technical/mailing/interfaces/mail-service';
 import { DebeziumOutboxMessage } from '../debezium-connector-message.parser';
 import { v7 } from 'uuid';
@@ -10,23 +10,23 @@ import { randomToken } from 'test/faker/random-token';
 import { randomEmail } from 'test/faker/random-email';
 import { Logger } from '@nestjs/common';
 import { InvalidEventTypeError } from '@common/errors/invalid-event-type.error';
-import { UserAccountRegisteredEmailTemplateStrategy } from '../interfaces/user-account-registered-email-template.strategy';
+import { UserAccountActivatedEmailTemplateStrategy } from '../interfaces/user-account-activated-email-template.strategy';
 import { EmailTemplate } from '../interfaces/email-template.strategy';
 
-describe(UserAccountCreatedHandler.name, () => {
+describe(UserAccountActivatedHandler.name, () => {
   const mailService = mock<MailService>();
-  const loggerMock = mock<Logger>();
-  const templateStrategyMock =
-    mock<UserAccountRegisteredEmailTemplateStrategy>();
+  const emailTemplateStrategyMock =
+    mock<UserAccountActivatedEmailTemplateStrategy>();
   const mailTemplate: EmailTemplate = {
     subject: 'mail-subject',
     text: 'mail-text',
     html: 'mail-html',
   };
-  templateStrategyMock.getTemplate.mockReturnValue(mailTemplate);
-  const handler = new UserAccountCreatedHandler(
+  emailTemplateStrategyMock.getTemplate.mockReturnValue(mailTemplate);
+  const loggerMock = mock<Logger>();
+  const handler = new UserAccountActivatedHandler(
     mailService,
-    templateStrategyMock,
+    emailTemplateStrategyMock,
     loggerMock,
   );
 
@@ -43,14 +43,12 @@ describe(UserAccountCreatedHandler.name, () => {
     const event: DebeziumOutboxMessage = {
       id: v7(),
       aggregateId: v7(),
-      eventType: UserEvents.USER_ACCOUNT_REGISTERED,
+      eventType: UserEvents.USER_ACCOUNT_ACTIVATED,
       timestamp: Date.now().toString(),
       payload: {
         email: email.getValue(),
         firstName: randomFirstName(),
         lastName: randomLastName(),
-        activationToken,
-        activationTokenExpirationDate,
       },
     };
 
