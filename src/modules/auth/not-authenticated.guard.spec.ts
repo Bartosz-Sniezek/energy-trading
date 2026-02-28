@@ -7,8 +7,8 @@ import { HttpArgumentsHost } from '@nestjs/common/interfaces';
 describe(NotAuthenticatedGuard.name, () => {
   const guard = new NotAuthenticatedGuard();
 
-  describe(guard.canActivate.name, async () => {
-    it('should throw BadRequestException when signed cookie with access_token is present', async () => {
+  describe(guard.canActivate.name, () => {
+    it('should throw BadRequestException when signed cookie with access_token is present', () => {
       const contextMock = mock<ExecutionContext>();
       const requestMock = mock<Request>({
         signedCookies: { access_token: 'token' },
@@ -22,7 +22,7 @@ describe(NotAuthenticatedGuard.name, () => {
       );
     });
 
-    it('should return true if access_token is not present in signed cookies', async () => {
+    it('should return true if access_token is not present in signed cookies', () => {
       const contextMock = mock<ExecutionContext>();
       const requestMock = {
         signedCookies: {},
@@ -34,7 +34,7 @@ describe(NotAuthenticatedGuard.name, () => {
       expect(guard.canActivate(contextMock)).toBeTrue();
     });
 
-    it('should return true if there are no signed cookies', async () => {
+    it('should return true if there are no signed cookies', () => {
       const contextMock = mock<ExecutionContext>();
       const requestMock = {} as Request;
       const httpArgumentsHostMock = mock<HttpArgumentsHost>();
