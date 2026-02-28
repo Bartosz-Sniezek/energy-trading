@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RefreshTokenEntity } from '../../../domain/auth/entities/refresh-token.entity';
 import { AccessToken, RefreshToken } from '@domain/auth/types';
+import { HashingService } from '@modules/hashing/hashing.service';
 
 export interface LoginInput {
   email: Email;
@@ -26,6 +27,7 @@ export class LoginUseCase {
     @InjectRepository(RefreshTokenEntity)
     private readonly refreshTokenRepository: Repository<RefreshTokenEntity>,
     private readonly tokenService: TokenService,
+    private readonly hashingService: HashingService,
   ) {}
 
   async execute(options: LoginInput): Promise<LoginOutput> {
@@ -34,6 +36,13 @@ export class LoginUseCase {
     });
 
     if (user == null) throw new InvalidCredentialsError();
+
+    const passwordMatch = await this.hashingService.compare(
+      options.password,
+      user.passwordHash,
+    );
+
+    if (!passwordMatch) throw new InvalidCredentialsError();
 
     const accessToken = await this.tokenService.generateAccessToken(user);
     const refreshToken = this.tokenService.createRefreshToken(user);

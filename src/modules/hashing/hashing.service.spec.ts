@@ -1,4 +1,4 @@
-import { HashingService } from '../hashing.service';
+import { HashingService } from './hashing.service';
 
 describe(HashingService.name, () => {
   const service = new HashingService(5);

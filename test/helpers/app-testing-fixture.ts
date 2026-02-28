@@ -1,5 +1,7 @@
+import { KafkaJS } from '@confluentinc/kafka-javascript';
+import { HASHING_SERVICE_SALT_ROUNDS } from '@modules/hashing/constants';
 import { KAFKA_SERVICE } from '@modules/kafka/constants';
-import { HASHING_SERVICE_SALT_ROUNDS } from '@modules/users/constants';
+import { UsersOutboxConsumer } from '@modules/users-outbox-email-consumer/users-outbox.consumer';
 import { INestApplication, Type } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -8,6 +10,7 @@ import { configureApp } from 'src/configure-app';
 import { App } from 'supertest/types';
 import { UsersFixture } from 'test/fixtures/users-fixture';
 import { DataSource, ObjectLiteral, Repository } from 'typeorm';
+import { mock } from 'vitest-mock-extended';
 
 export interface CreateOptions {
   mockKafka: true;
@@ -34,7 +37,11 @@ export class AppTestingFixture {
     moduleFixture.overrideProvider(HASHING_SERVICE_SALT_ROUNDS).useValue(4);
 
     if (options?.mockKafka)
-      moduleFixture.overrideProvider(KAFKA_SERVICE).useValue({});
+      moduleFixture
+        .overrideProvider(KAFKA_SERVICE)
+        .useValue(mock<KafkaJS.Kafka>())
+        .overrideProvider(UsersOutboxConsumer)
+        .useValue(mock<UsersOutboxConsumer>());
 
     const app = (await moduleFixture.compile()).createNestApplication<
       INestApplication<App>
@@ -42,6 +49,10 @@ export class AppTestingFixture {
     configureApp(app);
 
     return new AppTestingFixture(app);
+  }
+
+  async init(): Promise<INestApplication<App>> {
+    return this._app.init();
   }
 
   getApp(): INestApplication<App> {

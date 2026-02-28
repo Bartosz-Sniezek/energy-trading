@@ -9,6 +9,7 @@ import { randomPassword } from 'test/faker/random-password';
 import { InvalidCredentialsError } from '@domain/auth/errors/invalid-credentials.error';
 import { randomBytes } from 'crypto';
 import { AccessToken, RefreshToken } from '@domain/auth/types';
+import { HashingService } from '@modules/hashing/hashing.service';
 
 describe(LoginUseCase.name, () => {
   const usersRepository = mock<Repository<UserEntity>>();
@@ -18,18 +19,21 @@ describe(LoginUseCase.name, () => {
   const refreshTokenEntityMock = mock<RefreshTokenEntity>({
     token: refreshTokenValueMock,
   });
+  const hashingService = mock<HashingService>();
   const accessTokenMock = randomBytes(64).toString('hex') as AccessToken;
 
   const loginUseCase = new LoginUseCase(
     usersRepository,
     refreshTokenRepository,
     tokenService,
+    hashingService,
   );
 
   beforeEach(() => {
     mockReset(usersRepository);
     mockReset(refreshTokenRepository);
     mockReset(tokenService);
+    mockReset(hashingService);
     tokenService.createRefreshToken.mockReturnValue(refreshTokenEntityMock);
     tokenService.generateAccessToken.mockResolvedValue(accessTokenMock);
   });
@@ -52,6 +56,7 @@ describe(LoginUseCase.name, () => {
     it('should return access and refresh tokens', async () => {
       const userMock = mock<UserEntity>();
       usersRepository.findOneBy.mockResolvedValue(userMock);
+      hashingService.compare.mockResolvedValue(true);
 
       const tokens = await loginUseCase.execute({
         email: randomEmail(),
