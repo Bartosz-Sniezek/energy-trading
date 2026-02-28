@@ -1,3 +1,5 @@
+import { UserId } from '@modules/users/types';
+
 export type RefreshTokenId = string & { readonly __type: unique symbol };
 export type RefreshToken = string & { readonly __type: unique symbol };
 export type RefreshTokenHash = string & { readonly __type: unique symbol };
@@ -9,4 +11,9 @@ export type AccessTokenPayload = {
   iat: number;
   exp: number;
   jti: string;
+};
+
+export type AuthenticatedUser = {
+  userId: UserId;
+  email: string;
 };
