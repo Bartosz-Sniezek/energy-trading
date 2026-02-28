@@ -25,7 +25,7 @@ export class RefreshTokenEntity {
   @Column({ name: 'user_id', type: 'uuid', nullable: false })
   readonly userId: UserId;
 
-  @Column({ name: 'token', unique: true })
+  @Column({ name: 'token', type: 'text', unique: true })
   readonly token: RefreshToken;
 
   @Column({ name: 'family', type: 'uuid' })
