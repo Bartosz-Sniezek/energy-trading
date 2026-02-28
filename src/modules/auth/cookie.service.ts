@@ -4,7 +4,7 @@ import { AppConfig } from '@technical/app-config/app-config';
 import { type Response } from 'express';
 
 export interface ConfigureOptions {
-  res: Response;
+  response: Response;
   accessToken: AccessToken;
   refreshToken: RefreshToken;
 }
@@ -21,7 +21,7 @@ export class CookieService {
       appConfig.values.JWT_REFRESH_TOKEN_EXPIRATION_SEC * 1000;
   }
 
-  configure({ res, accessToken, refreshToken }: ConfigureOptions): void {
+  configure({ response: res, accessToken, refreshToken }: ConfigureOptions): void {
     const httpOnly = true;
     const secure = this.appConfig.isProduction();
     const sameSite = secure ? 'strict' : 'lax';
