@@ -18,7 +18,7 @@ export class JwtAuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
-    const token = request.signedCookies.access_token;
+    const token = request.signedCookies.access_token as string | undefined;
 
     if (!token) throw new UnauthorizedException();
 
