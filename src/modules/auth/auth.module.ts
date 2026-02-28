@@ -7,14 +7,17 @@ import { TokenService } from '@domain/auth/services/token.service';
 import { AppConfigModule } from '@technical/app-config/app-config.module';
 import { DatetimeModule } from '@technical/datetime/datetime.module';
 import { JwtModule } from '@nestjs/jwt';
+import { CookieService } from './cookie.service';
+import { AuthController } from './auth.controller';
 
 @Module({
   imports: [
-    JwtModule,
     AppConfigModule,
+    JwtModule,
     DatetimeModule,
     TypeOrmModule.forFeature([UserEntity, RefreshTokenEntity]),
   ],
-  providers: [TokenService, LoginUseCase],
+  providers: [TokenService, CookieService, LoginUseCase],
+  controllers: [AuthController],
 })
 export class AuthModule {}
