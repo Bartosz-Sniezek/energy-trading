@@ -1,4 +1,4 @@
-import { mock, MockProxy, mockReset } from 'vitest-mock-extended';
+import { mock, mockReset } from 'vitest-mock-extended';
 import { CookieService } from './cookie.service';
 import { AppConfig } from '@technical/app-config/app-config';
 import { type Response } from 'express';
@@ -17,7 +17,7 @@ describe(CookieService.name, () => {
   const resMock = mock<Response>();
   const cookieService = new CookieService(appConfigMock);
   const options = {
-    res: resMock,
+    response: resMock,
     accessToken,
     refreshToken,
   };
