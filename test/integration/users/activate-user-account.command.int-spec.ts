@@ -54,7 +54,7 @@ describe(ActivateUserAccountCommand.name, () => {
     it('should throw EmailVerificationTokenExpiredError', async () => {
       const now = new Date('2026-02-01');
       vi.spyOn(datetimeService, 'new').mockReturnValue(now);
-      const user = await usersFixture.createUser();
+      const { user } = await usersFixture.createUser();
 
       vi.spyOn(datetimeService, 'new').mockReturnValue(addDays(now, 2));
       await expect(
@@ -67,7 +67,7 @@ describe(ActivateUserAccountCommand.name, () => {
     it('should throw EmailVerificationTokenExpiredError after 24 hours', async () => {
       const now = new Date('2026-02-01');
       vi.spyOn(datetimeService, 'new').mockReturnValue(now);
-      const user = await usersFixture.createUser();
+      const { user } = await usersFixture.createUser();
       // 1ms after 24h from now
       const expiredDate = new Date(addDays(now, 1).getTime() + 1);
       // vi.resetAllMocks();
@@ -83,7 +83,7 @@ describe(ActivateUserAccountCommand.name, () => {
 
   describe('when user account is active', () => {
     it('should throw UserAccountAlreadyActivatedError', async () => {
-      const user = await usersFixture.createUser();
+      const { user } = await usersFixture.createUser();
 
       await usersRepository.update(
         {
@@ -104,7 +104,7 @@ describe(ActivateUserAccountCommand.name, () => {
 
   describe('when user account is created', () => {
     it('should be possible to activate it', async () => {
-      const user = await usersFixture.createUser();
+      const { user } = await usersFixture.createUser();
 
       await expect(
         command.execute({
@@ -140,7 +140,7 @@ describe(ActivateUserAccountCommand.name, () => {
     it('should be possible to activate it within 24 hours', async () => {
       const now = new Date('2026-01-01');
       vi.spyOn(datetimeService, 'new').mockReturnValue(now);
-      const user = await usersFixture.createUser();
+      const { user } = await usersFixture.createUser();
 
       // upper datetime constraint
       vi.spyOn(datetimeService, 'new').mockReturnValue(addDays(now, 1));

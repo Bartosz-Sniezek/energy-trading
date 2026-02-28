@@ -30,7 +30,7 @@ export class UsersFixture {
     this.createUserAccountCommand = app.get(CreateUserAccountCommand);
   }
 
-  async createUser(): Promise<UserEntity> {
+  async createUser(): Promise<UserCredentials> {
     const email = randomEmail();
     const password = randomPassword();
     const firstName = randomFirstName();
@@ -43,9 +43,15 @@ export class UsersFixture {
       lastName,
     });
 
-    return this.usersRepository.findOneByOrFail({
+    const user = await this.usersRepository.findOneByOrFail({
       email: email.getValue(),
     });
+
+    return {
+      user,
+      email,
+      password,
+    };
   }
 
   async createActivatedUser(): Promise<UserCredentials> {
