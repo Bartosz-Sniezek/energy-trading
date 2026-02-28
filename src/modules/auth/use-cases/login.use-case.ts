@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { RefreshTokenEntity } from '../../../domain/auth/entities/refresh-token.entity';
 import { AccessToken, RefreshToken } from '@domain/auth/types';
 import { HashingService } from '@modules/hashing/hashing.service';
+import { AccountNotActivatedError } from '@domain/auth/errors/account-not-activated.error';
 
 export interface LoginInput {
   email: Email;
@@ -43,6 +44,7 @@ export class LoginUseCase {
     );
 
     if (!passwordMatch) throw new InvalidCredentialsError();
+    if (!user.isActive) throw new AccountNotActivatedError();
 
     const accessToken = await this.tokenService.generateAccessToken(user);
     const refreshToken = this.tokenService.createRefreshToken(user);
