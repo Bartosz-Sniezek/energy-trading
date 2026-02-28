@@ -38,6 +38,7 @@ const appConfigSchema = z
     JWT_ACCESS_TOKEN_SECRET: z.string(),
     JWT_ACCESS_TOKEN_EXPIRATION_SEC: z.coerce.number().positive(),
     JWT_REFRESH_TOKEN_EXPIRATION_SEC: z.coerce.number().positive(),
+    COOKIE_SECRET: z.string(),
     MAILER_FROM: z.string(),
     MAILER_TRANSPORT_MODE: z.enum(TransportMode),
     MAILER_SMTP_HOST: z.string().optional(),
@@ -84,5 +85,9 @@ export class AppConfig {
       host: this._values.MAILER_SMTP_HOST,
       port: this._values.MAILER_SMTP_PORT,
     };
+  }
+
+  isProduction(): boolean {
+    return this._values.NODE_ENV === 'production';
   }
 }
