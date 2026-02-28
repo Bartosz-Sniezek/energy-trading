@@ -9,12 +9,14 @@ import { DatetimeModule } from '@technical/datetime/datetime.module';
 import { JwtModule } from '@nestjs/jwt';
 import { CookieService } from './cookie.service';
 import { AuthController } from './auth.controller';
+import { HashingModule } from '@modules/hashing/hashing.module';
 
 @Module({
   imports: [
     AppConfigModule,
     JwtModule,
     DatetimeModule,
+    HashingModule,
     TypeOrmModule.forFeature([UserEntity, RefreshTokenEntity]),
   ],
   providers: [TokenService, CookieService, LoginUseCase],
