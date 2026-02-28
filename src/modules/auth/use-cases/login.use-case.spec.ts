@@ -10,6 +10,8 @@ import { InvalidCredentialsError } from '@domain/auth/errors/invalid-credentials
 import { randomBytes } from 'crypto';
 import { AccessToken, RefreshToken } from '@domain/auth/types';
 import { HashingService } from '@modules/hashing/hashing.service';
+import { Hash } from '@modules/users/types';
+import { AccountNotActivatedError } from '@domain/auth/errors/account-not-activated.error';
 
 describe(LoginUseCase.name, () => {
   const usersRepository = mock<Repository<UserEntity>>();
@@ -53,20 +55,62 @@ describe(LoginUseCase.name, () => {
       expect(refreshTokenRepository.save).not.toHaveBeenCalled();
     });
 
-    it('should return access and refresh tokens', async () => {
+    it('should throw InvalidCredentialsError when user password does not match', async () => {
       const userMock = mock<UserEntity>();
+      usersRepository.findOneBy.mockResolvedValue(userMock);
+      hashingService.compare.mockResolvedValue(false);
+
+      await expect(
+        loginUseCase.execute({
+          email: randomEmail(),
+          password: randomPassword().getValue(),
+        }),
+      ).rejects.toThrow(InvalidCredentialsError);
+      expect(tokenService.createRefreshToken).not.toHaveBeenCalled();
+      expect(tokenService.generateAccessToken).not.toHaveBeenCalled();
+      expect(refreshTokenRepository.save).not.toHaveBeenCalled();
+    });
+
+    it('should throw AccountNotActivatedError when user account is not active', async () => {
+      const userMock = mock<UserEntity>({
+        isActive: false,
+      });
       usersRepository.findOneBy.mockResolvedValue(userMock);
       hashingService.compare.mockResolvedValue(true);
 
+      await expect(
+        loginUseCase.execute({
+          email: randomEmail(),
+          password: randomPassword().getValue(),
+        }),
+      ).rejects.toThrow(AccountNotActivatedError);
+      expect(tokenService.createRefreshToken).not.toHaveBeenCalled();
+      expect(tokenService.generateAccessToken).not.toHaveBeenCalled();
+      expect(refreshTokenRepository.save).not.toHaveBeenCalled();
+    });
+
+    it('should return access and refresh tokens', async () => {
+      const userMock = mock<UserEntity>({
+        passwordHash: 'some-hash' as Hash,
+        isActive: true,
+      });
+      usersRepository.findOneBy.mockResolvedValue(userMock);
+      hashingService.compare.mockResolvedValue(true);
+
+      const password = randomPassword();
       const tokens = await loginUseCase.execute({
         email: randomEmail(),
-        password: randomPassword().getValue(),
+        password: password.getValue(),
       });
 
       expect(tokens).toMatchObject<LoginOutput>({
         accessToken: accessTokenMock,
         refreshToken: refreshTokenValueMock,
       });
+      expect(hashingService.compare).toHaveBeenCalledWith(
+        password.getValue(),
+        userMock.passwordHash,
+      );
       expect(tokenService.createRefreshToken).toHaveBeenCalledWith(userMock);
       expect(tokenService.generateAccessToken).toHaveBeenCalledWith(userMock);
     });
