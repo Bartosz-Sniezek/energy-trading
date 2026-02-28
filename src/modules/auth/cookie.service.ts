@@ -21,7 +21,11 @@ export class CookieService {
       appConfig.values.JWT_REFRESH_TOKEN_EXPIRATION_SEC * 1000;
   }
 
-  configure({ response: res, accessToken, refreshToken }: ConfigureOptions): void {
+  configure({
+    response: res,
+    accessToken,
+    refreshToken,
+  }: ConfigureOptions): void {
     const httpOnly = true;
     const secure = this.appConfig.isProduction();
     const sameSite = secure ? 'strict' : 'lax';
@@ -31,6 +35,7 @@ export class CookieService {
       secure,
       sameSite,
       maxAge: this.accessTokenMaxAge,
+      signed: true,
     });
 
     res.cookie('refresh_token', refreshToken, {
@@ -39,6 +44,7 @@ export class CookieService {
       sameSite,
       path: '/api/auth/refresh',
       maxAge: this.refreshTokenMaxAge,
+      signed: true,
     });
   }
 }
