@@ -44,6 +44,7 @@ describe(CookieService.name, () => {
             secure: true,
             sameSite: 'strict',
             maxAge: appConfigMock.values.JWT_ACCESS_TOKEN_EXPIRATION_SEC * 1000,
+            signed: true,
           },
         );
       });
@@ -61,6 +62,7 @@ describe(CookieService.name, () => {
             path: '/api/auth/refresh',
             maxAge:
               appConfigMock.values.JWT_REFRESH_TOKEN_EXPIRATION_SEC * 1000,
+            signed: true,
           },
         );
       });
@@ -76,6 +78,7 @@ describe(CookieService.name, () => {
             secure: true,
             sameSite: 'strict',
             maxAge: appConfigMock.values.JWT_ACCESS_TOKEN_EXPIRATION_SEC * 1000,
+            signed: true,
           },
         );
         expect(resMock.cookie).toHaveBeenCalledWith(
@@ -88,6 +91,7 @@ describe(CookieService.name, () => {
             path: '/api/auth/refresh',
             maxAge:
               appConfigMock.values.JWT_REFRESH_TOKEN_EXPIRATION_SEC * 1000,
+            signed: true,
           },
         );
 
@@ -111,6 +115,7 @@ describe(CookieService.name, () => {
             secure: false,
             sameSite: 'lax',
             maxAge: appConfigMock.values.JWT_ACCESS_TOKEN_EXPIRATION_SEC * 1000,
+            signed: true,
           },
         );
       });
@@ -128,6 +133,7 @@ describe(CookieService.name, () => {
             path: '/api/auth/refresh',
             maxAge:
               appConfigMock.values.JWT_REFRESH_TOKEN_EXPIRATION_SEC * 1000,
+            signed: true,
           },
         );
       });
@@ -143,6 +149,7 @@ describe(CookieService.name, () => {
             secure: false,
             sameSite: 'lax',
             maxAge: appConfigMock.values.JWT_ACCESS_TOKEN_EXPIRATION_SEC * 1000,
+            signed: true,
           },
         );
         expect(resMock.cookie).toHaveBeenCalledWith(
@@ -155,6 +162,7 @@ describe(CookieService.name, () => {
             path: '/api/auth/refresh',
             maxAge:
               appConfigMock.values.JWT_REFRESH_TOKEN_EXPIRATION_SEC * 1000,
+            signed: true,
           },
         );
 
