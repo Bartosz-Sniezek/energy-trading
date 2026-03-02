@@ -14,6 +14,9 @@ import { AppConfigModule } from '@technical/app-config/app-config.module';
           url: config.values.DATABASE_URL,
           autoLoadEntities: true,
           synchronize: false,
+          invalidWhereValuesBehavior: {
+            null: 'sql-null',
+          },
         };
       },
     }),
