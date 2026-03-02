@@ -43,6 +43,7 @@ const appConfigSchema = z
     MAILER_TRANSPORT_MODE: z.enum(TransportMode),
     MAILER_SMTP_HOST: z.string().optional(),
     MAILER_SMTP_PORT: z.coerce.number().optional(),
+    REDIS_URL: z.string(),
   })
   .superRefine((data, ctx) => {
     refineMailerTransportMode(data, ctx);
