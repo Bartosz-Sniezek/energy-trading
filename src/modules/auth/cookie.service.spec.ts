@@ -186,7 +186,7 @@ describe(CookieService.name, () => {
       cookieService.removeTokens(responseMock);
 
       expect(responseMock.clearCookie).toHaveBeenCalledWith('refresh_token', {
-        path: '/api/auth/refresh'
+        path: '/api/auth/refresh',
       });
     });
   });

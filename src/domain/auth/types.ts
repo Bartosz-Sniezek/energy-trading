@@ -8,12 +8,14 @@ export type AccessToken = string & { readonly __type: unique symbol };
 export type AccessTokenPayload = {
   sub: string;
   email: string;
+  jti: string;
+  sid: string;
   iat: number;
   exp: number;
-  jti: string;
 };
 
 export type AuthenticatedUser = {
   userId: UserId;
   email: string;
+  sessionId: string;
 };

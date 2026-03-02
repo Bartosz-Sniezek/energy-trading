@@ -15,7 +15,10 @@ export class TokenService {
     private readonly datetimeService: DatetimeService,
   ) {}
 
-  async generateAccessToken(user: UserEntity): Promise<AccessToken> {
+  async generateAccessToken(
+    user: UserEntity,
+    sessionId: string,
+  ): Promise<AccessToken> {
     const sub = user.id;
     const email = user.email;
     const iat = this.datetimeService.nowInSeconds();
@@ -27,8 +30,9 @@ export class TokenService {
           sub,
           email,
           iat,
-          exp,
           jti: randomUUID(),
+          sid: sessionId,
+          exp,
         },
         {
           privateKey: this.appConfig.values.JWT_ACCESS_TOKEN_SECRET,

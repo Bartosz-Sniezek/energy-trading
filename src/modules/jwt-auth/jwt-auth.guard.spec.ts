@@ -8,6 +8,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { AccessTokenPayload, AuthenticatedUser } from '@domain/auth/types';
 import { randomUserId } from 'test/faker/random-user-id';
 import { randomEmail } from 'test/faker/random-email';
+import { randomUUID } from 'crypto';
 
 describe(JwtAuthGuard.name, () => {
   const jwtServiceMock = mock<JwtService>();
@@ -70,18 +71,22 @@ describe(JwtAuthGuard.name, () => {
       httpArgumentsHostMock.getRequest.mockReturnValue(requestMock);
       contextMock.switchToHttp.mockReturnValue(httpArgumentsHostMock);
 
+      const sessionId = randomUUID();
       const userId = randomUserId();
       const email = randomEmail().getValue();
       const payload = mock<AccessTokenPayload>({
         sub: userId,
         email,
+        sid: sessionId,
       });
       jwtServiceMock.verifyAsync.mockResolvedValue(payload);
 
       await expect(guard.canActivate(contextMock)).resolves.toBeTrue();
+
       expect(requestMock.user).toMatchObject<AuthenticatedUser>({
         userId,
         email,
+        sessionId,
       });
     });
   });

@@ -46,8 +46,11 @@ export class LoginUseCase {
     if (!passwordMatch) throw new InvalidCredentialsError();
     if (!user.isActive) throw new AccountNotActivatedError();
 
-    const accessToken = await this.tokenService.generateAccessToken(user);
     const refreshToken = this.tokenService.createRefreshToken(user);
+    const accessToken = await this.tokenService.generateAccessToken(
+      user,
+      refreshToken.family,
+    );
 
     await this.refreshTokenRepository.save(refreshToken);
 

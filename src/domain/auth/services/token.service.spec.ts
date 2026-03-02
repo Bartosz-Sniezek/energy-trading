@@ -70,7 +70,8 @@ describe(TokenService.name, () => {
 
   describe(service.generateAccessToken.name, () => {
     it('should create an access token', async () => {
-      const token = await service.generateAccessToken(userMock);
+      const sessionId = randomUUID();
+      const token = await service.generateAccessToken(userMock, sessionId);
 
       expect(token).toBeString();
 
@@ -85,12 +86,17 @@ describe(TokenService.name, () => {
         iat,
         exp: iat + appConfig.values.JWT_ACCESS_TOKEN_EXPIRATION_SEC,
         jti: expect.toBeString(),
+        sid: sessionId,
       });
     });
 
     it('should create a different access tokens each time', async () => {
-      const token = await service.generateAccessToken(userMock);
-      const secondToken = await service.generateAccessToken(userMock);
+      const sessionId = randomUUID();
+      const token = await service.generateAccessToken(userMock, sessionId);
+      const secondToken = await service.generateAccessToken(
+        userMock,
+        sessionId,
+      );
 
       expect(token).not.toBe(secondToken);
     });

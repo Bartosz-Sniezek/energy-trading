@@ -94,4 +94,30 @@ describe(AuthController.name, () => {
       expect(req.header['set-cookie'][1]).toContain('refresh_token');
     });
   });
+
+  describe(AuthController.prototype.logout.name, () => {
+    const logoutRoute = '/api/auth/logout';
+
+    it('should return 401 when for authenticated user', async () => {
+      const req = await request(server).post(logoutRoute).send();
+
+      expect(req.status).toBe(HttpStatus.UNAUTHORIZED);
+      expect(req.body).toMatchObject({
+        statusCode: 401,
+        message: 'Unauthorized',
+      });
+    });
+
+    it('should return 200 for authenticated user', async () => {
+      const client = await testingFixture.createAuthenticatedClient();
+
+      const res = await client.post(logoutRoute);
+
+      const [accessTokenCookie, refreshTokenCookie] = res.headers['set-cookie'];
+
+      expect(res.status).toBe(HttpStatus.OK);
+      expect(accessTokenCookie).toInclude('access_token=;');
+      expect(refreshTokenCookie).toInclude('refresh_token=;');
+    });
+  });
 });
