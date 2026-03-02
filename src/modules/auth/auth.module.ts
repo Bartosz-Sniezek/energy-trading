@@ -11,10 +11,12 @@ import { CookieService } from './cookie.service';
 import { AuthController } from './auth.controller';
 import { HashingModule } from '@modules/hashing/hashing.module';
 import { LogoutUseCase } from './use-cases/logout.use-case';
+import { AppCacheModule } from '@technical/cache/app-cache.module';
 
 @Module({
   imports: [
     AppConfigModule,
+    AppCacheModule,
     JwtModule,
     DatetimeModule,
     HashingModule,
