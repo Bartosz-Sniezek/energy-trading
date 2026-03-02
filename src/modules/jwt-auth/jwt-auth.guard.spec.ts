@@ -9,6 +9,7 @@ import { AccessTokenPayload, AuthenticatedUser } from '@domain/auth/types';
 import { randomUserId } from 'test/faker/random-user-id';
 import { randomEmail } from 'test/faker/random-email';
 import { randomUUID } from 'crypto';
+import { TokenService } from '@domain/auth/services/token.service';
 
 describe(JwtAuthGuard.name, () => {
   const jwtServiceMock = mock<JwtService>();
@@ -17,13 +18,19 @@ describe(JwtAuthGuard.name, () => {
       JWT_ACCESS_TOKEN_SECRET: 'secret',
     },
   });
+  const tokenServiceMock = mock<TokenService>();
 
   beforeEach(() => {
     mockReset(jwtServiceMock);
     mockReset(appConfigMock);
+    mockReset(tokenServiceMock);
   });
 
-  const guard = new JwtAuthGuard(jwtServiceMock, appConfigMock);
+  const guard = new JwtAuthGuard(
+    jwtServiceMock,
+    appConfigMock,
+    tokenServiceMock,
+  );
 
   describe(guard.canActivate.name, () => {
     it('should throw UnauthorizedException if there is no access_token in signed cookies', async () => {
@@ -59,6 +66,26 @@ describe(JwtAuthGuard.name, () => {
       expect(requestMock.user).toBeUndefined();
     });
 
+    it('should throw UnauthorizedException if user session is blacklisted', async () => {
+      const requestMock = {
+        signedCookies: {
+          access_token: 'random-token',
+        } as { [key: string]: any },
+      } as Request;
+      const httpArgumentsHostMock = mock<HttpArgumentsHost>();
+      httpArgumentsHostMock.getRequest.mockReturnValue(requestMock);
+      const contextMock = mock<ExecutionContext>();
+
+      contextMock.switchToHttp.mockReturnValue(httpArgumentsHostMock);
+      jwtServiceMock.verifyAsync.mockRejectedValue(new Error('verify error'));
+      tokenServiceMock.isBlacklisted.mockResolvedValue(true);
+
+      await expect(guard.canActivate(contextMock)).rejects.toThrow(
+        UnauthorizedException,
+      );
+      expect(requestMock.user).toBeUndefined();
+    });
+
     it('should set user to request if token verificaiton passed', async () => {
       const requestMock = {
         signedCookies: {
@@ -70,6 +97,7 @@ describe(JwtAuthGuard.name, () => {
 
       httpArgumentsHostMock.getRequest.mockReturnValue(requestMock);
       contextMock.switchToHttp.mockReturnValue(httpArgumentsHostMock);
+      tokenServiceMock.isBlacklisted.mockResolvedValue(false);
 
       const sessionId = randomUUID();
       const userId = randomUserId();
