@@ -1,7 +1,7 @@
 import { mock, mockReset } from 'vitest-mock-extended';
 import { CookieService } from './cookie.service';
 import { AppConfig } from '@technical/app-config/app-config';
-import { type Response } from 'express';
+import { type Response, type Request } from 'express';
 import { randomBytes } from 'crypto';
 import { AccessToken, RefreshToken } from '@domain/auth/types';
 
@@ -167,6 +167,26 @@ describe(CookieService.name, () => {
         );
 
         expect(resMock.cookie).toHaveBeenCalledTimes(2);
+      });
+    });
+  });
+
+  describe(cookieService.removeTokens.name, () => {
+    it('should remove access token from response', () => {
+      const responseMock = mock<Response>();
+
+      cookieService.removeTokens(responseMock);
+
+      expect(responseMock.clearCookie).toHaveBeenCalledWith('access_token');
+    });
+
+    it('should remove refresh token from response', () => {
+      const responseMock = mock<Response>();
+
+      cookieService.removeTokens(responseMock);
+
+      expect(responseMock.clearCookie).toHaveBeenCalledWith('refresh_token', {
+        path: '/api/auth/refresh'
       });
     });
   });

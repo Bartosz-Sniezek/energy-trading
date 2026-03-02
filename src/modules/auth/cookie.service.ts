@@ -13,6 +13,9 @@ export interface ConfigureOptions {
 export class CookieService {
   private readonly accessTokenMaxAge: number;
   private readonly refreshTokenMaxAge: number;
+  private readonly accessTokenCookie = 'access_token';
+  private readonly refreshTokenCookie = 'refresh_token';
+  private readonly apiRefreshPath = '/api/auth/refresh';
 
   constructor(private readonly appConfig: AppConfig) {
     this.accessTokenMaxAge =
@@ -30,7 +33,7 @@ export class CookieService {
     const secure = this.appConfig.isProduction();
     const sameSite = secure ? 'strict' : 'lax';
 
-    res.cookie('access_token', accessToken, {
+    res.cookie(this.accessTokenCookie, accessToken, {
       httpOnly,
       secure,
       sameSite,
@@ -38,13 +41,20 @@ export class CookieService {
       signed: true,
     });
 
-    res.cookie('refresh_token', refreshToken, {
+    res.cookie(this.refreshTokenCookie, refreshToken, {
       httpOnly,
       secure,
       sameSite,
-      path: '/api/auth/refresh',
+      path: this.apiRefreshPath,
       maxAge: this.refreshTokenMaxAge,
       signed: true,
+    });
+  }
+
+  removeTokens(response: Response): void {
+    response.clearCookie(this.accessTokenCookie);
+    response.clearCookie(this.refreshTokenCookie, {
+      path: this.apiRefreshPath,
     });
   }
 }
