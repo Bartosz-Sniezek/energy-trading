@@ -1,4 +1,4 @@
-import { AccessTokenPayload } from '@domain/auth/types';
+import { AccessTokenPayload, AuthenticatedUser } from '@domain/auth/types';
 import {
   CanActivate,
   ExecutionContext,
@@ -30,9 +30,10 @@ export class JwtAuthGuard implements CanActivate {
         },
       );
 
-      request.user = {
+      request.user = <AuthenticatedUser>{
         userId: payload.sub,
         email: payload.email,
+        sessionId: payload.sid,
       };
     } catch {
       throw new UnauthorizedException();

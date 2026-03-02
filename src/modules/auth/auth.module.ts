@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { CookieService } from './cookie.service';
 import { AuthController } from './auth.controller';
 import { HashingModule } from '@modules/hashing/hashing.module';
+import { LogoutUseCase } from './use-cases/logout.use-case';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { HashingModule } from '@modules/hashing/hashing.module';
     HashingModule,
     TypeOrmModule.forFeature([UserEntity, RefreshTokenEntity]),
   ],
-  providers: [TokenService, CookieService, LoginUseCase],
+  providers: [TokenService, CookieService, LoginUseCase, LogoutUseCase],
   controllers: [AuthController],
 })
 export class AuthModule {}

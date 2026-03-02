@@ -11,6 +11,7 @@ import { App } from 'supertest/types';
 import { UsersFixture } from 'test/fixtures/users-fixture';
 import { DataSource, ObjectLiteral, Repository } from 'typeorm';
 import { mock } from 'vitest-mock-extended';
+import { AuthenticatedClient } from './authenticated-client';
 
 export interface CreateOptions {
   mockKafka: true;
@@ -18,13 +19,15 @@ export interface CreateOptions {
 
 export class AppTestingFixture {
   private readonly dataSource: DataSource;
+  private readonly _usersFixture: UsersFixture;
 
-  private constructor(private readonly _app: INestApplication<App>) {
-    this.dataSource = _app.get(DataSource);
+  private constructor(private readonly app: INestApplication<App>) {
+    this.dataSource = app.get(DataSource);
+    this._usersFixture = new UsersFixture(app);
   }
 
   getRepository<T extends ObjectLiteral>(entity: Type<T>): Repository<T> {
-    return this._app.get(getRepositoryToken(entity));
+    return this.app.get(getRepositoryToken(entity));
   }
 
   static async create(options?: CreateOptions): Promise<AppTestingFixture> {
@@ -52,15 +55,15 @@ export class AppTestingFixture {
   }
 
   async init(): Promise<INestApplication<App>> {
-    return this._app.init();
+    return this.app.init();
   }
 
   getApp(): INestApplication<App> {
-    return this._app;
+    return this.app;
   }
 
   async close(): Promise<void> {
-    await this._app.close();
+    await this.app.close();
   }
 
   async truncateDatabase() {
@@ -72,7 +75,14 @@ export class AppTestingFixture {
     }
   }
 
+  async createAuthenticatedClient(): Promise<AuthenticatedClient> {
+    return AuthenticatedClient.create(
+      this.app.getHttpServer(),
+      this._usersFixture,
+    );
+  }
+
   getUsersFixture(): UsersFixture {
-    return new UsersFixture(this._app);
+    return this._usersFixture;
   }
 }

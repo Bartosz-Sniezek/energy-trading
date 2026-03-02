@@ -7,8 +7,8 @@ import { TokenService } from '@domain/auth/services/token.service';
 import { randomEmail } from 'test/faker/random-email';
 import { randomPassword } from 'test/faker/random-password';
 import { InvalidCredentialsError } from '@domain/auth/errors/invalid-credentials.error';
-import { randomBytes } from 'crypto';
-import { AccessToken, RefreshToken } from '@domain/auth/types';
+import { randomBytes, randomUUID } from 'crypto';
+import { AccessToken, RefreshToken, RefreshTokenId } from '@domain/auth/types';
 import { HashingService } from '@modules/hashing/hashing.service';
 import { Hash } from '@modules/users/types';
 import { AccountNotActivatedError } from '@domain/auth/errors/account-not-activated.error';
@@ -19,7 +19,9 @@ describe(LoginUseCase.name, () => {
   const tokenService = mock<TokenService>();
   const refreshTokenValueMock = randomBytes(50).toString('hex') as RefreshToken;
   const refreshTokenEntityMock = mock<RefreshTokenEntity>({
+    id: <RefreshTokenId>randomUUID(),
     token: refreshTokenValueMock,
+    family: randomUUID(),
   });
   const hashingService = mock<HashingService>();
   const accessTokenMock = randomBytes(64).toString('hex') as AccessToken;
@@ -112,7 +114,10 @@ describe(LoginUseCase.name, () => {
         userMock.passwordHash,
       );
       expect(tokenService.createRefreshToken).toHaveBeenCalledWith(userMock);
-      expect(tokenService.generateAccessToken).toHaveBeenCalledWith(userMock);
+      expect(tokenService.generateAccessToken).toHaveBeenCalledWith(
+        userMock,
+        refreshTokenEntityMock.family,
+      );
     });
   });
 });
