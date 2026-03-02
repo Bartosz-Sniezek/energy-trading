@@ -25,11 +25,13 @@ describe(AuthController.name, () => {
   });
 
   describe(AuthController.prototype.login.name, () => {
+    const loginRoute = '/api/auth/login';
+
     it('should return 401 when for user that does not exist', async () => {
       const email = randomEmail();
       const password = randomPassword();
 
-      const req = await request(server).post('/auth/login').send({
+      const req = await request(server).post(loginRoute).send({
         email: email.getValue(),
         password: password.getValue(),
       });
@@ -47,7 +49,7 @@ describe(AuthController.name, () => {
       const { email } = await usersFixture.createActivatedUser();
       const password = randomPassword();
 
-      const req = await request(server).post('/auth/login').send({
+      const req = await request(server).post(loginRoute).send({
         email: email.getValue(),
         password: password.getValue(),
       });
@@ -64,7 +66,7 @@ describe(AuthController.name, () => {
     it('should return 400 when user account is inactive', async () => {
       const { email, password } = await usersFixture.createUser();
 
-      const req = await request(server).post('/auth/login').send({
+      const req = await request(server).post(loginRoute).send({
         email: email.getValue(),
         password: password.getValue(),
       });
@@ -81,7 +83,7 @@ describe(AuthController.name, () => {
     it('should set cookies for existing user with correct credentials', async () => {
       const { email, password } = await usersFixture.createActivatedUser();
 
-      const req = await request(server).post('/auth/login').send({
+      const req = await request(server).post(loginRoute).send({
         email: email.getValue(),
         password: password.getValue(),
       });

@@ -6,6 +6,8 @@ import cookieParser from 'cookie-parser';
 export const configureApp = (app: INestApplication): void => {
   const config = app.get(AppConfig);
 
+  app.setGlobalPrefix('api');
+
   app.use(cookieParser(config.values.COOKIE_SECRET));
   app.useGlobalFilters(new DomainErrorFilter());
 };
