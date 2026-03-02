@@ -9,7 +9,9 @@ export interface CreateTopticOptions {
 export const createTopics = async (
   options: CreateTopticOptions,
 ): Promise<void> => {
-  const admin = options.kafka.admin();
+  const admin = options.kafka.admin({
+    log_level: 0,
+  });
   await admin.connect();
   await admin.createTopics({
     topics: options.topics,
