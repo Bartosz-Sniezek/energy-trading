@@ -1,4 +1,4 @@
-import { mock } from 'vitest-mock-extended';
+import { mock, mockReset } from 'vitest-mock-extended';
 import { TokenService } from './token.service';
 import { AppConfig } from '@technical/app-config/app-config';
 import { JwtService } from '@nestjs/jwt';
@@ -9,6 +9,7 @@ import { vi } from 'vitest';
 import { randomUUID } from 'crypto';
 import { randomEmail } from 'test/faker/random-email';
 import { AccessTokenPayload } from '../types';
+import { AppCacheService } from '@technical/cache/app-cache.service';
 
 describe(TokenService.name, () => {
   const appConfig = mock<AppConfig>({
@@ -20,13 +21,21 @@ describe(TokenService.name, () => {
   });
   const datetimeService = new DatetimeService();
   const jwtService = new JwtService();
+  const cacheMock = mock<AppCacheService>();
   const userMock = mock<UserEntity>({
     id: randomUserId(),
     email: randomEmail().getValue(),
   });
   const newDateMock = new Date();
   vi.spyOn(datetimeService, 'new').mockReturnValue(newDateMock);
-  const service = new TokenService(appConfig, jwtService, datetimeService);
+  const service = new TokenService(
+    appConfig,
+    jwtService,
+    datetimeService,
+    cacheMock,
+  );
+
+  beforeEach(() => mockReset(cacheMock));
 
   describe(service.createRefreshToken.name, () => {
     it('should create a refresh token with a new family', () => {
@@ -99,6 +108,47 @@ describe(TokenService.name, () => {
       );
 
       expect(token).not.toBe(secondToken);
+    });
+  });
+
+  describe(service.isBlacklisted.name, () => {
+    it('should return false is user session is not blacklisted', async () => {
+      const userId = randomUserId();
+      const sessionId = randomUUID();
+      cacheMock.get.mockResolvedValue(undefined);
+
+      await expect(
+        service.isBlacklisted(userId, sessionId),
+      ).resolves.toBeFalse();
+      expect(cacheMock.get).toHaveBeenCalledWith(
+        `blacklist:${userId}:${sessionId}`,
+      );
+    });
+
+    it('should return true is user session is blacklisted', async () => {
+      const userId = randomUserId();
+      const sessionId = randomUUID();
+      cacheMock.get.mockResolvedValue('1');
+
+      await expect(
+        service.isBlacklisted(userId, sessionId),
+      ).resolves.toBeTrue();
+      expect(cacheMock.get).toHaveBeenCalledWith(
+        `blacklist:${userId}:${sessionId}`,
+      );
+    });
+  });
+
+  describe(service.blacklist.name, () => {
+    it('should set user session in cache', async () => {
+      const userId = randomUserId();
+      const sessionId = randomUUID();
+      await expect(service.blacklist(userId, sessionId)).toResolve();
+      expect(cacheMock.set).toHaveBeenCalledWith(
+        `blacklist:${userId}:${sessionId}`,
+        '1',
+        appConfig.values.JWT_REFRESH_TOKEN_EXPIRATION_SEC * 1000,
+      );
     });
   });
 });
