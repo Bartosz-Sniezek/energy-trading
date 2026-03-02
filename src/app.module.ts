@@ -5,6 +5,7 @@ import { AppConfigModule } from '@technical/app-config/app-config.module';
 import { DatabaseModule } from '@technical/database/database.module';
 import { HttpApiModule } from './http-api/http-api.module';
 import { AuthModule } from '@modules/auth/auth.module';
+import { HealthModule } from '@modules/health/health.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AuthModule } from '@modules/auth/auth.module';
     AuthModule,
     UsersOutboxEmailConsumerModule,
     HttpApiModule,
+    HealthModule,
   ],
   controllers: [],
   providers: [],
