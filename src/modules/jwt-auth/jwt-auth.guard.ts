@@ -1,4 +1,6 @@
+import { TokenService } from '@domain/auth/services/token.service';
 import { AccessTokenPayload, AuthenticatedUser } from '@domain/auth/types';
+import { UserId } from '@modules/users/types';
 import {
   CanActivate,
   ExecutionContext,
@@ -14,6 +16,7 @@ export class JwtAuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly appConfig: AppConfig,
+    private readonly tokenService: TokenService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -29,6 +32,12 @@ export class JwtAuthGuard implements CanActivate {
           secret: this.appConfig.values.JWT_ACCESS_TOKEN_SECRET,
         },
       );
+
+      if (
+        await this.tokenService.isBlacklisted(<UserId>payload.sub, payload.sid)
+      ) {
+        throw new UnauthorizedException();
+      }
 
       request.user = <AuthenticatedUser>{
         userId: payload.sub,
