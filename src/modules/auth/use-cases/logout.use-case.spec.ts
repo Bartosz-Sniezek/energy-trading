@@ -6,7 +6,7 @@ import { DatetimeService } from '@technical/datetime/datetime.service';
 import { TokenService } from '@domain/auth/services/token.service';
 import { AuthenticatedUser } from '@domain/auth/types';
 import { randomUserId } from 'test/faker/random-user-id';
-import { randomBytes, randomUUID } from 'crypto';
+import { randomUUID } from 'crypto';
 import { randomEmail } from 'test/faker/random-email';
 
 describe(LogoutUseCase.name, () => {
