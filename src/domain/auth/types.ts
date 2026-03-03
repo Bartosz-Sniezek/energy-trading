@@ -19,3 +19,8 @@ export type AuthenticatedUser = {
   email: string;
   sessionId: string;
 };
+
+export type TokenGenerationOutput = {
+  accessToken: AccessToken;
+  refreshToken: RefreshToken;
+};
