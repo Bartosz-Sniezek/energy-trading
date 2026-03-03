@@ -1,5 +1,9 @@
 import { TokenService } from '@domain/auth/services/token.service';
-import { AccessTokenPayload, AuthenticatedUser } from '@domain/auth/types';
+import {
+  AccessToken,
+  AccessTokenPayload,
+  AuthenticatedUser,
+} from '@domain/auth/types';
 import { UserId } from '@modules/users/types';
 import {
   CanActivate,
@@ -33,9 +37,18 @@ export class JwtAuthGuard implements CanActivate {
         },
       );
 
-      if (
-        await this.tokenService.isBlacklisted(<UserId>payload.sub, payload.sid)
-      ) {
+      const tokenChecks = await Promise.all([
+        this.tokenService.isSessionBlacklisted(
+          <UserId>payload.sub,
+          payload.sid,
+        ),
+        this.tokenService.isAccessTokenBlacklisted(
+          <UserId>payload.sub,
+          <AccessToken>token,
+        ),
+      ]);
+
+      if (tokenChecks.filter((isBlacklisted) => isBlacklisted).length > 0) {
         throw new UnauthorizedException();
       }
 
