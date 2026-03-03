@@ -11,32 +11,99 @@ import { AppCacheService } from '@technical/cache/app-cache.service';
 
 @Injectable()
 export class TokenService {
-  private readonly blacklistTTL: number;
+  private readonly sessionBlacklistTTL: number;
+  private readonly accessTokenBlacklistTTL: number;
+  private readonly refreshTokenBlacklistTTL: number;
+
   constructor(
     private readonly appConfig: AppConfig,
     private readonly jwtService: JwtService,
     private readonly datetimeService: DatetimeService,
     private readonly cacheService: AppCacheService,
   ) {
-    this.blacklistTTL =
+    this.sessionBlacklistTTL =
+      appConfig.values.JWT_REFRESH_TOKEN_EXPIRATION_SEC * 1000;
+    this.accessTokenBlacklistTTL =
+      appConfig.values.JWT_ACCESS_TOKEN_EXPIRATION_SEC * 1000;
+    this.refreshTokenBlacklistTTL =
       appConfig.values.JWT_REFRESH_TOKEN_EXPIRATION_SEC * 1000;
   }
 
-  private composeBlacklistKey(userId: UserId, sessionId: string): string {
-    return `blacklist:${userId}:${sessionId}`;
+  private composeSessionBlacklistKey(
+    userId: UserId,
+    sessionId: string,
+  ): string {
+    return `blacklist:session:${userId}:${sessionId}`;
   }
 
-  async blacklist(userId: UserId, sessionId: string): Promise<void> {
+  private composeAccessTokenBlacklistKey(
+    userId: UserId,
+    token: AccessToken,
+  ): string {
+    return `blacklist:access_token:${userId}:${token}`;
+  }
+
+  private composeRefreshTokenBlacklistKey(
+    userId: UserId,
+    token: RefreshToken,
+  ): string {
+    return `blacklist:refresh_token:${userId}:${token}`;
+  }
+
+  async blacklistAccessToken(
+    userId: UserId,
+    token: AccessToken,
+  ): Promise<void> {
     await this.cacheService.set(
-      this.composeBlacklistKey(userId, sessionId),
+      this.composeAccessTokenBlacklistKey(userId, token),
       '1',
-      this.blacklistTTL,
+      this.accessTokenBlacklistTTL,
     );
   }
 
-  async isBlacklisted(userId: UserId, sessionId: string): Promise<boolean> {
+  async isAccessTokenBlacklisted(
+    userId: UserId,
+    token: AccessToken,
+  ): Promise<boolean> {
     return this.cacheService
-      .get(this.composeBlacklistKey(userId, sessionId))
+      .get(this.composeAccessTokenBlacklistKey(userId, token))
+      .then((v) => v != null);
+  }
+
+  async blacklistRefreshToken(
+    userId: UserId,
+    token: RefreshToken,
+  ): Promise<void> {
+    await this.cacheService.set(
+      this.composeRefreshTokenBlacklistKey(userId, token),
+      '1',
+      this.refreshTokenBlacklistTTL,
+    );
+  }
+
+  async isRefreshTokenBlacklisted(
+    userId: UserId,
+    token: RefreshToken,
+  ): Promise<boolean> {
+    return this.cacheService
+      .get(this.composeRefreshTokenBlacklistKey(userId, token))
+      .then((v) => v != null);
+  }
+
+  async blacklistSession(userId: UserId, sessionId: string): Promise<void> {
+    await this.cacheService.set(
+      this.composeSessionBlacklistKey(userId, sessionId),
+      '1',
+      this.sessionBlacklistTTL,
+    );
+  }
+
+  async isSessionBlacklisted(
+    userId: UserId,
+    sessionId: string,
+  ): Promise<boolean> {
+    return this.cacheService
+      .get(this.composeSessionBlacklistKey(userId, sessionId))
       .then((v) => v != null);
   }
 
