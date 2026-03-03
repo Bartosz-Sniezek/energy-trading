@@ -78,7 +78,29 @@ describe(JwtAuthGuard.name, () => {
 
       contextMock.switchToHttp.mockReturnValue(httpArgumentsHostMock);
       jwtServiceMock.verifyAsync.mockRejectedValue(new Error('verify error'));
-      tokenServiceMock.isBlacklisted.mockResolvedValue(true);
+      tokenServiceMock.isSessionBlacklisted.mockResolvedValue(true);
+      tokenServiceMock.isAccessTokenBlacklisted.mockResolvedValue(false);
+
+      await expect(guard.canActivate(contextMock)).rejects.toThrow(
+        UnauthorizedException,
+      );
+      expect(requestMock.user).toBeUndefined();
+    });
+
+    it('should throw UnauthorizedException if user access_token is blacklisted', async () => {
+      const requestMock = {
+        signedCookies: {
+          access_token: 'random-token',
+        } as { [key: string]: any },
+      } as Request;
+      const httpArgumentsHostMock = mock<HttpArgumentsHost>();
+      httpArgumentsHostMock.getRequest.mockReturnValue(requestMock);
+      const contextMock = mock<ExecutionContext>();
+
+      contextMock.switchToHttp.mockReturnValue(httpArgumentsHostMock);
+      jwtServiceMock.verifyAsync.mockRejectedValue(new Error('verify error'));
+      tokenServiceMock.isSessionBlacklisted.mockResolvedValue(false);
+      tokenServiceMock.isAccessTokenBlacklisted.mockResolvedValue(true);
 
       await expect(guard.canActivate(contextMock)).rejects.toThrow(
         UnauthorizedException,
@@ -97,7 +119,7 @@ describe(JwtAuthGuard.name, () => {
 
       httpArgumentsHostMock.getRequest.mockReturnValue(requestMock);
       contextMock.switchToHttp.mockReturnValue(httpArgumentsHostMock);
-      tokenServiceMock.isBlacklisted.mockResolvedValue(false);
+      tokenServiceMock.isSessionBlacklisted.mockResolvedValue(false);
 
       const sessionId = randomUUID();
       const userId = randomUserId();
