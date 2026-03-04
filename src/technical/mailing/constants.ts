@@ -1,1 +1,1 @@
-export const MAIL_SERVICE = 'mail_service' as const;
+export const MAIL_SERVICE = Symbol('mail_service_token');

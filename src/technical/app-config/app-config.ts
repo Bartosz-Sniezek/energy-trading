@@ -34,6 +34,7 @@ const appConfigSchema = z
     PORT: z.coerce.number().default(8000),
     DATABASE_URL: z.string(),
     KAFKA_BROKER: z.string(),
+    KAFKA_LOG_LEVEL: z.coerce.number().optional(),
     KAFKA_USERS_OUTBOX_TOPIC: z.string(),
     JWT_ACCESS_TOKEN_SECRET: z.string(),
     JWT_ACCESS_TOKEN_EXPIRATION_SEC: z.coerce.number().positive(),

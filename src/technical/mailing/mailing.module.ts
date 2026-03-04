@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { MAIL_SERVICE as MAILING_SERVICE } from './constants';
+import { MAIL_SERVICE } from './constants';
 import { AppConfig } from '@technical/app-config/app-config';
 import { TransportMode } from './transport-mode.enum';
 import { MailService } from './interfaces/mail-service';
@@ -11,7 +11,7 @@ import { AppConfigModule } from '@technical/app-config/app-config.module';
   imports: [AppConfigModule],
   providers: [
     {
-      provide: MAILING_SERVICE,
+      provide: MAIL_SERVICE,
       useFactory: (appConfig: AppConfig): MailService => {
         const mode = appConfig.values.MAILER_TRANSPORT_MODE;
         switch (appConfig.values.MAILER_TRANSPORT_MODE) {
@@ -26,6 +26,6 @@ import { AppConfigModule } from '@technical/app-config/app-config.module';
       inject: [AppConfig],
     },
   ],
-  exports: [MAILING_SERVICE],
+  exports: [MAIL_SERVICE],
 })
 export class MailingModule {}

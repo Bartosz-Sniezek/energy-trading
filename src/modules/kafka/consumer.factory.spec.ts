@@ -8,9 +8,9 @@ import {
 } from '@confluentinc/kafka-javascript/types/kafkajs';
 
 describe(ConsumerFactory.name, () => {
+  const kafkaAdmin = mock<KafkaJS.Admin>();
   const kafkaConsumer = mock<KafkaJS.Consumer>();
   const kafka = mock<KafkaJS.Kafka>();
-  kafka.consumer.mockReturnValue(kafkaConsumer);
   const appConfig = mock<AppConfig>();
   appConfig.values.KAFKA_USERS_OUTBOX_TOPIC = 'random';
   const messageHandler = mockFn<EachMessageHandler>();
@@ -26,6 +26,10 @@ describe(ConsumerFactory.name, () => {
 
   beforeEach(() => {
     mockReset(kafkaConsumer);
+    mockReset(kafkaAdmin);
+    mockReset(kafka);
+    kafka.consumer.mockReturnValue(kafkaConsumer);
+    kafka.admin.mockReturnValue(kafkaAdmin);
     mockReset(messageHandler);
   });
 
@@ -38,6 +42,39 @@ describe(ConsumerFactory.name, () => {
       });
 
       expect(kafka.consumer).toHaveBeenCalledWith(consumerCfg);
+      expect(createdConsumer).toBe(kafkaConsumer);
+    });
+
+    it('should create topics with admin when createTopics is passed', async () => {
+      const createdConsumer = await factory.create({
+        config: consumerCfg,
+        topics: topicsCfg,
+        createTopics: [
+          { topic: 'randomTopic', numPartitions: 2, replicationFactor: 1 },
+        ],
+        messageHandler,
+      });
+
+      expect(kafka.consumer).toHaveBeenCalledWith(consumerCfg);
+      expect(kafka.admin).toHaveBeenCalled();
+      expect(kafkaAdmin.createTopics).toHaveBeenCalledWith({
+        topics: [
+          { topic: 'randomTopic', numPartitions: 2, replicationFactor: 1 },
+        ],
+      });
+      expect(createdConsumer).toBe(kafkaConsumer);
+    });
+
+    it('should not create topics with admin when createTopics is missing', async () => {
+      const createdConsumer = await factory.create({
+        config: consumerCfg,
+        topics: topicsCfg,
+        messageHandler,
+      });
+
+      expect(kafka.consumer).toHaveBeenCalledWith(consumerCfg);
+      expect(kafka.admin).not.toHaveBeenCalled();
+      expect(kafkaAdmin.createTopics).not.toHaveBeenCalled();
       expect(createdConsumer).toBe(kafkaConsumer);
     });
 
