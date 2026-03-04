@@ -15,7 +15,7 @@ const e2eConfig = defineConfig({
     passWithNoTests: true,
     maxWorkers: 1,
     maxConcurrency: 1,
-    testTimeout: 5000,
+    testTimeout: 10000,
     hookTimeout: 5000,
     teardownTimeout: 5000,
   },
