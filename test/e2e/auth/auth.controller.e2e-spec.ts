@@ -17,14 +17,16 @@ describe(AuthController.name, () => {
   let server: App;
 
   beforeAll(async () => {
-    testingFixture = await AppTestingFixture.create({
-      mockKafka: true,
-    });
+    testingFixture = await AppTestingFixture.create({ mockKafka: true });
     usersFixture = testingFixture.getUsersFixture();
     server = (await testingFixture.init()).getHttpServer();
     usersRepository = testingFixture
       .getApp()
       .get<Repository<UserEntity>>(getRepositoryToken(UserEntity));
+  });
+
+  afterAll(async () => {
+    await testingFixture.close();
   });
 
   beforeEach(async () => {

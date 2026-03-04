@@ -3,6 +3,7 @@ import { PostgreSqlContainer } from '@testcontainers/postgresql';
 import { RedisContainer } from '@testcontainers/redis';
 import { KafkaContainer } from '@testcontainers/kafka';
 import { Network, GenericContainer, Wait } from 'testcontainers';
+import data from '../../.docker/debezium/user-outbox-connector.json';
 
 export default async function setup() {
   const network = await new Network().start();
@@ -34,6 +35,9 @@ export default async function setup() {
       .withExposedPorts(9092)
       .withEnvironment({
         KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true',
+        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: '1',
+        KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: '1',
+        KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: '1',
       })
       .withKraft()
       .withHealthCheck({
@@ -105,7 +109,6 @@ export default async function setup() {
   const connectUrl = `http://${connectHost}:${connectPort}`;
 
   // Register Debezium connector
-  const connectorConfig = require('../../.docker/debezium/user-outbox-connector.json');
 
   // Register the connector
   const response = await fetch(`${connectUrl}/connectors`, {
@@ -115,14 +118,17 @@ export default async function setup() {
       Accept: 'application/json',
     },
     body: JSON.stringify({
-      ...connectorConfig,
+      ...data,
       config: {
-        ...connectorConfig.config,
+        ...data.config,
         'database.hostname': 'postgres',
         'database.port': 5432,
         'database.user': pgContainer.getUsername(),
         'database.password': pgContainer.getPassword(),
         'database.dbname': pgContainer.getDatabase(),
+        'topic.creation.default.replication.factor': 1,
+        'topic.creation.default.partitions': 1,
+        'topic.creation.schemahistory.replication.factor': 1,
       },
     }),
   });

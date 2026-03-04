@@ -14,9 +14,12 @@ import { mock } from 'vitest-mock-extended';
 import { AuthenticatedClient } from './authenticated-client';
 import { RefreshTokenFixture } from 'test/fixtures/refresh-token.fixture';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { MAIL_SERVICE } from '@technical/mailing/constants';
+import { MailService } from '@technical/mailing/interfaces/mail-service';
 
 export interface CreateOptions {
-  mockKafka: true;
+  mockKafka?: true;
+  mailerMock?: MailService;
 }
 
 export class AppTestingFixture {
@@ -47,6 +50,10 @@ export class AppTestingFixture {
         .useValue(mock<KafkaJS.Kafka>())
         .overrideProvider(UsersOutboxConsumer)
         .useValue(mock<UsersOutboxConsumer>());
+
+    if (options?.mailerMock) {
+      moduleFixture.overrideProvider(MAIL_SERVICE).useValue(options.mailerMock);
+    }
 
     const app = (await moduleFixture.compile()).createNestApplication<
       INestApplication<App>
