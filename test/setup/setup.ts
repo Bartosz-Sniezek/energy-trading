@@ -108,9 +108,6 @@ export default async function setup() {
   const connectPort = kafkaConnectContainer.getMappedPort(8083);
   const connectUrl = `http://${connectHost}:${connectPort}`;
 
-  // Register Debezium connector
-
-  // Register the connector
   const response = await fetch(`${connectUrl}/connectors`, {
     method: 'POST',
     headers: {
