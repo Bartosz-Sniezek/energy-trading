@@ -1,0 +1,118 @@
+import { RefreshTokenEntity } from '@domain/auth/entities/refresh-token.entity';
+import { InvalidRefreshToken } from '@domain/auth/errors/invalid-refresh-token.error';
+import { RefreshToken, TokenGenerationOutput } from '@domain/auth/types';
+import { UserEntity } from '@modules/users/entities/user.entity';
+import { DatetimeService } from '@technical/datetime/datetime.service';
+import { DataSource, IsNull } from 'typeorm';
+import { TokenService } from '@domain/auth/services/token.service';
+import { InjectDataSource } from '@nestjs/typeorm';
+
+type TransactionResult =
+  | { success: true; data: TokenGenerationOutput }
+  | { success: false; error: Error };
+
+export class RotateTokenUseCase {
+  constructor(
+    @InjectDataSource()
+    private readonly datasource: DataSource,
+    private readonly datetimeService: DatetimeService,
+    private readonly tokenService: TokenService,
+  ) {}
+
+  async execute(token: RefreshToken): Promise<TokenGenerationOutput> {
+    const result = await this.handle(token);
+
+    await this.tokenService.blacklistRefreshToken(token);
+
+    if (!result.success) {
+      throw result.error;
+    }
+
+    return result.data;
+  }
+
+  private async handle(token: RefreshToken): Promise<TransactionResult> {
+    return this.datasource.transaction<TransactionResult>(
+      async (entityManager) => {
+        const tokenRepository = entityManager.getRepository(RefreshTokenEntity);
+
+        const existingToken = await tokenRepository.findOne({
+          where: {
+            token,
+          },
+          lock: {
+            mode: 'pessimistic_write',
+            onLocked: 'nowait',
+          },
+        });
+
+        if (existingToken == null)
+          return { success: false, error: new InvalidRefreshToken() };
+
+        const now = this.datetimeService.new();
+
+        // theft detection, invalidate all user tokens
+        if (existingToken.isRevoked() || existingToken.isReplaced()) {
+          await this.tokenService.blacklistSession(
+            existingToken.userId,
+            existingToken.family,
+          );
+          await tokenRepository.update(
+            {
+              userId: existingToken.userId,
+              family: existingToken.family,
+              revokedAt: IsNull(),
+            },
+            {
+              revokedAt: now,
+            },
+          );
+
+          return { success: false, error: new InvalidRefreshToken() };
+        }
+
+        //expired
+        if (now > existingToken.expiresAt) {
+          return { success: false, error: new InvalidRefreshToken() };
+        }
+
+        const user = await entityManager
+          .getRepository(UserEntity)
+          .findOneBy({ id: existingToken.userId });
+
+        if (user == null)
+          return { success: false, error: new InvalidRefreshToken() };
+        if (!user.isActive)
+          return { success: false, error: new InvalidRefreshToken() };
+
+        const newRefreshToken = this.tokenService.createRefreshToken(
+          user,
+          existingToken.family,
+        );
+        const accessToken = await this.tokenService.generateAccessToken(
+          user,
+          existingToken.family,
+        );
+
+        await tokenRepository.save(newRefreshToken);
+        await tokenRepository.update(
+          {
+            token,
+          },
+          {
+            revokedAt: now,
+            replacedBy: newRefreshToken.id,
+          },
+        );
+
+        return {
+          success: true,
+          data: {
+            accessToken,
+            refreshToken: newRefreshToken.token,
+          },
+        };
+      },
+    );
+  }
+}

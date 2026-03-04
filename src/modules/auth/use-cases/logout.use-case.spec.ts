@@ -37,7 +37,9 @@ describe(LogoutUseCase.name, () => {
     it('should resolve if session is already blacklisted', async () => {
       tokenService.isSessionBlacklisted.mockResolvedValue(true);
 
-      await expect(logoutUseCase.execute(user)).toResolve();
+      await expect(
+        logoutUseCase.execute(user.userId, user.sessionId),
+      ).toResolve();
 
       expect(tokenService.blacklistSession).not.toHaveBeenCalled();
       expect(refreshTokenRepository.update).not.toHaveBeenCalled();
@@ -46,7 +48,9 @@ describe(LogoutUseCase.name, () => {
     it('should blacklist user session', async () => {
       tokenService.isSessionBlacklisted.mockResolvedValue(false);
 
-      await expect(logoutUseCase.execute(user)).toResolve();
+      await expect(
+        logoutUseCase.execute(user.userId, user.sessionId),
+      ).toResolve();
 
       expect(tokenService.blacklistSession).toHaveBeenCalledWith(
         user.userId,
@@ -57,7 +61,9 @@ describe(LogoutUseCase.name, () => {
     it('should invalidate user token', async () => {
       tokenService.isSessionBlacklisted.mockResolvedValue(false);
 
-      await expect(logoutUseCase.execute(user)).toResolve();
+      await expect(
+        logoutUseCase.execute(user.userId, user.sessionId),
+      ).toResolve();
 
       expect(refreshTokenRepository.update).toHaveBeenCalledWith(
         {

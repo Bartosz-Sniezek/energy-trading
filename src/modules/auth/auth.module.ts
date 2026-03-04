@@ -12,6 +12,7 @@ import { AuthController } from './auth.controller';
 import { HashingModule } from '@modules/hashing/hashing.module';
 import { LogoutUseCase } from './use-cases/logout.use-case';
 import { AppCacheModule } from '@technical/cache/app-cache.module';
+import { RotateTokenUseCase } from './use-cases/rotate-token.use-case';
 
 @Module({
   imports: [
@@ -22,7 +23,13 @@ import { AppCacheModule } from '@technical/cache/app-cache.module';
     HashingModule,
     TypeOrmModule.forFeature([UserEntity, RefreshTokenEntity]),
   ],
-  providers: [TokenService, CookieService, LoginUseCase, LogoutUseCase],
+  providers: [
+    TokenService,
+    CookieService,
+    LoginUseCase,
+    LogoutUseCase,
+    RotateTokenUseCase,
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}

@@ -4,21 +4,24 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
   Res,
+  UnauthorizedException,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { LoginUseCase } from './use-cases/login.use-case';
 import { LoginDto } from './dtos/login.dto';
 import { Email } from '@domain/users/value-objects/email';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { CookieService } from './cookie.service';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { NotAuthenticatedGuard } from './not-authenticated.guard';
 import { JwtAuthGuard } from '@modules/jwt-auth/jwt-auth.guard';
 import { LogoutUseCase } from './use-cases/logout.use-case';
-import type { AuthenticatedUser } from '@domain/auth/types';
+import type { AuthenticatedUser, RefreshToken } from '@domain/auth/types';
 import { CurrentUser } from '@modules/jwt-auth/current-user.decorator';
+import { RotateTokenUseCase } from './use-cases/rotate-token.use-case';
 
 @Controller('auth')
 @UsePipes(ZodValidationPipe)
@@ -27,6 +30,7 @@ export class AuthController {
     private readonly cookieService: CookieService,
     private readonly loginUseCase: LoginUseCase,
     private readonly logoutUseCase: LogoutUseCase,
+    private readonly rotateTokenUseCase: RotateTokenUseCase,
   ) {}
 
   @UseGuards(NotAuthenticatedGuard)
@@ -51,6 +55,30 @@ export class AuthController {
     return;
   }
 
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refresh(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<void> {
+    const cookieRefreshToken = request.signedCookies['refresh_token'] as
+      | RefreshToken
+      | undefined;
+
+    if (!cookieRefreshToken) throw new UnauthorizedException();
+
+    const { accessToken, refreshToken } =
+      await this.rotateTokenUseCase.execute(cookieRefreshToken);
+
+    this.cookieService.configure({
+      response,
+      accessToken,
+      refreshToken,
+    });
+
+    return;
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   @HttpCode(HttpStatus.OK)
@@ -60,7 +88,7 @@ export class AuthController {
   ): Promise<void> {
     this.cookieService.removeTokens(response);
 
-    await this.logoutUseCase.execute(user);
+    await this.logoutUseCase.execute(user.userId, user.sessionId);
 
     return;
   }

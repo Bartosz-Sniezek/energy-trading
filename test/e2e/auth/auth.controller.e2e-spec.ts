@@ -6,10 +6,14 @@ import { AppTestingFixture } from 'test/helpers/app-testing-fixture';
 import request from 'supertest';
 import { HttpStatus } from '@nestjs/common';
 import { App } from 'supertest/types';
+import { Repository } from 'typeorm';
+import { UserEntity } from '@modules/users/entities/user.entity';
+import { getRepositoryToken } from '@nestjs/typeorm';
 
 describe(AuthController.name, () => {
   let testingFixture: AppTestingFixture;
   let usersFixture: UsersFixture;
+  let usersRepository: Repository<UserEntity>;
   let server: App;
 
   beforeAll(async () => {
@@ -18,6 +22,9 @@ describe(AuthController.name, () => {
     });
     usersFixture = testingFixture.getUsersFixture();
     server = (await testingFixture.init()).getHttpServer();
+    usersRepository = testingFixture
+      .getApp()
+      .get<Repository<UserEntity>>(getRepositoryToken(UserEntity));
   });
 
   beforeEach(async () => {
@@ -95,14 +102,89 @@ describe(AuthController.name, () => {
     });
   });
 
+  describe(AuthController.prototype.refresh.name, () => {
+    const refreshRoute = '/api/auth/refresh';
+
+    it('should return 401 for inactive user', async () => {
+      const client = await testingFixture.createAuthenticatedClient();
+
+      await usersRepository.updateAll({
+        isActive: false,
+      });
+
+      const res = await client.post(refreshRoute);
+
+      expect(res.status).toBe(HttpStatus.UNAUTHORIZED);
+      expect(res.body).toMatchObject({
+        statusCode: 401,
+        message: 'Invalid refresh token',
+      });
+    });
+
+    it('should return 401 when cookie refresh token is not present', async () => {
+      const res = await request(server).post(refreshRoute).send();
+
+      expect(res.status).toBe(HttpStatus.UNAUTHORIZED);
+      expect(res.body).toMatchObject({
+        statusCode: 401,
+        message: 'Unauthorized',
+      });
+    });
+
+    it('should return 200 for authenticated user', async () => {
+      const client = await testingFixture.createAuthenticatedClient();
+
+      const res = await client.post(refreshRoute);
+
+      const [accessTokenCookie, refreshTokenCookie] = res.headers['set-cookie'];
+
+      expect(res.status).toBe(HttpStatus.OK);
+      expect(client.cookie[0]).not.toBe(accessTokenCookie);
+      expect(client.cookie[1]).not.toBe(refreshTokenCookie);
+      expect(accessTokenCookie).not.toInclude('access_token=;');
+      expect(refreshTokenCookie).not.toInclude('refresh_token=;');
+    });
+
+    it('should return 401 for already rotated token', async () => {
+      const client = await testingFixture.createAuthenticatedClient();
+
+      // rotate once
+      await client.post(refreshRoute);
+      // attempt to rotate with same refresh token
+      const res = await client.post(refreshRoute).send();
+
+      expect(res.status).toBe(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('should return 401 on rotated token reuse attempt', async () => {
+      const client = await testingFixture.createAuthenticatedClient();
+
+      // rotate once
+      const { headers } = await client.post(refreshRoute);
+
+      // rotate with same refresh token blacklist
+      const blacklistRes = await client.post(refreshRoute).send();
+
+      expect(blacklistRes.status).toBe(HttpStatus.UNAUTHORIZED);
+
+      // session with rotated tokens should fail after refresh attempt with reused token
+      const res = await request(server)
+        .post(refreshRoute)
+        .set('Cookie', headers['set-cookie'])
+        .send();
+
+      expect(res.status).toBe(HttpStatus.UNAUTHORIZED);
+    });
+  });
+
   describe(AuthController.prototype.logout.name, () => {
     const logoutRoute = '/api/auth/logout';
 
     it('should return 401 when for authenticated user', async () => {
-      const req = await request(server).post(logoutRoute).send();
+      const res = await request(server).post(logoutRoute).send();
 
-      expect(req.status).toBe(HttpStatus.UNAUTHORIZED);
-      expect(req.body).toMatchObject({
+      expect(res.status).toBe(HttpStatus.UNAUTHORIZED);
+      expect(res.body).toMatchObject({
         statusCode: 401,
         message: 'Unauthorized',
       });
