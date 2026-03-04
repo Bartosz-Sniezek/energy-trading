@@ -139,10 +139,16 @@ export default async function setup() {
 
   return function teardown() {
     console.log('Vitest setup teardown');
-    pgContainer.stop().then(() => console.log('PostgreSqlContainer stopped'));
-    redisContainer.stop().then(() => console.log('RedisContainer stopped'));
-    kafkaContainer.stop().then(() => console.log('KafkaContainer stopped'));
-    kafkaConnectContainer
+    void pgContainer
+      .stop()
+      .then(() => console.log('PostgreSqlContainer stopped'));
+    void redisContainer
+      .stop()
+      .then(() => console.log('RedisContainer stopped'));
+    void kafkaContainer
+      .stop()
+      .then(() => console.log('KafkaContainer stopped'));
+    void kafkaConnectContainer
       .stop()
       .then(() => console.log('Debezium kafka connect stopped'));
   };
