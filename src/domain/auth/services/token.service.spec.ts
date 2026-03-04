@@ -35,7 +35,9 @@ describe(TokenService.name, () => {
     cacheMock,
   );
 
-  beforeEach(() => mockReset(cacheMock));
+  beforeEach(() => {
+    mockReset(cacheMock);
+  });
 
   describe(service.createRefreshToken.name, () => {
     it('should create a refresh token with a new family', () => {
@@ -197,41 +199,36 @@ describe(TokenService.name, () => {
 
   describe(service.isRefreshTokenBlacklisted.name, () => {
     it('should return false if user refresh token is not blacklisted', async () => {
-      const userId = randomUserId();
       const refreshToken = <RefreshToken>randomUUID();
       cacheMock.get.mockResolvedValue(undefined);
 
       await expect(
-        service.isRefreshTokenBlacklisted(userId, refreshToken),
+        service.isRefreshTokenBlacklisted(refreshToken),
       ).resolves.toBeFalse();
       expect(cacheMock.get).toHaveBeenCalledWith(
-        `blacklist:refresh_token:${userId}:${refreshToken}`,
+        `blacklist:refresh_token:${refreshToken}`,
       );
     });
 
     it('should return true if user refresh token is blacklisted', async () => {
-      const userId = randomUserId();
       const refreshToken = <RefreshToken>randomUUID();
       cacheMock.get.mockResolvedValue('1');
 
       await expect(
-        service.isRefreshTokenBlacklisted(userId, refreshToken),
+        service.isRefreshTokenBlacklisted(refreshToken),
       ).resolves.toBeTrue();
       expect(cacheMock.get).toHaveBeenCalledWith(
-        `blacklist:refresh_token:${userId}:${refreshToken}`,
+        `blacklist:refresh_token:${refreshToken}`,
       );
     });
   });
 
   describe(service.blacklistRefreshToken.name, () => {
-    it('should set user access token in cache', async () => {
-      const userId = randomUserId();
+    it('should set refresh token in cache', async () => {
       const refreshToken = <RefreshToken>randomUUID();
-      await expect(
-        service.blacklistRefreshToken(userId, refreshToken),
-      ).toResolve();
+      await expect(service.blacklistRefreshToken(refreshToken)).toResolve();
       expect(cacheMock.set).toHaveBeenCalledWith(
-        `blacklist:refresh_token:${userId}:${refreshToken}`,
+        `blacklist:refresh_token:${refreshToken}`,
         '1',
         appConfig.values.JWT_REFRESH_TOKEN_EXPIRATION_SEC * 1000,
       );

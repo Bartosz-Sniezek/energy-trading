@@ -12,6 +12,8 @@ import { UsersFixture } from 'test/fixtures/users-fixture';
 import { DataSource, ObjectLiteral, Repository } from 'typeorm';
 import { mock } from 'vitest-mock-extended';
 import { AuthenticatedClient } from './authenticated-client';
+import { RefreshTokenFixture } from 'test/fixtures/refresh-token.fixture';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 
 export interface CreateOptions {
   mockKafka: true;
@@ -75,6 +77,10 @@ export class AppTestingFixture {
     }
   }
 
+  async clearCache() {
+    await this.app.get<Cache>(CACHE_MANAGER).clear();
+  }
+
   async createAuthenticatedClient(): Promise<AuthenticatedClient> {
     return AuthenticatedClient.create(
       this.app.getHttpServer(),
@@ -84,5 +90,9 @@ export class AppTestingFixture {
 
   getUsersFixture(): UsersFixture {
     return this._usersFixture;
+  }
+
+  getRefreshTokenFixture(): RefreshTokenFixture {
+    return new RefreshTokenFixture(this.app);
   }
 }

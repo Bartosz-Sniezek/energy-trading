@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import { RefreshTokenEntity } from '@domain/auth/entities/refresh-token.entity';
-import { AuthenticatedUser } from '@domain/auth/types';
 import { DatetimeService } from '@technical/datetime/datetime.service';
 import { TokenService } from '@domain/auth/services/token.service';
+import { UserId } from '@modules/users/types';
 
 @Injectable()
 export class LogoutUseCase {
@@ -15,18 +15,18 @@ export class LogoutUseCase {
     private readonly tokenService: TokenService,
   ) {}
 
-  async execute(user: AuthenticatedUser): Promise<void> {
+  async execute(userId: UserId, sessionId: string): Promise<void> {
     const isSessionBlacklisted = await this.tokenService.isSessionBlacklisted(
-      user.userId,
-      user.sessionId,
+      userId,
+      sessionId,
     );
 
     if (isSessionBlacklisted) return;
 
     await this.refreshTokenRepository.update(
       {
-        userId: user.userId,
-        family: user.sessionId,
+        userId,
+        family: sessionId,
         revokedAt: IsNull(),
       },
       {
@@ -34,7 +34,7 @@ export class LogoutUseCase {
       },
     );
 
-    await this.tokenService.blacklistSession(user.userId, user.sessionId);
+    await this.tokenService.blacklistSession(userId, sessionId);
 
     return;
   }

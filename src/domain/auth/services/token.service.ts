@@ -43,11 +43,8 @@ export class TokenService {
     return `blacklist:access_token:${userId}:${token}`;
   }
 
-  private composeRefreshTokenBlacklistKey(
-    userId: UserId,
-    token: RefreshToken,
-  ): string {
-    return `blacklist:refresh_token:${userId}:${token}`;
+  private composeRefreshTokenBlacklistKey(token: RefreshToken): string {
+    return `blacklist:refresh_token:${token}`;
   }
 
   async blacklistAccessToken(
@@ -70,23 +67,17 @@ export class TokenService {
       .then((v) => v != null);
   }
 
-  async blacklistRefreshToken(
-    userId: UserId,
-    token: RefreshToken,
-  ): Promise<void> {
+  async blacklistRefreshToken(token: RefreshToken): Promise<void> {
     await this.cacheService.set(
-      this.composeRefreshTokenBlacklistKey(userId, token),
+      this.composeRefreshTokenBlacklistKey(token),
       '1',
       this.refreshTokenBlacklistTTL,
     );
   }
 
-  async isRefreshTokenBlacklisted(
-    userId: UserId,
-    token: RefreshToken,
-  ): Promise<boolean> {
+  async isRefreshTokenBlacklisted(token: RefreshToken): Promise<boolean> {
     return this.cacheService
-      .get(this.composeRefreshTokenBlacklistKey(userId, token))
+      .get(this.composeRefreshTokenBlacklistKey(token))
       .then((v) => v != null);
   }
 
