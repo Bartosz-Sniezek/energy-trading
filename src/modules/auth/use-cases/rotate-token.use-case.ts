@@ -32,13 +32,15 @@ export class RotateTokenUseCase {
   }
 
   private async handle(token: RefreshToken): Promise<TransactionResult> {
+    const tokenHash = this.tokenService.hashRefreshToken(token);
+
     return this.datasource.transaction<TransactionResult>(
       async (entityManager) => {
         const tokenRepository = entityManager.getRepository(RefreshTokenEntity);
 
         const existingToken = await tokenRepository.findOne({
           where: {
-            token,
+            tokenHash,
           },
           lock: {
             mode: 'pessimistic_write',
@@ -94,14 +96,14 @@ export class RotateTokenUseCase {
           existingToken.family,
         );
 
-        await tokenRepository.save(newRefreshToken);
+        await tokenRepository.save(newRefreshToken.tokenEntity);
         await tokenRepository.update(
           {
-            token,
+            tokenHash,
           },
           {
             revokedAt: now,
-            replacedBy: newRefreshToken.id,
+            replacedBy: newRefreshToken.tokenEntity.id,
           },
         );
 

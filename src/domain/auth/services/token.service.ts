@@ -3,11 +3,23 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AppConfig } from '@technical/app-config/app-config';
 import { DatetimeService } from '@technical/datetime/datetime.service';
-import { AccessToken, AccessTokenPayload, RefreshToken } from '../types';
+import {
+  AccessToken,
+  AccessTokenPayload,
+  RefreshToken,
+  RefreshTokenHash,
+} from '../types';
 import { RefreshTokenEntity } from '@domain/auth/entities/refresh-token.entity';
 import { randomBytes, randomUUID } from 'crypto';
 import { UserId } from '@modules/users/types';
 import { AppCacheService } from '@technical/cache/app-cache.service';
+import crypto from 'crypto';
+
+export interface CreateRefreshTokenOutput {
+  tokenEntity: RefreshTokenEntity;
+  token: RefreshToken;
+  tokenHash: RefreshTokenHash;
+}
 
 @Injectable()
 export class TokenService {
@@ -124,8 +136,12 @@ export class TokenService {
       .then((token) => <AccessToken>token);
   }
 
-  createRefreshToken(user: UserEntity, family?: string): RefreshTokenEntity {
-    const token = randomBytes(64).toString('hex');
+  createRefreshToken(
+    user: UserEntity,
+    family?: string,
+  ): CreateRefreshTokenOutput {
+    const token = this.generateRefreshToken();
+    const tokenHash = this.hashRefreshToken(token);
     const createdAt = this.datetimeService.new();
     const expiresAt = this.datetimeService.addSeconds(
       createdAt,
@@ -133,12 +149,27 @@ export class TokenService {
     );
     const tokenFamily = family ?? randomUUID();
 
-    return RefreshTokenEntity.create({
-      userId: user.id,
-      token: <RefreshToken>token,
-      family: tokenFamily,
-      createdAt,
-      expiresAt,
-    });
+    return {
+      tokenEntity: RefreshTokenEntity.create({
+        userId: user.id,
+        tokenHash,
+        family: tokenFamily,
+        createdAt,
+        expiresAt,
+      }),
+      token,
+      tokenHash,
+    };
+  }
+
+  public hashRefreshToken(token: RefreshToken): RefreshTokenHash {
+    return crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex') as RefreshTokenHash;
+  }
+
+  private generateRefreshToken(): RefreshToken {
+    return randomBytes(64).toString('hex') as RefreshToken;
   }
 }

@@ -42,12 +42,10 @@ describe(RotateTokenUseCase.name, () => {
   describe(RotateTokenUseCase.prototype.execute.name, () => {
     it('should rotate token', async () => {
       const { user } = await usersFixutre.createActivatedUser();
-      const refreshTokenEntity =
-        await refreshTokenFixture.createRefreshTokenFor(user);
+      const { token } = await refreshTokenFixture.createRefreshTokenFor(user);
 
-      const { accessToken, refreshToken } = await rotateTokenUseCase.execute(
-        refreshTokenEntity.token,
-      );
+      const { accessToken, refreshToken } =
+        await rotateTokenUseCase.execute(token);
 
       expect(accessToken).toBeString();
       expect(refreshToken).toBeString();
@@ -56,7 +54,7 @@ describe(RotateTokenUseCase.name, () => {
       expect(entity.id).toBeString();
       expect(entity.userId).toBe(user.id);
       expect(entity.family).toBeString();
-      expect(entity.token).toBeString();
+      expect(entity.tokenHash).toBeString();
       expect(entity.replacedBy).toBeNull();
       expect(entity.revokedAt).toBeNull();
       expect(entity.createdAt).toBeDate();
@@ -64,12 +62,10 @@ describe(RotateTokenUseCase.name, () => {
 
     it('should chain-rotate token', async () => {
       const { user } = await usersFixutre.createActivatedUser();
-      const refreshTokenEntity =
-        await refreshTokenFixture.createRefreshTokenFor(user);
+      const { token } = await refreshTokenFixture.createRefreshTokenFor(user);
 
-      const { accessToken, refreshToken } = await rotateTokenUseCase.execute(
-        refreshTokenEntity.token,
-      );
+      const { accessToken, refreshToken } =
+        await rotateTokenUseCase.execute(token);
 
       expect(accessToken).toBeString();
       expect(refreshToken).toBeString();
@@ -89,7 +85,9 @@ describe(RotateTokenUseCase.name, () => {
       expect(token1Entity.revokedAt).toBeDate();
       expect(token1Entity.userId).toBe(user.id);
       expect(token1Entity.family).toBeString();
-      expect(token1Entity.token).toBe(refreshToken);
+      expect(token1Entity.tokenHash).toBe(
+        tokenService.hashRefreshToken(refreshToken),
+      );
       expect(token1Entity.createdAt).toBeDate();
 
       expect(token2Entity.replacedBy).toBeNull();
@@ -98,10 +96,10 @@ describe(RotateTokenUseCase.name, () => {
       expect(token2Entity.userId).toBe(token1Entity.userId);
 
       await expect(
-        tokenService.isRefreshTokenBlacklisted(token1Entity.token),
+        tokenService.isRefreshTokenBlacklisted(token),
       ).resolves.toBeTrue();
       await expect(
-        tokenService.isRefreshTokenBlacklisted(token2Entity.token),
+        tokenService.isRefreshTokenBlacklisted(tokens2.refreshToken),
       ).resolves.toBeFalse();
     });
 
@@ -115,18 +113,16 @@ describe(RotateTokenUseCase.name, () => {
 
     it('should throw InvalidRefreshToken for non active user', async () => {
       const { user } = await usersFixutre.createUser();
-      const refreshToken =
-        await refreshTokenFixture.createRefreshTokenFor(user);
+      const { token } = await refreshTokenFixture.createRefreshTokenFor(user);
 
-      await expect(
-        rotateTokenUseCase.execute(refreshToken.token),
-      ).rejects.toThrow(InvalidRefreshToken);
+      await expect(rotateTokenUseCase.execute(token)).rejects.toThrow(
+        InvalidRefreshToken,
+      );
     });
 
     it('should throw InvalidRefreshToken for non existing user', async () => {
       const { user } = await usersFixutre.createUser();
-      const refreshToken =
-        await refreshTokenFixture.createRefreshTokenFor(user);
+      const { token } = await refreshTokenFixture.createRefreshTokenFor(user);
       const usersRepository = testingFixture
         .getApp()
         .get<Repository<UserEntity>>(getRepositoryToken(UserEntity));
@@ -135,32 +131,31 @@ describe(RotateTokenUseCase.name, () => {
       });
 
       await expect(usersRepository.findOneByOrFail({ id: user.id })).toReject();
-      await expect(
-        rotateTokenUseCase.execute(refreshToken.token),
-      ).rejects.toThrow(InvalidRefreshToken);
+      await expect(rotateTokenUseCase.execute(token)).rejects.toThrow(
+        InvalidRefreshToken,
+      );
     });
 
     it('should throw InvalidRefreshToken for revoked token', async () => {
       const { user } = await usersFixutre.createActivatedUser();
-      const refreshToken =
-        await refreshTokenFixture.createRefreshTokenFor(user);
+      const { token } = await refreshTokenFixture.createRefreshTokenFor(user);
 
       // rotate once
-      await rotateTokenUseCase.execute(refreshToken.token);
+      await rotateTokenUseCase.execute(token);
 
       // fail on second rotate attempt
-      await expect(
-        rotateTokenUseCase.execute(refreshToken.token),
-      ).rejects.toThrow(InvalidRefreshToken);
+      await expect(rotateTokenUseCase.execute(token)).rejects.toThrow(
+        InvalidRefreshToken,
+      );
     });
 
     it('should invalidate all tokens in a family', async () => {
       const { user } = await usersFixutre.createActivatedUser();
-      const refreshToken1 =
+      const { token: token1, tokenEntity: refreshToken1 } =
         await refreshTokenFixture.createRefreshTokenFor(user);
 
       // rotate once
-      const tokens2 = await rotateTokenUseCase.execute(refreshToken1.token);
+      const tokens2 = await rotateTokenUseCase.execute(token1);
 
       // rotate second time
       const tokens3 = await rotateTokenUseCase.execute(tokens2.refreshToken);
@@ -175,9 +170,7 @@ describe(RotateTokenUseCase.name, () => {
         rotateTokenUseCase.execute(tokens3.refreshToken),
       ).rejects.toThrow(InvalidRefreshToken);
 
-      const token1Entity = await refreshTokenFixture.getEntityByToken(
-        refreshToken1.token,
-      );
+      const token1Entity = await refreshTokenFixture.getEntityByToken(token1);
       const token2Entity = await refreshTokenFixture.getEntityByToken(
         tokens2.refreshToken,
       );
@@ -189,7 +182,7 @@ describe(RotateTokenUseCase.name, () => {
       expect(token1Entity.revokedAt).toBeDate();
       expect(token1Entity.userId).toBe(user.id);
       expect(token1Entity.family).toBeString();
-      expect(token1Entity.token).toBe(refreshToken1.token);
+      expect(token1Entity.tokenHash).toBe(refreshToken1.tokenHash);
       expect(token1Entity.createdAt).toBeDate();
 
       expect(token2Entity.replacedBy).toBe(token3Entity.id);
@@ -212,36 +205,36 @@ describe(RotateTokenUseCase.name, () => {
         ),
       ).resolves.toBeTrue();
       await expect(
-        tokenService.isRefreshTokenBlacklisted(token1Entity.token),
+        tokenService.isRefreshTokenBlacklisted(token1),
       ).resolves.toBeTrue();
       await expect(
-        tokenService.isRefreshTokenBlacklisted(token2Entity.token),
+        tokenService.isRefreshTokenBlacklisted(tokens2.refreshToken),
       ).resolves.toBeTrue();
       await expect(
-        tokenService.isRefreshTokenBlacklisted(token3Entity.token),
+        tokenService.isRefreshTokenBlacklisted(tokens3.refreshToken),
       ).resolves.toBeTrue();
     });
 
     it('should throw InvalidRefreshToken for expired token', async () => {
       const { user } = await usersFixutre.createActivatedUser();
-      const refreshToken =
+      const { tokenEntity, token } =
         await refreshTokenFixture.createRefreshTokenFor(user);
       const now = new Date();
       const expiredTokenDate = subDays(now, 8);
       await refreshTokenRepository.update(
         {
-          token: refreshToken.token,
+          tokenHash: tokenEntity.tokenHash,
         },
         {
           expiresAt: expiredTokenDate,
         },
       );
 
+      await expect(rotateTokenUseCase.execute(token)).rejects.toThrow(
+        InvalidRefreshToken,
+      );
       await expect(
-        rotateTokenUseCase.execute(refreshToken.token),
-      ).rejects.toThrow(InvalidRefreshToken);
-      await expect(
-        tokenService.isRefreshTokenBlacklisted(refreshToken.token),
+        tokenService.isRefreshTokenBlacklisted(token),
       ).resolves.toBeTrue();
     });
   });

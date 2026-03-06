@@ -1,5 +1,8 @@
 import { RefreshTokenEntity } from '@domain/auth/entities/refresh-token.entity';
-import { TokenService } from '@domain/auth/services/token.service';
+import {
+  CreateRefreshTokenOutput,
+  TokenService,
+} from '@domain/auth/services/token.service';
 import { RefreshToken, TokenGenerationOutput } from '@domain/auth/types';
 import { Email } from '@domain/users/value-objects/email';
 import { Password } from '@domain/users/value-objects/password';
@@ -31,10 +34,12 @@ export class RefreshTokenFixture {
     );
   }
 
-  async createRefreshTokenFor(user: UserEntity): Promise<RefreshTokenEntity> {
+  async createRefreshTokenFor(
+    user: UserEntity,
+  ): Promise<CreateRefreshTokenOutput> {
     const refreshToken = this.tokenService.createRefreshToken(user);
 
-    await this.refreshTokenRepository.save(refreshToken);
+    await this.refreshTokenRepository.save(refreshToken.tokenEntity);
 
     return refreshToken;
   }
@@ -48,6 +53,8 @@ export class RefreshTokenFixture {
   }
 
   async getEntityByToken(token: RefreshToken): Promise<RefreshTokenEntity> {
-    return this.refreshTokenRepository.findOneByOrFail({ token });
+    return this.refreshTokenRepository.findOneByOrFail({
+      tokenHash: this.tokenService.hashRefreshToken(token),
+    });
   }
 }

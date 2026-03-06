@@ -41,10 +41,16 @@ describe(TokenService.name, () => {
 
   describe(service.createRefreshToken.name, () => {
     it('should create a refresh token with a new family', () => {
-      const token = service.createRefreshToken(userMock);
+      const {
+        tokenEntity: token,
+        token: refreshToken,
+        tokenHash,
+      } = service.createRefreshToken(userMock);
 
+      expect(refreshToken).not.toBe(tokenHash);
       expect(token.id).toBeString();
       expect(token.userId).toBe(userMock.id);
+      expect(token.tokenHash).toBe(tokenHash);
       expect(token.family).toBeString();
       expect(token.revokedAt).toBeNull();
       expect(token.replacedBy).toBeNull();
@@ -56,10 +62,16 @@ describe(TokenService.name, () => {
 
     it('should create a refresh token reusing a family', () => {
       const family = randomUUID();
-      const token = service.createRefreshToken(userMock, family);
+      const {
+        tokenEntity: token,
+        token: refreshToken,
+        tokenHash,
+      } = service.createRefreshToken(userMock, family);
 
+      expect(refreshToken).not.toBe(tokenHash);
       expect(token.id).toBeString();
       expect(token.userId).toBe(userMock.id);
+      expect(token.tokenHash).toBe(tokenHash);
       expect(token.family).toBe(family);
       expect(token.revokedAt).toBeNull();
       expect(token.replacedBy).toBeNull();
@@ -70,12 +82,22 @@ describe(TokenService.name, () => {
     });
 
     it('should create a different refresh tokens each time', () => {
-      const token = service.createRefreshToken(userMock);
-      const secondToken = service.createRefreshToken(userMock);
+      const {
+        tokenEntity: token,
+        token: refreshToken,
+        tokenHash,
+      } = service.createRefreshToken(userMock);
+      const {
+        tokenEntity: secondToken,
+        token: refreshToken2,
+        tokenHash: tokenHash2,
+      } = service.createRefreshToken(userMock);
 
       expect(token.id).not.toBe(secondToken.id);
       expect(token.userId).toBe(userMock.id);
       expect(token.family).not.toBe(secondToken.id);
+      expect(refreshToken).not.toBe(refreshToken2);
+      expect(tokenHash).not.toBe(tokenHash2);
     });
   });
 

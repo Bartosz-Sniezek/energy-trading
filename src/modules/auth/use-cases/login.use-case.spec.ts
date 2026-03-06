@@ -8,7 +8,12 @@ import { randomEmail } from 'test/faker/random-email';
 import { randomPassword } from 'test/faker/random-password';
 import { InvalidCredentialsError } from '@domain/auth/errors/invalid-credentials.error';
 import { randomBytes, randomUUID } from 'crypto';
-import { AccessToken, RefreshToken, RefreshTokenId } from '@domain/auth/types';
+import {
+  AccessToken,
+  RefreshToken,
+  RefreshTokenHash,
+  RefreshTokenId,
+} from '@domain/auth/types';
 import { HashingService } from '@modules/hashing/hashing.service';
 import { Hash } from '@modules/users/types';
 import { AccountNotActivatedError } from '@domain/auth/errors/account-not-activated.error';
@@ -17,10 +22,11 @@ describe(LoginUseCase.name, () => {
   const usersRepository = mock<Repository<UserEntity>>();
   const refreshTokenRepository = mock<Repository<RefreshTokenEntity>>();
   const tokenService = mock<TokenService>();
-  const refreshTokenValueMock = randomBytes(50).toString('hex') as RefreshToken;
+  const refreshToken = randomBytes(64).toString('hex') as RefreshToken;
+  const refreshTokenHash = randomBytes(50).toString('hex') as RefreshTokenHash;
   const refreshTokenEntityMock = mock<RefreshTokenEntity>({
     id: <RefreshTokenId>randomUUID(),
-    token: refreshTokenValueMock,
+    tokenHash: refreshTokenHash,
     family: randomUUID(),
   });
   const hashingService = mock<HashingService>();
@@ -38,7 +44,11 @@ describe(LoginUseCase.name, () => {
     mockReset(refreshTokenRepository);
     mockReset(tokenService);
     mockReset(hashingService);
-    tokenService.createRefreshToken.mockReturnValue(refreshTokenEntityMock);
+    tokenService.createRefreshToken.mockReturnValue({
+      tokenEntity: refreshTokenEntityMock,
+      token: refreshToken,
+      tokenHash: refreshTokenHash,
+    });
     tokenService.generateAccessToken.mockResolvedValue(accessTokenMock);
   });
 
@@ -107,7 +117,7 @@ describe(LoginUseCase.name, () => {
 
       expect(tokens).toMatchObject<LoginOutput>({
         accessToken: accessTokenMock,
-        refreshToken: refreshTokenValueMock,
+        refreshToken,
       });
       expect(hashingService.compare).toHaveBeenCalledWith(
         password.getValue(),

@@ -1,13 +1,13 @@
-import { randomRefreshToken } from 'test/faker/random-refresh-token';
 import { RefreshTokenEntity } from './refresh-token.entity';
 import { randomUserId } from 'test/faker/random-user-id';
 import { addMinutes } from 'date-fns';
 import { randomUUID } from 'crypto';
+import { RefreshTokenHash } from '../types';
 
 describe(RefreshTokenEntity.name, () => {
   describe(RefreshTokenEntity.create.name, () => {
     it('should create RefreshTokenEntity instance', () => {
-      const token = randomRefreshToken();
+      const token = randomUUID() as RefreshTokenHash;
       const userId = randomUserId();
       const createdAt = new Date();
       const family = randomUUID();
@@ -15,7 +15,7 @@ describe(RefreshTokenEntity.name, () => {
 
       const refreshToken = RefreshTokenEntity.create({
         userId,
-        token,
+        tokenHash: token,
         family,
         createdAt,
         expiresAt,
@@ -23,7 +23,7 @@ describe(RefreshTokenEntity.name, () => {
 
       expect(refreshToken.id).toBeString();
       expect(refreshToken.userId).toBe(userId);
-      expect(refreshToken.token).toBe(token);
+      expect(refreshToken.tokenHash).toBe(token);
       expect(refreshToken.family).toBe(family);
       expect(refreshToken.expiresAt.getTime()).toBe(expiresAt.getTime());
       expect(refreshToken.createdAt.getTime()).toBe(createdAt.getTime());
