@@ -4,14 +4,14 @@ import {
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import type { RefreshToken, RefreshTokenId } from '@domain/auth/types';
+import type { RefreshTokenHash, RefreshTokenId } from '@domain/auth/types';
 import type { UserId } from '@modules/users/types';
 import { v7 } from 'uuid';
 import type { Nullable } from '@utils/nullable';
 
 export interface RefreshTokenEntityCreateOptions {
   userId: UserId;
-  token: RefreshToken;
+  tokenHash: RefreshTokenHash;
   family: string;
   expiresAt: Date;
   createdAt: Date;
@@ -26,7 +26,7 @@ export class RefreshTokenEntity {
   readonly userId: UserId;
 
   @Column({ name: 'token', type: 'text', unique: true })
-  readonly token: RefreshToken;
+  readonly tokenHash: RefreshTokenHash;
 
   @Column({ name: 'family', type: 'uuid' })
   readonly family: string;
@@ -51,7 +51,7 @@ export class RefreshTokenEntity {
     return Object.assign(new RefreshTokenEntity(), <RefreshTokenEntity>{
       id: v7(),
       userId: options.userId,
-      token: options.token,
+      tokenHash: options.tokenHash,
       family: options.family,
       replacedBy: null,
       revokedAt: null,
