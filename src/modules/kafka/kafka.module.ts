@@ -3,7 +3,6 @@ import { KafkaJS } from '@confluentinc/kafka-javascript';
 import { createTopics, CreateTopticOptions } from './create-topics';
 import { AppConfig } from '@technical/app-config/app-config';
 import { AppConfigModule } from '@technical/app-config/app-config.module';
-import { ConsumerFactory } from './consumer.factory';
 import { KAFKA_SERVICE } from './constants';
 
 export interface KafkaModuleOptions {
@@ -33,9 +32,8 @@ export class KafkaModule {
             return kafka;
           },
         },
-        ConsumerFactory,
       ],
-      exports: [KAFKA_SERVICE, ConsumerFactory],
+      exports: [KAFKA_SERVICE],
     };
   }
 }
