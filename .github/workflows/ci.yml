@@ -11,21 +11,19 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:18.1
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test_db
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
+    env:
+      MAILER_FROM: test@example.com
+      MAILER_TRANSPORT_MODE: console
+      KAFKA_USERS_OUTBOX_TOPIC: users.events.USER
+      KAFKA_USERS_OUTBOX_TOPIC_DLQ: users.events.USER.dlq
+      EMAIL_NOTIFIER_CONSUMER_GROUP_ID: users.outbox.email-notifiers
+      EMAIL_NOTIFIER_CONSUMER_RETRY_BASE_DELAY: 100
+      EMAIL_NOTIFIER_CONSUMER_MAX_RETRIES: 5
+      KAFKA_LOG_LEVEL: 0
+      JWT_ACCESS_TOKEN_SECRET: access_token_secret
+      JWT_ACCESS_TOKEN_EXPIRATION_SEC: 900
+      JWT_REFRESH_TOKEN_EXPIRATION_SEC: 604800
+      COOKIE_SECRET: cookie_secret
 
     steps:
       - uses: actions/checkout@v4
@@ -53,12 +51,6 @@ jobs:
 
       - name: Integration Tests
         run: pnpm test:integration
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
-          KAFKA_BROKER: localhost:9094
 
       - name: E2E Tests
         run: pnpm test:e2e
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
-          KAFKA_BROKER: localhost:9094
