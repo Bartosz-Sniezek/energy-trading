@@ -1,0 +1,47 @@
+{
+  "name": "@energy-trading/shared",
+  "version": "0.1.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./common": {
+      "import": "./dist/common/index.js",
+      "require": "./dist/common/index.js",
+      "types": "./dist/common/index.d.js"
+    },
+    "./schemas": {
+      "import": "./dist/schemas/index.js",
+      "require": "./dist/schemas/index.js",
+      "types": "./dist/schemas/index.d.js"
+    },
+    "./types": {
+      "import": "./dist/types/index.js",
+      "require": "./dist/types/index.js",
+      "types": "./dist/types/index.d.js"
+    }
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "eslint": "^10.0.3",
+    "prettier": "^3.4.2",
+    "typescript": "^5.9.3"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "zod": "^4.3.6"
+  }
+}
