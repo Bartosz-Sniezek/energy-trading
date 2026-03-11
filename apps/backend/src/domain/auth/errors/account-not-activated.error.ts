@@ -4,7 +4,7 @@ import { ErrorCode } from '@energy-trading/shared/errors';
 export class AccountNotActivatedError extends DomainError {
   constructor() {
     super(
-      'Account not activated error',
+      'Account not activated',
       400,
       ErrorCode.USER_ACCOUNT_NOT_ACTIVATED,
     );

@@ -90,7 +90,7 @@ describe(AuthController.name, () => {
       expect(res.status).toBe(HttpStatus.BAD_REQUEST);
       expect(res.body).toMatchObject<ProblemDetails>({
         type: resolveProblemDetailsUrn(ErrorCode.USER_ACCOUNT_NOT_ACTIVATED),
-        title: 'Account not activated error',
+        title: 'Account not activated',
         status: 400,
         instance: '/api/auth/login',
       });
