@@ -2,6 +2,7 @@ import { Inject, Injectable, Optional } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Hash } from '../users/types';
 import { HASHING_SERVICE_SALT_ROUNDS } from './constants';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class HashingService {
@@ -17,5 +18,9 @@ export class HashingService {
 
   async compare(password: string, hash: Hash): Promise<boolean> {
     return bcrypt.compare(password, hash);
+  }
+
+  async dummyHash(): Promise<void> {
+    await bcrypt.hash(randomBytes(4).toString('hex'), this.saltRounds);
   }
 }

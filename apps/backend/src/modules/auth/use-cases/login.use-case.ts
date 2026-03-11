@@ -36,7 +36,11 @@ export class LoginUseCase {
       email: options.email.getValue(),
     });
 
-    if (user == null) throw new InvalidCredentialsError();
+    if (user == null) {
+      // do dummy hashing to prevent email enumeration (increase response time)
+      await this.hashingService.dummyHash();
+      throw new InvalidCredentialsError();
+    }
 
     const passwordMatch = await this.hashingService.compare(
       options.password,
