@@ -1,8 +1,9 @@
 import { mock } from 'vitest-mock-extended';
 import { NotAuthenticatedGuard } from './not-authenticated.guard';
-import { BadRequestException, ExecutionContext } from '@nestjs/common';
+import { ExecutionContext } from '@nestjs/common';
 import { Request } from 'express';
 import { HttpArgumentsHost } from '@nestjs/common/interfaces';
+import { AlreadyAuthenticatedError } from '@domain/auth/errors/already-authenticated.error';
 
 describe(NotAuthenticatedGuard.name, () => {
   const guard = new NotAuthenticatedGuard();
@@ -18,7 +19,7 @@ describe(NotAuthenticatedGuard.name, () => {
       contextMock.switchToHttp.mockReturnValue(httpArgumentsHostMock);
 
       expect(() => guard.canActivate(contextMock)).toThrow(
-        new BadRequestException('Already authenticated'),
+        AlreadyAuthenticatedError,
       );
     });
 

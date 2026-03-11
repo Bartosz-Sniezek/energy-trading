@@ -9,6 +9,11 @@ import { App } from 'supertest/types';
 import { Repository } from 'typeorm';
 import { UserEntity } from '@modules/users/entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { ProblemDetails } from '@energy-trading/shared/types';
+import {
+  ErrorCode,
+  resolveProblemDetailsUrn,
+} from '@energy-trading/shared/errors';
 
 describe(AuthController.name, () => {
   let testingFixture: AppTestingFixture;
@@ -46,10 +51,11 @@ describe(AuthController.name, () => {
       });
 
       expect(req.status).toBe(HttpStatus.UNAUTHORIZED);
-      expect(req.body).toMatchObject({
-        statusCode: 401,
-        message: 'Invalid credentials',
-        error: 'Domain Error',
+      expect(req.body).toMatchObject<ProblemDetails>({
+        type: resolveProblemDetailsUrn(ErrorCode.INVALID_CREDENTIALS),
+        title: 'Invalid credentials',
+        status: 401,
+        instance: '/api/auth/login',
       });
       expect(req.header['set-cookie']).toBeUndefined();
     });
@@ -58,49 +64,51 @@ describe(AuthController.name, () => {
       const { email } = await usersFixture.createActivatedUser();
       const password = randomPassword();
 
-      const req = await request(server).post(loginRoute).send({
+      const res = await request(server).post(loginRoute).send({
         email: email.getValue(),
         password: password.getValue(),
       });
 
-      expect(req.status).toBe(HttpStatus.UNAUTHORIZED);
-      expect(req.body).toMatchObject({
-        statusCode: 401,
-        message: 'Invalid credentials',
-        error: 'Domain Error',
+      expect(res.status).toBe(HttpStatus.UNAUTHORIZED);
+      expect(res.body).toMatchObject<ProblemDetails>({
+        type: resolveProblemDetailsUrn(ErrorCode.INVALID_CREDENTIALS),
+        title: 'Invalid credentials',
+        status: 401,
+        instance: '/api/auth/login',
       });
-      expect(req.header['set-cookie']).toBeUndefined();
+      expect(res.header['set-cookie']).toBeUndefined();
     });
 
     it('should return 400 when user account is inactive', async () => {
       const { email, password } = await usersFixture.createUser();
 
-      const req = await request(server).post(loginRoute).send({
+      const res = await request(server).post(loginRoute).send({
         email: email.getValue(),
         password: password.getValue(),
       });
 
-      expect(req.status).toBe(HttpStatus.BAD_REQUEST);
-      expect(req.body).toMatchObject({
-        statusCode: 400,
-        message: 'Account not activated error',
-        error: 'Domain Error',
+      expect(res.status).toBe(HttpStatus.BAD_REQUEST);
+      expect(res.body).toMatchObject<ProblemDetails>({
+        type: resolveProblemDetailsUrn(ErrorCode.USER_ACCOUNT_NOT_ACTIVATED),
+        title: 'Account not activated error',
+        status: 400,
+        instance: '/api/auth/login',
       });
-      expect(req.header['set-cookie']).toBeUndefined();
+      expect(res.header['set-cookie']).toBeUndefined();
     });
 
     it('should set cookies for existing user with correct credentials', async () => {
       const { email, password } = await usersFixture.createActivatedUser();
 
-      const req = await request(server).post(loginRoute).send({
+      const res = await request(server).post(loginRoute).send({
         email: email.getValue(),
         password: password.getValue(),
       });
 
-      expect(req.status).toBe(HttpStatus.OK);
-      expect(req.header['set-cookie']).toBeDefined();
-      expect(req.header['set-cookie'][0]).toContain('access_token');
-      expect(req.header['set-cookie'][1]).toContain('refresh_token');
+      expect(res.status).toBe(HttpStatus.OK);
+      expect(res.header['set-cookie']).toBeDefined();
+      expect(res.header['set-cookie'][0]).toContain('access_token');
+      expect(res.header['set-cookie'][1]).toContain('refresh_token');
     });
   });
 
@@ -117,9 +125,11 @@ describe(AuthController.name, () => {
       const res = await client.post(refreshRoute);
 
       expect(res.status).toBe(HttpStatus.UNAUTHORIZED);
-      expect(res.body).toMatchObject({
-        statusCode: 401,
-        message: 'Invalid refresh token',
+      expect(res.body).toMatchObject<ProblemDetails>({
+        type: resolveProblemDetailsUrn(ErrorCode.INVALID_REFRESH_TOKEN),
+        title: 'Invalid refresh token',
+        status: 401,
+        instance: '/api/auth/refresh',
       });
     });
 
@@ -127,9 +137,11 @@ describe(AuthController.name, () => {
       const res = await request(server).post(refreshRoute).send();
 
       expect(res.status).toBe(HttpStatus.UNAUTHORIZED);
-      expect(res.body).toMatchObject({
-        statusCode: 401,
-        message: 'Unauthorized',
+      expect(res.body).toMatchObject<ProblemDetails>({
+        type: `urn:problem:unauthorized-exception`,
+        title: 'Unauthorized',
+        status: 401,
+        instance: '/api/auth/refresh',
       });
     });
 
@@ -186,9 +198,11 @@ describe(AuthController.name, () => {
       const res = await request(server).post(logoutRoute).send();
 
       expect(res.status).toBe(HttpStatus.UNAUTHORIZED);
-      expect(res.body).toMatchObject({
-        statusCode: 401,
-        message: 'Unauthorized',
+      expect(res.body).toMatchObject<ProblemDetails>({
+        type: `urn:problem:unauthorized-exception`,
+        title: 'Unauthorized',
+        status: 401,
+        instance: '/api/auth/logout',
       });
     });
 

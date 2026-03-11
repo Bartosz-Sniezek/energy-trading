@@ -5,16 +5,6 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    },
-    "./common": {
-      "import": "./dist/common/index.js",
-      "require": "./dist/common/index.js",
-      "types": "./dist/common/index.d.js"
-    },
     "./schemas": {
       "import": "./dist/schemas/index.js",
       "require": "./dist/schemas/index.js",
@@ -24,6 +14,11 @@
       "import": "./dist/types/index.js",
       "require": "./dist/types/index.js",
       "types": "./dist/types/index.d.js"
+    },
+    "./errors": {
+      "import": "./dist/errors/index.js",
+      "require": "./dist/errors/index.js",
+      "types": "./dist/errors/index.d.js"
     }
   },
   "scripts": {
