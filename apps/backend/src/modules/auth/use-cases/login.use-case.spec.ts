@@ -67,6 +67,32 @@ describe(LoginUseCase.name, () => {
       expect(refreshTokenRepository.save).not.toHaveBeenCalled();
     });
 
+    it('should perform dummy hash to increase prevent side-channel email enumaration', async () => {
+      usersRepository.findOneBy.mockResolvedValue(null);
+
+      await expect(
+        loginUseCase.execute({
+          email: randomEmail(),
+          password: randomPassword().getValue(),
+        }),
+      ).rejects.toThrow(InvalidCredentialsError);
+      expect(hashingService.dummyHash).toHaveBeenCalledOnce();
+    });
+
+    it('should ignore dummy hashing when user exist', async () => {
+      const userMock = mock<UserEntity>();
+      usersRepository.findOneBy.mockResolvedValue(userMock);
+      hashingService.compare.mockResolvedValue(false);
+
+      await expect(
+        loginUseCase.execute({
+          email: randomEmail(),
+          password: randomPassword().getValue(),
+        }),
+      ).rejects.toThrow(InvalidCredentialsError);
+      expect(hashingService.dummyHash).not.toHaveBeenCalledOnce();
+    });
+
     it('should throw InvalidCredentialsError when user password does not match', async () => {
       const userMock = mock<UserEntity>();
       usersRepository.findOneBy.mockResolvedValue(userMock);
