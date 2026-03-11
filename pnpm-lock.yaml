@@ -13,6 +13,9 @@ importers:
       '@confluentinc/kafka-javascript':
         specifier: ^1.8.0
         version: 1.8.2
+      '@energy-trading/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@keyv/redis':
         specifier: ^5.1.6
         version: 5.1.6(keyv@5.6.0)

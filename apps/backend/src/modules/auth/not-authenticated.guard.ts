@@ -1,9 +1,5 @@
-import {
-  BadRequestException,
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-} from '@nestjs/common';
+import { AlreadyAuthenticatedError } from '@domain/auth/errors/already-authenticated.error';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Request } from 'express';
 
 @Injectable()
@@ -12,7 +8,7 @@ export class NotAuthenticatedGuard implements CanActivate {
     const request: Request = context.switchToHttp().getRequest();
 
     if (request?.signedCookies?.access_token) {
-      throw new BadRequestException('Already authenticated');
+      throw new AlreadyAuthenticatedError();
     }
 
     return true;

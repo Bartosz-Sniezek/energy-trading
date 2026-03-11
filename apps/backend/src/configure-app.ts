@@ -1,4 +1,4 @@
-import { DomainErrorFilter } from '@common/filters/domain-error.filter';
+import { ProblemDetailsErrorFilter } from '@common/filters/problem-details-error.filter';
 import { INestApplication } from '@nestjs/common';
 import { AppConfig } from '@technical/app-config/app-config';
 import cookieParser from 'cookie-parser';
@@ -9,5 +9,5 @@ export const configureApp = (app: INestApplication): void => {
   app.setGlobalPrefix('api');
 
   app.use(cookieParser(config.values.COOKIE_SECRET));
-  app.useGlobalFilters(new DomainErrorFilter());
+  app.useGlobalFilters(new ProblemDetailsErrorFilter());
 };
