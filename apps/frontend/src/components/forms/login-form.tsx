@@ -18,6 +18,39 @@ import { useRouter } from "next/navigation";
 import { OrSeparator } from "../separator";
 import { SignInDto } from "@energy-trading/shared/types";
 import { signInDtoSchema } from "@energy-trading/shared/schemas";
+import {
+  ErrorCode,
+  resolveProblemDetailsUrn,
+} from "@energy-trading/shared/errors";
+import { JSX } from "react";
+import { isProblemDetailsError } from "@/api/problem-details.error";
+
+const getErrorComponent = (error: unknown): JSX.Element | null => {
+  console.log("hmmm???", error);
+  if (!error) return null;
+
+  if (isProblemDetailsError(error)) {
+    if (
+      error.details.type ===
+      resolveProblemDetailsUrn(ErrorCode.USER_ACCOUNT_NOT_ACTIVATED)
+    ) {
+      return (
+        <div className="flex flex-col gap-3">
+          <FieldError>Your account hasn’t been activated yet.</FieldError>
+          <Button type="button" variant="outline">
+            <span>Resend activation link</span>
+          </Button>
+        </div>
+      );
+    }
+
+    return <FieldError>{error.details.title}</FieldError>;
+  }
+
+  if (error instanceof Error) return <FieldError>{error.message}</FieldError>;
+
+  return <FieldError>Something went wrong</FieldError>;
+};
 
 export const LoginForm = () => {
   const form = useForm<SignInDto>({
@@ -104,11 +137,11 @@ export const LoginForm = () => {
                 );
               }}
             />
-            {error && <FieldError>{error.message}</FieldError>}
+            {error && getErrorComponent(error)}
           </FieldGroup>
         </form>
       </CardContent>
-      <CardFooter className="flex flex-col gap-3 border-0 bg-white">
+      <CardFooter className="flex flex-col gap-3 border-0 bg-white pt-0">
         <Field>
           <Button type="submit" form="signin-form" disabled={isPending}>
             Sign in
