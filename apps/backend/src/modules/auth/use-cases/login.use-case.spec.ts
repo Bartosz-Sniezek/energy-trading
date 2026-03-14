@@ -115,10 +115,17 @@ describe(LoginUseCase.name, () => {
       });
       usersRepository.findOneBy.mockResolvedValue(userMock);
       hashingService.compare.mockResolvedValue(true);
+      const email = randomEmail();
+      tokenService.generateResendActivationChallenge.mockResolvedValueOnce({
+        challengeKey: randomUUID(),
+        email,
+        expiresAt: new Date(),
+        token: randomBytes(4).toString('hex'),
+      });
 
       await expect(
         loginUseCase.execute({
-          email: randomEmail(),
+          email,
           password: randomPassword().getValue(),
         }),
       ).rejects.toThrow(AccountNotActivatedError);

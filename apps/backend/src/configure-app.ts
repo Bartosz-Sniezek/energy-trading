@@ -9,5 +9,5 @@ export const configureApp = (app: INestApplication): void => {
   app.setGlobalPrefix('api');
 
   app.use(cookieParser(config.values.COOKIE_SECRET));
-  app.useGlobalFilters(new ProblemDetailsErrorFilter());
+  // app.useGlobalFilters(new ProblemDetailsErrorFilter());
 };

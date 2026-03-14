@@ -8,4 +8,8 @@ export class DomainError extends Error {
   ) {
     super(message);
   }
+
+  getProperties(): Record<string, string> | undefined {
+    return undefined;
+  }
 }

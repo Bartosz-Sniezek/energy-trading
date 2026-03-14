@@ -12,25 +12,33 @@ export abstract class ApiClient {
   protected async request<T>(
     url: string,
     method: string,
-    init: ApiClientRequest,
+    init?: ApiClientRequest,
   ): Promise<T> {
     const res = await fetch(url, {
       ...init,
       method,
       headers: {
         ...this.headers,
-        ...init.headers,
+        ...init?.headers,
       },
     });
 
     const body = await res.json().catch(() => null);
 
     if (!res.ok) {
+      if (res.status === 500)
+        throw new ProblemDetailsError({
+          type: "about:blank",
+          title: "Something went wrong. Try again later.",
+          status: res.status,
+          instance: url,
+        });
+
       if (isProblemDetails(body)) throw new ProblemDetailsError(body);
 
       throw new ProblemDetailsError({
         type: "about:blank",
-        title: "Something went wrong",
+        title: "Something went wrong. Try again later.",
         status: res.status,
         instance: url,
       });
@@ -39,15 +47,15 @@ export abstract class ApiClient {
     return body;
   }
 
-  protected async get<T>(url: string, init: GetApiClientRequest): Promise<T> {
+  protected async get<T>(url: string, init?: GetApiClientRequest): Promise<T> {
     return this.request(url, "GET", init);
   }
 
-  protected async post<T>(url: string, init: ApiClientRequest): Promise<T> {
+  protected async post<T>(url: string, init?: ApiClientRequest): Promise<T> {
     return this.request(url, "POST", init);
   }
 
-  protected async delete<T>(url: string, init: ApiClientRequest): Promise<T> {
+  protected async delete<T>(url: string, init?: ApiClientRequest): Promise<T> {
     return this.request(url, "DELETE", init);
   }
 }

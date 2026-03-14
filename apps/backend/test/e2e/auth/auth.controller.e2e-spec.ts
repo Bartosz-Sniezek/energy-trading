@@ -93,8 +93,31 @@ describe(AuthController.name, () => {
         title: 'Account not activated',
         status: 400,
         instance: '/api/auth/login',
+        properties: {
+          challenge: expect.toBeString(),
+          expirationDate: expect.toBeDateString(),
+        },
       });
       expect(res.header['set-cookie']).toBeUndefined();
+    });
+
+    it('should return same challenge in short period of time when user account is inactive', async () => {
+      const { email, password } = await usersFixture.createUser();
+
+      const [res1, res2] = await Promise.all([
+        request(server).post(loginRoute).send({
+          email: email.getValue(),
+          password: password.getValue(),
+        }),
+        request(server).post(loginRoute).send({
+          email: email.getValue(),
+          password: password.getValue(),
+        }),
+      ]);
+
+      expect(res1.status).toBe(HttpStatus.BAD_REQUEST);
+      expect(res2.status).toBe(HttpStatus.BAD_REQUEST);
+      expect(res1.body.properties).toMatchObject(res2.body.properties);
     });
 
     it('should set cookies for existing user with correct credentials', async () => {

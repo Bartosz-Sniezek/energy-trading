@@ -1,5 +1,8 @@
 import { InvalidCredentialsError } from '@domain/auth/errors/invalid-credentials.error';
-import { TokenService } from '@domain/auth/services/token.service';
+import {
+  AccountActivationChallenge,
+  TokenService,
+} from '@domain/auth/services/token.service';
 import { Email } from '@domain/users/value-objects/email';
 import { UserEntity } from '@modules/users/entities/user.entity';
 import { Injectable } from '@nestjs/common';
@@ -48,7 +51,14 @@ export class LoginUseCase {
     );
 
     if (!passwordMatch) throw new InvalidCredentialsError();
-    if (!user.isActive) throw new AccountNotActivatedError();
+    if (!user.isActive) {
+      const challange = await this.getResendActivationChallenge(options.email);
+
+      throw new AccountNotActivatedError({
+        challenge: challange.token,
+        expirationDate: challange.expiresAt,
+      });
+    }
 
     const { tokenEntity, token } = this.tokenService.createRefreshToken(user);
     const accessToken = await this.tokenService.generateAccessToken(
@@ -62,5 +72,15 @@ export class LoginUseCase {
       accessToken,
       refreshToken: token,
     };
+  }
+
+  private async getResendActivationChallenge(
+    email: Email,
+  ): Promise<AccountActivationChallenge> {
+    const data = await this.tokenService.getAccountActivationChallengeByEmail(email);
+
+    if (data) return data;
+
+    return this.tokenService.generateResendActivationChallenge(email);
   }
 }

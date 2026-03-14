@@ -13,6 +13,8 @@ import { HashingModule } from '@modules/hashing/hashing.module';
 import { LogoutUseCase } from './use-cases/logout.use-case';
 import { AppCacheModule } from '@technical/cache/app-cache.module';
 import { RotateTokenUseCase } from './use-cases/rotate-token.use-case';
+import { AccountTokenActivationResendRequestedUseCase } from './use-cases/account-token-activation-resend-requested.use-case';
+import { TokensService } from '@modules/users/token.service';
 
 @Module({
   imports: [
@@ -25,10 +27,12 @@ import { RotateTokenUseCase } from './use-cases/rotate-token.use-case';
   ],
   providers: [
     TokenService,
+    TokensService,
     CookieService,
     LoginUseCase,
     LogoutUseCase,
     RotateTokenUseCase,
+    AccountTokenActivationResendRequestedUseCase,
   ],
   controllers: [AuthController],
 })
