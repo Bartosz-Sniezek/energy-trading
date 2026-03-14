@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 export const passwordSchema = z
   .string()
@@ -22,7 +22,6 @@ export const signUpDtoSchema = z.object({
 export type SignUpDto = z.infer<typeof signUpDtoSchema>;
 
 export const signUp = async (data: SignUpDto): Promise<void> => {
-  console.log(data);
   const res = await fetch("/api/users", {
     method: "POST",
     body: JSON.stringify(data),
@@ -41,8 +40,6 @@ export const signUp = async (data: SignUpDto): Promise<void> => {
 };
 
 export const useSignUp = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (data: SignUpDto) => signUp(data),
   });

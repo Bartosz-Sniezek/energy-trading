@@ -1,15 +1,21 @@
 import { mock, mockReset } from 'vitest-mock-extended';
-import { TokenService } from './token.service';
+import {
+  AccountActivationChallenge,
+  SerializedAccountActivationChallenge,
+  TokenService,
+} from './token.service';
 import { AppConfig } from '@technical/app-config/app-config';
 import { JwtService } from '@nestjs/jwt';
 import { DatetimeService } from '@technical/datetime/datetime.service';
 import { UserEntity } from '@modules/users/entities/user.entity';
 import { randomUserId } from 'test/faker/random-user-id';
 import { vi } from 'vitest';
-import { randomUUID } from 'crypto';
+import { randomBytes, randomUUID } from 'crypto';
 import { randomEmail } from 'test/faker/random-email';
 import { AccessToken, AccessTokenPayload, RefreshToken } from '../types';
 import { AppCacheService } from '@technical/cache/app-cache.service';
+import { Email } from '@domain/users/value-objects/email';
+import { addSeconds } from 'date-fns';
 
 describe(TokenService.name, () => {
   const appConfig = mock<AppConfig>({
@@ -254,6 +260,94 @@ describe(TokenService.name, () => {
         '1',
         appConfig.values.JWT_REFRESH_TOKEN_EXPIRATION_SEC * 1000,
       );
+    });
+  });
+
+  describe('account activation challenge', () => {
+    let email: Email;
+
+    beforeEach(() => {
+      email = randomEmail();
+    });
+
+    describe(service.getAccountActivationChallengeByEmail.name, () => {
+      it('should reach cache with valid key', async () => {
+        await expect(
+          service.getAccountActivationChallengeByEmail(email),
+        ).resolves.toBeNull();
+        expect(cacheMock.get).toHaveBeenCalledWith(
+          `key:account_activation_token_challenge:by:email:${email.getValue()}`,
+        );
+      });
+
+      it('should resolve account activation challenge key by email', async () => {
+        cacheMock.get.mockResolvedValueOnce(randomUUID());
+
+        await expect(
+          service.getAccountActivationChallengeByEmail(email),
+        ).resolves.toBeNull();
+        expect(cacheMock.get).toHaveBeenCalledWith(
+          `key:account_activation_token_challenge:by:email:${email.getValue()}`,
+        );
+      });
+
+      it('should return data from cache', async () => {
+        const data: SerializedAccountActivationChallenge = {
+          email: email.getValue(),
+          challengeKey: randomUUID(),
+          expiresAt: new Date().toISOString(),
+          token: randomBytes(4).toString('hex'),
+        };
+        const queue = [data.challengeKey, data];
+
+        cacheMock.get.mockImplementation((_key: string) =>
+          Promise.resolve(queue.shift()),
+        );
+
+        const activationChallenge =
+          await service.getAccountActivationChallengeByEmail(email);
+        expect(activationChallenge).toMatchObject<AccountActivationChallenge>({
+          email: Email.create(data.email),
+          challengeKey: data.challengeKey,
+          token: data.token,
+          expiresAt: new Date(data.expiresAt),
+        });
+      });
+    });
+
+    describe(service.generateResendActivationChallenge.name, () => {
+      it('should create and set new token', async () => {
+        cacheMock.get.mockResolvedValue(null);
+        const data = await service.generateResendActivationChallenge(email);
+
+        expect(data).toMatchObject<AccountActivationChallenge>({
+          email,
+          challengeKey: data.challengeKey,
+          token: expect.toBeString(),
+          expiresAt: addSeconds(newDateMock, 1000 * 60),
+        });
+
+        expect(cacheMock.set).toHaveBeenCalledWith(
+          `key:account_activation_token_challenge:by:email:${email.getValue()}`,
+          data.challengeKey,
+          1000 * 60,
+        );
+        expect(cacheMock.set).toHaveBeenCalledWith(
+          `key:account_activation_token_challenge:by:token:${data.token}`,
+          data.challengeKey,
+          1000 * 60,
+        );
+        expect(cacheMock.set).toHaveBeenCalledWith(
+          data.challengeKey,
+          <SerializedAccountActivationChallenge>{
+            email: email.getValue(),
+            challengeKey: data.challengeKey,
+            token: expect.toBeString(),
+            expiresAt: expect.toBeDateString(),
+          },
+          1000 * 60,
+        );
+      });
     });
   });
 });

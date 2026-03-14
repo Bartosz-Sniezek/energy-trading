@@ -2,7 +2,7 @@ import { KafkaJS } from '@confluentinc/kafka-javascript';
 import { HASHING_SERVICE_SALT_ROUNDS } from '@modules/hashing/constants';
 import { KAFKA_SERVICE } from '@modules/kafka/constants';
 import { UsersOutboxConsumer } from '@modules/users-outbox-email-consumer/users-outbox.consumer';
-import { INestApplication, Type } from '@nestjs/common';
+import { INestApplication, Logger, Type } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AppModule } from 'src/app.module';
@@ -16,9 +16,11 @@ import { RefreshTokenFixture } from 'test/fixtures/refresh-token.fixture';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { MAIL_SERVICE } from '@technical/mailing/constants';
 import { MailService } from '@technical/mailing/interfaces/mail-service';
+import { PROBLEM_DETAILS_LOGGER } from '@common/filters/problem-details-error.filter';
 
 export interface CreateOptions {
   mockKafka?: true;
+  useLoggers?: true;
   mailerMock?: MailService;
 }
 
@@ -53,6 +55,12 @@ export class AppTestingFixture {
 
     if (options?.mailerMock) {
       moduleFixture.overrideProvider(MAIL_SERVICE).useValue(options.mailerMock);
+    }
+
+    if (!!options?.useLoggers === false) {
+      moduleFixture
+        .overrideProvider(PROBLEM_DETAILS_LOGGER)
+        .useValue(mock<Logger>());
     }
 
     const app = (await moduleFixture.compile()).createNestApplication<

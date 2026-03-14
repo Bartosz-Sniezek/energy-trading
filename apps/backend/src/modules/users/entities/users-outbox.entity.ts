@@ -3,6 +3,8 @@ import { OutboxEntity } from '@common/abstract/outbox.entity';
 import { Entity } from 'typeorm';
 import { UserId } from '../types';
 import {
+  ActivationTokenResendRequestedPayload,
+  activationTokenResendRequestedPayloadSchema,
   UserAccountActivatedPayload,
   userAccountActivatedPayloadSchema,
   UserAccountCreatedPayload,
@@ -77,6 +79,18 @@ export class UserOutboxEntity extends OutboxEntity<
       userId,
       UserEvents.USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT,
       userAccountRegistrationAttemptedPayloadSchema,
+      payload,
+    );
+  }
+
+  static activationTokenResendRequested(
+    userId: UserId,
+    payload: ActivationTokenResendRequestedPayload,
+  ): UserOutboxEntity {
+    return UserOutboxEntity.createOutboxEvent(
+      userId,
+      UserEvents.ACTIVATION_TOKEN_RESEND_REQUESTED,
+      activationTokenResendRequestedPayloadSchema,
       payload,
     );
   }

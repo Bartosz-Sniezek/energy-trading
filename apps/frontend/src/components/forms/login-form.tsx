@@ -18,34 +18,49 @@ import { useRouter } from "next/navigation";
 import { OrSeparator } from "../separator";
 import { SignInDto } from "@energy-trading/shared/types";
 import { signInDtoSchema } from "@energy-trading/shared/schemas";
-import {
-  ErrorCode,
-  resolveProblemDetailsUrn,
-} from "@energy-trading/shared/errors";
 import { JSX } from "react";
-import { isProblemDetailsError } from "@/api/problem-details.error";
+import {
+  AccountNotActiveProblemDetailsError,
+  isAccountNotActiveProblemDetails,
+  isProblemDetailsError,
+} from "@/api/problem-details.error";
+import { useRequestAuthenticationEmailResend } from "@/hooks/use-request-authentication-email-resend";
 
-const getErrorComponent = (error: unknown): JSX.Element | null => {
-  console.log("hmmm???", error);
+const AccountNotActive = (
+  accountNotActiveError: AccountNotActiveProblemDetailsError,
+) => {
+  const { error, isPending, mutate } = useRequestAuthenticationEmailResend();
+
+  return (
+    <div className="flex flex-col gap-3">
+      <FieldError>
+        {error
+          ? error.details.title
+          : "Your account hasn’t been activated yet."}
+      </FieldError>
+      <Button
+        disabled={isPending}
+        type="button"
+        variant="outline"
+        onClick={() =>
+          mutate(accountNotActiveError.details.properties.challenge)
+        }
+      >
+        <span>Resend activation link</span>
+      </Button>
+    </div>
+  );
+};
+interface ErrorComponent {
+  error: unknown;
+}
+const ErrorComponent = ({ error }: ErrorComponent): JSX.Element | null => {
   if (!error) return null;
 
-  if (isProblemDetailsError(error)) {
-    if (
-      error.details.type ===
-      resolveProblemDetailsUrn(ErrorCode.USER_ACCOUNT_NOT_ACTIVATED)
-    ) {
-      return (
-        <div className="flex flex-col gap-3">
-          <FieldError>Your account hasn’t been activated yet.</FieldError>
-          <Button type="button" variant="outline">
-            <span>Resend activation link</span>
-          </Button>
-        </div>
-      );
-    }
-
+  if (isAccountNotActiveProblemDetails(error)) {
+    return AccountNotActive(error);
+  } else if (isProblemDetailsError(error))
     return <FieldError>{error.details.title}</FieldError>;
-  }
 
   if (error instanceof Error) return <FieldError>{error.message}</FieldError>;
 
@@ -137,7 +152,7 @@ export const LoginForm = () => {
                 );
               }}
             />
-            {error && getErrorComponent(error)}
+            {error && <ErrorComponent error={error} />}
           </FieldGroup>
         </form>
       </CardContent>

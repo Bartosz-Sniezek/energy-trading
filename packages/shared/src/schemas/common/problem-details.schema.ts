@@ -7,4 +7,5 @@ export const problemDetailsSchema = z.object({
   detail: z.string().optional(),
   instance: z.string().optional(),
   errors: z.record(z.string(), z.array(z.string())).optional(),
+  properties: z.record(z.string(), z.string()).optional(),
 });

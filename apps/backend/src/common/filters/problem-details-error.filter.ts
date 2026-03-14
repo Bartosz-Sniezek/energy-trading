@@ -4,6 +4,9 @@ import {
   Catch,
   ArgumentsHost,
   HttpException,
+  Optional,
+  Logger,
+  Inject,
 } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { ProblemDetails } from '@energy-trading/shared/types';
@@ -18,14 +21,22 @@ const toKebabCase = (str: string): string => {
 
 const contentType = 'application/problem+json';
 
+export const PROBLEM_DETAILS_LOGGER = Symbol('PROBLEM_DETAILS_LOGGER');
+
 @Catch()
 export class ProblemDetailsErrorFilter implements ExceptionFilter {
+  constructor(
+    @Inject(PROBLEM_DETAILS_LOGGER)
+    private readonly logger: Logger,
+  ) {}
+
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const instance = ctx.getRequest<Request>().url;
 
     if (exception instanceof DomainError) {
+      this.logger?.error(exception);
       response
         .status(exception.statusCode)
         .contentType(contentType)
@@ -34,12 +45,14 @@ export class ProblemDetailsErrorFilter implements ExceptionFilter {
           title: exception.message,
           status: exception.statusCode,
           instance,
+          properties: exception.getProperties(),
         });
 
       return;
     }
 
     if (exception instanceof HttpException) {
+      this.logger?.error(exception);
       response
         .status(exception.getStatus())
         .contentType(contentType)
@@ -52,6 +65,8 @@ export class ProblemDetailsErrorFilter implements ExceptionFilter {
 
       return;
     }
+
+    this.logger?.fatal(exception);
 
     response
       .status(500)

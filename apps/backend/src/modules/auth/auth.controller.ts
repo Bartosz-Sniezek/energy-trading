@@ -4,6 +4,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   Req,
   Res,
   UnauthorizedException,
@@ -22,6 +23,9 @@ import { LogoutUseCase } from './use-cases/logout.use-case';
 import type { AuthenticatedUser, RefreshToken } from '@domain/auth/types';
 import { CurrentUser } from '@modules/jwt-auth/current-user.decorator';
 import { RotateTokenUseCase } from './use-cases/rotate-token.use-case';
+import { AccountNotActivatedError } from '@domain/auth/errors/account-not-activated.error';
+import { AccountTokenActivationResendRequestedQueryDto } from './dtos/account-token-activation-resend-request.query.dto';
+import { AccountTokenActivationResendRequestedUseCase } from './use-cases/account-token-activation-resend-requested.use-case';
 
 @Controller('auth')
 @UsePipes(ZodValidationPipe)
@@ -31,6 +35,7 @@ export class AuthController {
     private readonly loginUseCase: LoginUseCase,
     private readonly logoutUseCase: LogoutUseCase,
     private readonly rotateTokenUseCase: RotateTokenUseCase,
+    private readonly accountTokenActivationResendRequestedUseCase: AccountTokenActivationResendRequestedUseCase,
   ) {}
 
   @UseGuards(NotAuthenticatedGuard)
@@ -53,6 +58,17 @@ export class AuthController {
     });
 
     return;
+  }
+
+  @Post('resend-activation-email')
+  @HttpCode(HttpStatus.OK)
+  async resendActivationEmail(
+    @Query() query: AccountTokenActivationResendRequestedQueryDto,
+  ) {
+    throw new Error('xdd');
+    await this.accountTokenActivationResendRequestedUseCase.execute(
+      query.token,
+    );
   }
 
   @Post('refresh')

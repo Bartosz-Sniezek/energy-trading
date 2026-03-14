@@ -14,6 +14,7 @@ import { randomBytes, randomUUID } from 'crypto';
 import { UserId } from '@modules/users/types';
 import { AppCacheService } from '@technical/cache/app-cache.service';
 import crypto from 'crypto';
+import { Email } from '@domain/users/value-objects/email';
 
 export interface CreateRefreshTokenOutput {
   tokenEntity: RefreshTokenEntity;
@@ -21,11 +22,26 @@ export interface CreateRefreshTokenOutput {
   tokenHash: RefreshTokenHash;
 }
 
+export interface SerializedAccountActivationChallenge {
+  email: string;
+  challengeKey: string;
+  token: string;
+  expiresAt: string;
+}
+
+export interface AccountActivationChallenge {
+  email: Email;
+  challengeKey: string;
+  token: string;
+  expiresAt: Date;
+}
+
 @Injectable()
 export class TokenService {
   private readonly sessionBlacklistTTL: number;
   private readonly accessTokenBlacklistTTL: number;
   private readonly refreshTokenBlacklistTTL: number;
+  private readonly resendActivationTokenTTL: number = 1000 * 60;
 
   constructor(
     private readonly appConfig: AppConfig,
@@ -57,6 +73,115 @@ export class TokenService {
 
   private composeRefreshTokenBlacklistKey(token: RefreshToken): string {
     return `blacklist:refresh_token:${token}`;
+  }
+
+  private composeResendActivationTokenKeyByEmail(email: Email): string {
+    return `email:resend_activation_token:${email.getValue()}`;
+  }
+
+  private composeResendActivationTokenKeyByToken(email: Email): string {
+    return `token:resend_activation_token:${email.getValue()}`;
+  }
+
+  private composeAccountActivationTokenChallengeKeyByEmail(
+    email: Email,
+  ): string {
+    return `key:account_activation_token_challenge:by:email:${email.getValue()}`;
+  }
+
+  private composeAccountActivationTokenChallengeKeyByToken(
+    token: string,
+  ): string {
+    return `key:account_activation_token_challenge:by:token:${token}`;
+  }
+
+  async getAccountActivationChallengeByEmail(
+    email: Email,
+  ): Promise<AccountActivationChallenge | null> {
+    const key = await this.cacheService.get<string>(
+      this.composeAccountActivationTokenChallengeKeyByEmail(email),
+    );
+
+    if (key == null) return null;
+
+    const data =
+      await this.cacheService.get<SerializedAccountActivationChallenge>(key);
+
+    if (data) {
+      return {
+        email: Email.create(data.email),
+        challengeKey: data.challengeKey,
+        token: data.token,
+        expiresAt: new Date(data.expiresAt),
+      };
+    }
+
+    return null;
+  }
+
+  async getAccountActivationChallengeByToken(
+    token: string,
+  ): Promise<AccountActivationChallenge | null> {
+    const key = await this.cacheService.get<string>(
+      this.composeAccountActivationTokenChallengeKeyByToken(token),
+    );
+
+    if (key == null) return null;
+
+    const data =
+      await this.cacheService.get<SerializedAccountActivationChallenge>(key);
+
+    if (data) {
+      return {
+        email: Email.create(data.email),
+        challengeKey: data.challengeKey,
+        token: data.token,
+        expiresAt: new Date(data.expiresAt),
+      };
+    }
+
+    return null;
+  }
+
+  async generateResendActivationChallenge(
+    email: Email,
+  ): Promise<AccountActivationChallenge> {
+    const key = `activation_token_challage_key:${randomUUID()}`;
+    const data: AccountActivationChallenge = {
+      challengeKey: key,
+      email,
+      token: randomBytes(32).toString('hex'),
+      expiresAt: this.datetimeService.addSeconds(
+        this.datetimeService.new(),
+        this.resendActivationTokenTTL,
+      ),
+    };
+
+    await Promise.all([
+      this.cacheService.set(
+        this.composeAccountActivationTokenChallengeKeyByEmail(email),
+        key,
+        this.resendActivationTokenTTL,
+      ),
+      this.cacheService.set(
+        this.composeAccountActivationTokenChallengeKeyByToken(data.token),
+        key,
+        this.resendActivationTokenTTL,
+      ),
+    ]);
+
+    await this.cacheService.set(
+      key,
+      <SerializedAccountActivationChallenge>{
+        email: email.getValue(),
+        challengeKey: key,
+        token: data.token,
+        expiresAt: data.expiresAt.toISOString(),
+      },
+      this.resendActivationTokenTTL,
+    );
+
+    return data;
   }
 
   async blacklistAccessToken(
