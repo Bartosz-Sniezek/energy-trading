@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { UserEntity } from '../entities/user.entity';
+import { UserEntity } from '../../users/entities/user.entity';
 import { DataSource } from 'typeorm';
-import { UserOutboxEntity } from '../entities/users-outbox.entity';
+import { UserOutboxEntity } from '../../users/entities/users-outbox.entity';
 import { DatetimeService } from '@technical/datetime/datetime.service';
-import { EmailVerificationTokenExpiredError } from '../errors/email-verification-token-expired.error';
-import { UserAccountAlreadyActivatedError } from '../errors/user-account-already-activated.error';
-import { InvalidVerificationTokenError } from '../errors/invalid-verification-token.error';
+import { UserAccountAlreadyActivatedError } from '@domain/auth/errors/user-account-already-activated.error';
+import { InvalidVerificationTokenError } from '@domain/auth/errors/invalid-verification-token.error';
+import { EmailVerificationTokenExpiredError } from '@domain/auth/errors/email-verification-token-expired.error';
 
 export interface ActivateUserAccountParams {
   token: string;
 }
 
 @Injectable()
-export class ActivateUserAccountCommand {
+export class ActivateUserAccountUseCase {
   constructor(
     @InjectDataSource()
     private readonly dataSource: DataSource,

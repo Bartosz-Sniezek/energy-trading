@@ -20,7 +20,7 @@ import { InvalidAccountActivationResendChallengeError } from '@domain/auth/error
 import { randomEmail } from 'test/faker/random-email';
 import { addDays, addMinutes, subSeconds } from 'date-fns';
 import { AccountActivationResendRequestChallengeExpiredError } from '@domain/auth/errors/account-activation-resend-request-challenge-expired.error';
-import { UserAccountAlreadyActivatedError } from '@modules/users/errors/user-account-already-activated.error';
+import { UserAccountAlreadyActivatedError } from '@domain/auth/errors/user-account-already-activated.error';
 import { randomUserId } from 'test/faker/random-user-id';
 import { randomFirstName } from 'test/faker/random-first-name';
 import { randomLastName } from 'test/faker/random-last-name';

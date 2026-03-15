@@ -1,8 +1,13 @@
+import { Injectable } from '@nestjs/common';
 import { UserAccountActivationTokenResendRequestedEvent } from '../events/user-account-activation-token-resend-requested.event';
 import { EmailTemplate } from '../interfaces/email-template.strategy';
 import { UserAccountActivationTokenResendRequestedTemplateStrategy } from '../interfaces/user-account-activation-token-resend-requested-template.strategy';
+import { AppConfig } from '@technical/app-config/app-config';
 
+@Injectable()
 export class HtmlUserAccountActivationTokenResendRequestedTemplateStrategy implements UserAccountActivationTokenResendRequestedTemplateStrategy {
+  constructor(private readonly appConfig: AppConfig) {}
+
   getTemplate(
     event: UserAccountActivationTokenResendRequestedEvent,
   ): EmailTemplate {
@@ -39,7 +44,7 @@ export class HtmlUserAccountActivationTokenResendRequestedTemplateStrategy imple
                 <tr>
                     <td align="center" style="padding:30px 0;">
                     <a 
-                        href="https://your-domain.com/activate?token=${event.activationToken}&userId=${event.userId}" 
+                        href="${this.appConfig.values.FRONTEND_BASE_URL}/activate?token=${event.activationToken}&userId=${event.userId}" 
                         style="
                         background-color:#4f46e5;
                         color:#ffffff;

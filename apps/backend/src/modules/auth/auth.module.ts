@@ -15,6 +15,7 @@ import { AppCacheModule } from '@technical/cache/app-cache.module';
 import { RotateTokenUseCase } from './use-cases/rotate-token.use-case';
 import { AccountTokenActivationResendRequestedUseCase } from './use-cases/account-token-activation-resend-requested.use-case';
 import { TokensService } from '@modules/users/token.service';
+import { ActivateUserAccountUseCase } from './use-cases/activate-user-account.use-case';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { TokensService } from '@modules/users/token.service';
     LoginUseCase,
     LogoutUseCase,
     RotateTokenUseCase,
+    ActivateUserAccountUseCase,
     AccountTokenActivationResendRequestedUseCase,
   ],
   controllers: [AuthController],
