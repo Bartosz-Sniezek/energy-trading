@@ -20,4 +20,8 @@ export class AuthApiClient extends ApiClient {
   async requestActivationTokenResend(token: string): Promise<void> {
     return this.post("/api/auth/resend-activation-email?token=" + token);
   }
+
+  async activateAccount(token: string): Promise<void> {
+    return this.post(`/api/auth/activate?token=${token}`);
+  }
 }

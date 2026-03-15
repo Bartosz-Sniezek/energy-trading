@@ -1,4 +1,7 @@
-import { ErrorCode } from "@energy-trading/shared/errors";
+import {
+  ErrorCode,
+  resolveProblemDetailsUrn,
+} from "@energy-trading/shared/errors";
 import { accountNotActivatedProblemDetailsSchema } from "@energy-trading/shared/schemas";
 import {
   AccountNotActivatedProblemDetails,
@@ -36,6 +39,10 @@ export const isActivationResendRequestChallengeExpiredProblemDetails = (
 export class ProblemDetailsError extends Error {
   constructor(readonly details: ProblemDetails) {
     super(details.title);
+  }
+
+  isErrorCode(errorCode: ErrorCode): boolean {
+    return this.details.type === resolveProblemDetailsUrn(errorCode);
   }
 }
 
