@@ -6,6 +6,7 @@ import { UserEvents } from '@domain/users/events.enum';
 import { UnsupportedEventTypeError } from './errors/unsupported-event-type.error';
 import { UserAccountActivatedHandler } from './handlers/user-account-activated.handler';
 import { UserAccountRegistrationAttemptedWithExistingEmaildHandler } from './handlers/user-account-registration-attempted-with-existing-email.handler';
+import { UserAccountActivationTokenResendRequestedHandler } from './handlers/user-account-activation-token-resend-requested.handler';
 
 @Injectable()
 export class EventHandlerRegistry {
@@ -16,6 +17,7 @@ export class EventHandlerRegistry {
     userAccountCreatedHandler: UserAccountCreatedHandler,
     userAccountActivatedHandler: UserAccountActivatedHandler,
     userAccountRegistrationAttemptedWithExistingEmaildHandler: UserAccountRegistrationAttemptedWithExistingEmaildHandler,
+    userAccountActivationTokenResendRequestedHandler: UserAccountActivationTokenResendRequestedHandler,
     @Optional()
     logger?: Logger,
   ) {
@@ -26,6 +28,10 @@ export class EventHandlerRegistry {
       [
         UserEvents.USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT,
         userAccountRegistrationAttemptedWithExistingEmaildHandler,
+      ],
+      [
+        UserEvents.ACTIVATION_TOKEN_RESEND_REQUESTED,
+        userAccountActivationTokenResendRequestedHandler,
       ],
     ]);
   }

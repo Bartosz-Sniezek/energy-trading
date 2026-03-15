@@ -65,7 +65,6 @@ export class AuthController {
   async resendActivationEmail(
     @Query() query: AccountTokenActivationResendRequestedQueryDto,
   ) {
-    throw new Error('xdd');
     await this.accountTokenActivationResendRequestedUseCase.execute(
       query.token,
     );
