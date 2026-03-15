@@ -16,6 +16,7 @@ import {
 import { SignUpDto, signUpDtoSchema, useSignUp } from "@/hooks/use-signup";
 import { useRouter } from "next/navigation";
 import { OrSeparator } from "../separator";
+import { SignInLink } from "../auth/sign-in-link";
 
 export const SignUpForm = () => {
   const form = useForm<SignUpDto>({
@@ -158,20 +159,7 @@ export const SignUpForm = () => {
           </Button>
         </Field>
         <OrSeparator />
-
-        <div className="flex items-center justify-center gap-1 text-sm">
-          <span className="text-muted-foreground">
-            Already have an account?
-          </span>
-          <Button
-            variant="link"
-            onClick={() => router.push("/login")}
-            className="h-auto p-0"
-            asChild
-          >
-            <span>Log in</span>
-          </Button>
-        </div>
+        <SignInLink message="Already have an account?" mutedText />
       </CardFooter>
     </Card>
   );
