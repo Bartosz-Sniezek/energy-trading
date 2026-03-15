@@ -1,17 +1,24 @@
+import { Injectable } from '@nestjs/common';
 import { UserAccountRegistrationAttemptedWithExistingAccountEvent } from '../events/user-account-registration-attempted-with-existing-accounter.event';
 import { EmailTemplate } from '../interfaces/email-template.strategy';
 import { UserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy } from '../interfaces/user-account-registration-attempted-with-existing-email-email-template.strategy';
+import { AppConfig } from '@technical/app-config/app-config';
+import { existingAccountRegistrationEmail } from '../html-templates/existing-account-registration-attempt.layout';
 
-export class SimpleUserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy implements UserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy {
+@Injectable()
+export class HtmlUserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy implements UserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy {
   private readonly subject = 'Account Already Exists';
+
+  constructor(private readonly appConfig: AppConfig) {}
 
   getTemplate(
     event: UserAccountRegistrationAttemptedWithExistingAccountEvent,
   ): EmailTemplate {
-    const greetings = ['Hello', event.firstName, event.lastName]
-      .filter((value) => value)
-      .join(' ');
-    const html = `${greetings}! We noticed you tried to create an account with us, but it looks like an account with this email address already exists. If you forgot your password, you can reset it here: [Reset Password Link]`;
+    const html = existingAccountRegistrationEmail({
+      companyName: this.appConfig.values.COMPANY_NAME,
+      frontendBaseUrl: this.appConfig.values.FRONTEND_BASE_URL,
+      event,
+    });
 
     return {
       to: [event.email],

@@ -7,12 +7,12 @@ import { randomLastName } from 'test/faker/random-last-name';
 import { mock } from 'vitest-mock-extended';
 import { EmailTemplate } from '../interfaces/email-template.strategy';
 import { UserAccountCreatedEventMapper } from './user-account-created.event-mapper';
-import { SimpleUserAccountRegisteredEmailTemplateStrategy } from '../strategies/simple-user-account-registered-email-template.strategy';
+import { HtmlUserAccountRegisteredEmailTemplateStrategy } from '../strategies/html-user-account-registered-email-template.strategy';
 import { UserAccountCreatedEvent } from '../events/user-account-created.event';
 import { randomUUID } from 'crypto';
 
 describe(UserAccountCreatedEventMapper.name, () => {
-  const templateMock = mock<SimpleUserAccountRegisteredEmailTemplateStrategy>();
+  const templateMock = mock<HtmlUserAccountRegisteredEmailTemplateStrategy>();
   const mapper = new UserAccountCreatedEventMapper(templateMock);
 
   describe(mapper.parse.name, () => {
