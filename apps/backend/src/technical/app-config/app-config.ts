@@ -53,6 +53,8 @@ const appConfigSchema = z
       .number()
       .positive()
       .min(60),
+    ALLOWED_ORIGINS: z.string(),
+    FRONTEND_BASE_URL: z.string(),
   })
   .superRefine((data, ctx) => {
     refineMailerTransportMode(data, ctx);
@@ -95,6 +97,10 @@ export class AppConfig {
       host: this._values.MAILER_SMTP_HOST,
       port: this._values.MAILER_SMTP_PORT,
     };
+  }
+
+  get allowedOrigins(): string[] {
+    return this._values.ALLOWED_ORIGINS.split(',');
   }
 
   isProduction(): boolean {

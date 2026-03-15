@@ -3,22 +3,22 @@ import { App } from 'supertest/types';
 import { Repository } from 'typeorm';
 import { UserEntity } from '@modules/users/entities/user.entity';
 import { AppTestingFixture } from 'test/helpers/app-testing-fixture';
-import { ActivateUserAccountCommand } from '@modules/users/commands/activate-user-account.command';
+import { ActivateUserAccountUseCase } from '@modules/auth/use-cases/activate-user-account.use-case';
 import { UserOutboxEntity } from '@modules/users/entities/users-outbox.entity';
-import { EmailVerificationTokenExpiredError } from '@modules/users/errors/email-verification-token-expired.error';
+import { EmailVerificationTokenExpiredError } from '@domain/auth/errors/email-verification-token-expired.error';
 import { UsersFixture } from 'test/fixtures/users-fixture';
-import { InvalidVerificationTokenError } from '@modules/users/errors/invalid-verification-token.error';
+import { InvalidVerificationTokenError } from '@domain/auth/errors/invalid-verification-token.error';
 import { addDays } from 'date-fns';
-import { UserAccountAlreadyActivatedError } from '@modules/users/errors/user-account-already-activated.error';
+import { UserAccountAlreadyActivatedError } from '@domain/auth/errors/user-account-already-activated.error';
 import { UserEvents } from '@domain/users/events.enum';
 import { DatetimeService } from '@technical/datetime/datetime.service';
 import { vi } from 'vitest';
 import { UserAccountActivatedPayload } from '@modules/users/entities/schemas/outbox-payload.schema';
 
-describe(ActivateUserAccountCommand.name, () => {
+describe(ActivateUserAccountUseCase.name, () => {
   let testingFixture: AppTestingFixture;
   let app: INestApplication<App>;
-  let command: ActivateUserAccountCommand;
+  let command: ActivateUserAccountUseCase;
   let usersRepository: Repository<UserEntity>;
   let usersFixture: UsersFixture;
   let datetimeService: DatetimeService;
@@ -26,7 +26,7 @@ describe(ActivateUserAccountCommand.name, () => {
   beforeAll(async () => {
     testingFixture = await AppTestingFixture.create({ mockKafka: true });
     app = testingFixture.getApp();
-    command = app.get(ActivateUserAccountCommand);
+    command = app.get(ActivateUserAccountUseCase);
     usersRepository = testingFixture.getRepository(UserEntity);
     usersFixture = testingFixture.getUsersFixture();
     datetimeService = app.get(DatetimeService);

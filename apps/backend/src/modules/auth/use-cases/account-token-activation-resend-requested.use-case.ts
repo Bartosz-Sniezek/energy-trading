@@ -3,7 +3,7 @@ import { InvalidAccountActivationResendChallengeError } from '@domain/auth/error
 import { TokenService } from '@domain/auth/services/token.service';
 import { UserEntity } from '@modules/users/entities/user.entity';
 import { UserOutboxEntity } from '@modules/users/entities/users-outbox.entity';
-import { UserAccountAlreadyActivatedError } from '@modules/users/errors/user-account-already-activated.error';
+import { UserAccountAlreadyActivatedError } from '@domain/auth/errors/user-account-already-activated.error';
 import { TokensService } from '@modules/users/token.service';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';

@@ -5,12 +5,16 @@ import { randomToken } from 'test/faker/random-token';
 import { randomEmail } from 'test/faker/random-email';
 import { HtmlUserAccountActivationTokenResendRequestedTemplateStrategy } from './html-user-account-activation-token-resend-requested-template.strategy';
 import { UserAccountActivationTokenResendRequestedEvent } from '../events/user-account-activation-token-resend-requested.event';
+import { AppConfig } from '@technical/app-config/app-config';
 
 describe(
   HtmlUserAccountActivationTokenResendRequestedTemplateStrategy.name,
   () => {
+    const appConfigMock = mock<AppConfig>();
     const strategy =
-      new HtmlUserAccountActivationTokenResendRequestedTemplateStrategy();
+      new HtmlUserAccountActivationTokenResendRequestedTemplateStrategy(
+        appConfigMock,
+      );
 
     describe(strategy.getTemplate.name, () => {
       it('should return EmailTemplate', () => {
