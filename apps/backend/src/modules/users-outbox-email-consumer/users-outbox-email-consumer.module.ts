@@ -3,6 +3,7 @@ import { Module, Provider } from '@nestjs/common';
 import {
   CLIENT_ID,
   USER_ACCOUNT_ACTIVATED_EMAIL_TEMPLATE as USER_ACCOUNT_ACTIVATED_EMAIL_TEMPLATE_STRATEGY,
+  USER_ACCOUNT_ACTIVATION_TOKEN_RESEND_REQUESTED_TEMPLATE_STRATEGY,
   USER_ACCOUNT_REGISTERED_EMAIL_TEMPLATE as USER_ACCOUNT_REGISTERED_EMAIL_TEMPLATE_STRATEGY,
   USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT_EMAIL_TEMPLATE_STRATEGY,
 } from './constants';
@@ -21,6 +22,9 @@ import { SimpleUserAccountRegistrationAttemptedWithExistingAccountEmailTemplateS
 import { UserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy } from './interfaces/user-account-registration-attempted-with-existing-email-email-template.strategy';
 import { UserAccountRegistrationAttemptedWithExistingEmaildHandler } from './handlers/user-account-registration-attempted-with-existing-email.handler';
 import { UserAccountActivatedHandler } from './handlers/user-account-activated.handler';
+import { HtmlUserAccountActivationTokenResendRequestedTemplateStrategy } from './strategies/html-user-account-activation-token-resend-requested-template.strategy';
+import { UserAccountActivationTokenResendRequestedTemplateStrategy } from './interfaces/user-account-activation-token-resend-requested-template.strategy';
+import { UserAccountActivationTokenResendRequestedHandler } from './handlers/user-account-activation-token-resend-requested.handler';
 
 @Module({
   imports: [
@@ -45,12 +49,17 @@ import { UserAccountActivatedHandler } from './handlers/user-account-activated.h
       useClass:
         SimpleUserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy,
     } satisfies Provider<UserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy>,
+    {
+      provide: USER_ACCOUNT_ACTIVATION_TOKEN_RESEND_REQUESTED_TEMPLATE_STRATEGY,
+      useClass: HtmlUserAccountActivationTokenResendRequestedTemplateStrategy,
+    } satisfies Provider<UserAccountActivationTokenResendRequestedTemplateStrategy>,
     DebeziumConnectorMessageParser,
     UsersOutboxConsumer,
     UsersOutboxMessageHandler,
     UserAccountCreatedHandler,
     UserAccountActivatedHandler,
     UserAccountRegistrationAttemptedWithExistingEmaildHandler,
+    UserAccountActivationTokenResendRequestedHandler,
     EventHandlerRegistry,
   ],
 })
