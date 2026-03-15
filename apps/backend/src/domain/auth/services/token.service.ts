@@ -41,7 +41,7 @@ export class TokenService {
   private readonly sessionBlacklistTTL: number;
   private readonly accessTokenBlacklistTTL: number;
   private readonly refreshTokenBlacklistTTL: number;
-  private readonly resendActivationTokenTTL: number = 1000 * 60;
+  private readonly accountActivationResendTokenTTL: number;
 
   constructor(
     private readonly appConfig: AppConfig,
@@ -55,6 +55,8 @@ export class TokenService {
       appConfig.values.JWT_ACCESS_TOKEN_EXPIRATION_SEC * 1000;
     this.refreshTokenBlacklistTTL =
       appConfig.values.JWT_REFRESH_TOKEN_EXPIRATION_SEC * 1000;
+    this.accountActivationResendTokenTTL =
+      appConfig.values.ACCOUNT_ACTIVATION_RESEND_TOKEN_TTL_SECONDS * 1000;
   }
 
   private composeSessionBlacklistKey(
@@ -153,7 +155,7 @@ export class TokenService {
       token: randomBytes(32).toString('hex'),
       expiresAt: this.datetimeService.addSeconds(
         this.datetimeService.new(),
-        this.resendActivationTokenTTL,
+        this.accountActivationResendTokenTTL,
       ),
     };
 
@@ -161,12 +163,12 @@ export class TokenService {
       this.cacheService.set(
         this.composeAccountActivationTokenChallengeKeyByEmail(email),
         key,
-        this.resendActivationTokenTTL,
+        this.accountActivationResendTokenTTL,
       ),
       this.cacheService.set(
         this.composeAccountActivationTokenChallengeKeyByToken(data.token),
         key,
-        this.resendActivationTokenTTL,
+        this.accountActivationResendTokenTTL,
       ),
     ]);
 
@@ -178,7 +180,7 @@ export class TokenService {
         token: data.token,
         expiresAt: data.expiresAt.toISOString(),
       },
-      this.resendActivationTokenTTL,
+      this.accountActivationResendTokenTTL,
     );
 
     return data;

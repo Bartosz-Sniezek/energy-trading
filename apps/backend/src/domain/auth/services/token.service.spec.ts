@@ -23,6 +23,7 @@ describe(TokenService.name, () => {
       JWT_ACCESS_TOKEN_SECRET: 'abc',
       JWT_ACCESS_TOKEN_EXPIRATION_SEC: 60,
       JWT_REFRESH_TOKEN_EXPIRATION_SEC: 120,
+      ACCOUNT_ACTIVATION_RESEND_TOKEN_TTL_SECONDS: 60,
     },
   });
   const datetimeService = new DatetimeService();
