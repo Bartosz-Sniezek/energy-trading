@@ -44,7 +44,7 @@ export class HtmlUserAccountActivationTokenResendRequestedTemplateStrategy imple
                 <tr>
                     <td align="center" style="padding:30px 0;">
                     <a 
-                        href="${this.appConfig.values.FRONTEND_BASE_URL}/activate?token=${event.activationToken}&userId=${event.userId}" 
+                        href="${this.appConfig.values.FRONTEND_BASE_URL}/activate?token=${event.activationToken}"
                         style="
                         background-color:#4f46e5;
                         color:#ffffff;
