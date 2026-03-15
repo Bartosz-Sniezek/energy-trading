@@ -12,6 +12,7 @@ export class SimpleUserAccountActivatedEmailTemplateStrategy implements UserAcco
     const html = `${greetings}! Your account has been activated. You can now log in.`;
 
     return {
+      to: [event.email],
       subject: this.subject,
       html,
       text: html,

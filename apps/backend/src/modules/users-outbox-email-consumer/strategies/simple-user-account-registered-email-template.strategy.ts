@@ -12,6 +12,7 @@ export class SimpleUserAccountRegisteredEmailTemplateStrategy implements UserAcc
     const html = `${greetings}! This email is sent to you as part of the process to create your new account. Verification token (valid until: ${event.activationTokenExpirationDate.toISOString()}): ${event.activationToken}`;
 
     return {
+      to: [event.email],
       subject: this.subject,
       html,
       text: html,

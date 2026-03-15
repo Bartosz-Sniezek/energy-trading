@@ -4,6 +4,7 @@ import { randomFirstName } from 'test/faker/random-first-name';
 import { randomLastName } from 'test/faker/random-last-name';
 import { SimpleUserAccountRegisteredEmailTemplateStrategy } from './simple-user-account-registered-email-template.strategy';
 import { randomToken } from 'test/faker/random-token';
+import { randomEmail } from 'test/faker/random-email';
 
 describe(SimpleUserAccountRegisteredEmailTemplateStrategy.name, () => {
   const strategy = new SimpleUserAccountRegisteredEmailTemplateStrategy();
@@ -11,6 +12,7 @@ describe(SimpleUserAccountRegisteredEmailTemplateStrategy.name, () => {
   describe(strategy.getTemplate.name, () => {
     it('should return EmailTemplate', () => {
       const eventMock = mock<UserAccountCreatedEvent>({
+        email: randomEmail(),
         firstName: randomFirstName(),
         lastName: randomLastName(),
         activationToken: randomToken(),
@@ -20,12 +22,14 @@ describe(SimpleUserAccountRegisteredEmailTemplateStrategy.name, () => {
       const template = strategy.getTemplate(eventMock);
 
       expect(template.subject).toBe('Account Registration');
+      expect(template.to).toIncludeAllMembers([eventMock.email]);
       expect(template.html).toBe(emailHtml);
       expect(template.text).toBe(emailHtml);
     });
 
     it('should return EmailTemplate with first name only if lastname is empty', () => {
       const eventMock = mock<UserAccountCreatedEvent>({
+        email: randomEmail(),
         firstName: randomFirstName(),
         lastName: '',
         activationToken: randomToken(),
@@ -35,12 +39,14 @@ describe(SimpleUserAccountRegisteredEmailTemplateStrategy.name, () => {
       const template = strategy.getTemplate(eventMock);
 
       expect(template.subject).toBe('Account Registration');
+      expect(template.to).toIncludeAllMembers([eventMock.email]);
       expect(template.html).toBe(emailHtml);
       expect(template.text).toBe(emailHtml);
     });
 
     it('should return EmailTemplate with last name only if firstName is empty', () => {
       const eventMock = mock<UserAccountCreatedEvent>({
+        email: randomEmail(),
         firstName: '',
         lastName: randomLastName(),
         activationToken: randomToken(),
@@ -50,6 +56,7 @@ describe(SimpleUserAccountRegisteredEmailTemplateStrategy.name, () => {
       const template = strategy.getTemplate(eventMock);
 
       expect(template.subject).toBe('Account Registration');
+      expect(template.to).toIncludeAllMembers([eventMock.email]);
       expect(template.html).toBe(emailHtml);
       expect(template.text).toBe(emailHtml);
     });

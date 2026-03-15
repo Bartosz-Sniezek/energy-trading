@@ -19,6 +19,7 @@ describe(UserAccountCreatedHandler.name, () => {
   const templateStrategyMock =
     mock<UserAccountRegisteredEmailTemplateStrategy>();
   const mailTemplate: EmailTemplate = {
+    to: [randomEmail()],
     subject: 'mail-subject',
     text: 'mail-text',
     html: 'mail-html',

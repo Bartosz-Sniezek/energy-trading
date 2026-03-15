@@ -83,6 +83,7 @@ export class HtmlUserAccountActivationTokenResendRequestedTemplateStrategy imple
         </html>
     `;
     return {
+      to: [event.email],
       subject: 'Activate your account',
       html,
       text: html,
