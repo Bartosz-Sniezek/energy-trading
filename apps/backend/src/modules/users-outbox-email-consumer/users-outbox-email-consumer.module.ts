@@ -11,8 +11,6 @@ import { UsersOutboxConsumer } from './users-outbox.consumer';
 import { AppConfigModule } from '@technical/app-config/app-config.module';
 import { DebeziumConnectorMessageParser } from './debezium-connector-message.parser';
 import { MailingModule } from '@technical/mailing/mailing.module';
-import { EventHandlerRegistry } from './event-handler-registry';
-import { UserAccountCreatedHandler } from './handlers/user-account-created.handler';
 import { UsersOutboxMessageHandler } from './users-outbox-message.handler';
 import { UserAccountActivatedEmailTemplateStrategy } from './interfaces/user-account-activated-email-template.strategy';
 import { SimpleUserAccountActivatedEmailTemplateStrategy } from './strategies/simple-user-account-activated-email-template.strategy';
@@ -20,15 +18,12 @@ import { SimpleUserAccountRegisteredEmailTemplateStrategy } from './strategies/s
 import { UserAccountRegisteredEmailTemplateStrategy } from './interfaces/user-account-registered-email-template.strategy';
 import { SimpleUserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy } from './strategies/simple-user-account-registration-attempted-with-existing-email-email-template.strategy';
 import { UserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy } from './interfaces/user-account-registration-attempted-with-existing-email-email-template.strategy';
-import { UserAccountRegistrationAttemptedWithExistingEmaildHandler } from './handlers/user-account-registration-attempted-with-existing-email.handler';
-import { UserAccountActivatedHandler } from './handlers/user-account-activated.handler';
 import { HtmlUserAccountActivationTokenResendRequestedTemplateStrategy } from './strategies/html-user-account-activation-token-resend-requested-template.strategy';
 import { UserAccountActivationTokenResendRequestedTemplateStrategy } from './interfaces/user-account-activation-token-resend-requested-template.strategy';
-import { UserAccountActivationTokenResendRequestedHandler } from './handlers/user-account-activation-token-resend-requested.handler';
 import { EventMapperRegistry } from './event-mapper-registry';
+import { UserAccountCreatedEventMapper } from './event-mappers/user-account-created.event-mapper';
 import { UserAccountActivatedEventMapper } from './event-mappers/user-account-activated.event-mapper';
 import { UserAccountActivationTokenResendRequestedEventMapper } from './event-mappers/user-account-activation-token-resend-requested.event-mapper';
-import { UserAccountCreatedEventMapper } from './event-mappers/user-account-created.event-mapper';
 import { UserAccountRegistrationAttemptedWithExistingAccountEventMapper } from './event-mappers/user-account-registration-attempted-with-existing-account.event-mapper';
 
 @Module({
@@ -61,17 +56,12 @@ import { UserAccountRegistrationAttemptedWithExistingAccountEventMapper } from '
     DebeziumConnectorMessageParser,
     UsersOutboxConsumer,
     UsersOutboxMessageHandler,
-    UserAccountCreatedHandler,
-    UserAccountActivatedHandler,
-    UserAccountRegistrationAttemptedWithExistingEmaildHandler,
-    UserAccountActivationTokenResendRequestedHandler,
     // event mappers
     UserAccountCreatedEventMapper,
     UserAccountActivatedEventMapper,
     UserAccountActivationTokenResendRequestedEventMapper,
     UserAccountRegistrationAttemptedWithExistingAccountEventMapper,
     // registries
-    EventHandlerRegistry,
     EventMapperRegistry,
   ],
 })
