@@ -1,12 +1,7 @@
 import { Injectable, Logger, Optional } from '@nestjs/common';
 import { DebeziumOutboxMessage } from './debezium-connector-message.parser';
-import { UserAccountCreatedHandler } from './handlers/user-account-created.handler';
-import { UserOutboxMessageHandler } from './interfaces/user-outbox-message-handler';
 import { UserEvents } from '@domain/users/events.enum';
 import { UnsupportedEventTypeError } from './errors/unsupported-event-type.error';
-import { UserAccountActivatedHandler } from './handlers/user-account-activated.handler';
-import { UserAccountRegistrationAttemptedWithExistingEmaildHandler } from './handlers/user-account-registration-attempted-with-existing-email.handler';
-import { UserAccountActivationTokenResendRequestedHandler } from './handlers/user-account-activation-token-resend-requested.handler';
 import { EventMapper } from './interfaces/event-mapper';
 import { UserAccountCreatedEventMapper } from './event-mappers/user-account-created.event-mapper';
 import { UserAccountActivatedEventMapper } from './event-mappers/user-account-activated.event-mapper';
@@ -32,11 +27,11 @@ export class EventMapperRegistry {
       [UserEvents.USER_ACCOUNT_ACTIVATED, userAccountActivatedEventMapper],
       [
         UserEvents.USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT,
-        userAccountActivationTokenResendRequestedEventMapper,
+        userAccountRegistrationAttemptedWithExistingAccountEventMapper,
       ],
       [
         UserEvents.ACTIVATION_TOKEN_RESEND_REQUESTED,
-        userAccountRegistrationAttemptedWithExistingAccountEventMapper,
+        userAccountActivationTokenResendRequestedEventMapper,
       ],
     ]);
   }
