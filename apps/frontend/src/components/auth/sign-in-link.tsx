@@ -1,12 +1,20 @@
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 
-export const SignInLink = ({ message }: { message: string }) => {
+export const SignInLink = ({
+  message,
+  mutedText,
+}: {
+  message: string;
+  mutedText?: boolean;
+}) => {
   const router = useRouter();
 
   return (
     <div className="flex items-center justify-center gap-1 text-sm">
-      <span className="text-foreground">{message}</span>
+      <span className={mutedText ? "text-muted-foreground" : "text-foreground"}>
+        {message}
+      </span>
       <Button
         variant="link"
         onClick={() => router.push("/login")}
