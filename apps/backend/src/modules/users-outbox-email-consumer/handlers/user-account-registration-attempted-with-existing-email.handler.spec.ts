@@ -17,6 +17,7 @@ describe(UserAccountRegistrationAttemptedWithExistingEmaildHandler.name, () => {
   const emailTemplateStrategyMock =
     mock<UserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy>();
   const mailTemplate: EmailTemplate = {
+    to: [randomEmail()],
     subject: 'mail-subject',
     text: 'mail-text',
     html: 'mail-html',

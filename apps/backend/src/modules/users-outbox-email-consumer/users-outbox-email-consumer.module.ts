@@ -25,6 +25,11 @@ import { UserAccountActivatedHandler } from './handlers/user-account-activated.h
 import { HtmlUserAccountActivationTokenResendRequestedTemplateStrategy } from './strategies/html-user-account-activation-token-resend-requested-template.strategy';
 import { UserAccountActivationTokenResendRequestedTemplateStrategy } from './interfaces/user-account-activation-token-resend-requested-template.strategy';
 import { UserAccountActivationTokenResendRequestedHandler } from './handlers/user-account-activation-token-resend-requested.handler';
+import { EventMapperRegistry } from './event-mapper-registry';
+import { UserAccountActivatedEventMapper } from './event-mappers/user-account-activated.event-mapper';
+import { UserAccountActivationTokenResendRequestedEventMapper } from './event-mappers/user-account-activation-token-resend-requested.event-mapper';
+import { UserAccountCreatedEventMapper } from './event-mappers/user-account-created.event-mapper';
+import { UserAccountRegistrationAttemptedWithExistingAccountEventMapper } from './event-mappers/user-account-registration-attempted-with-existing-account.event-mapper';
 
 @Module({
   imports: [
@@ -60,7 +65,14 @@ import { UserAccountActivationTokenResendRequestedHandler } from './handlers/use
     UserAccountActivatedHandler,
     UserAccountRegistrationAttemptedWithExistingEmaildHandler,
     UserAccountActivationTokenResendRequestedHandler,
+    // event mappers
+    UserAccountCreatedEventMapper,
+    UserAccountActivatedEventMapper,
+    UserAccountActivationTokenResendRequestedEventMapper,
+    UserAccountRegistrationAttemptedWithExistingAccountEventMapper,
+    // registries
     EventHandlerRegistry,
+    EventMapperRegistry,
   ],
 })
 export class UsersOutboxEmailConsumerModule {}

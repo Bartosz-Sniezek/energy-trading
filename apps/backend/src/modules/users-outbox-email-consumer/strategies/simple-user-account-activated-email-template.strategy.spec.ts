@@ -3,6 +3,7 @@ import { UserAccountActivatedEvent } from '../events/user-account-activated.even
 import { randomFirstName } from 'test/faker/random-first-name';
 import { randomLastName } from 'test/faker/random-last-name';
 import { SimpleUserAccountActivatedEmailTemplateStrategy } from './simple-user-account-activated-email-template.strategy';
+import { randomEmail } from 'test/faker/random-email';
 
 describe(SimpleUserAccountActivatedEmailTemplateStrategy.name, () => {
   const strategy = new SimpleUserAccountActivatedEmailTemplateStrategy();
@@ -10,6 +11,7 @@ describe(SimpleUserAccountActivatedEmailTemplateStrategy.name, () => {
   describe(strategy.getTemplate.name, () => {
     it('should return EmailTemplate', () => {
       const eventMock = mock<UserAccountActivatedEvent>({
+        email: randomEmail(),
         firstName: randomFirstName(),
         lastName: randomLastName(),
       });
@@ -17,12 +19,14 @@ describe(SimpleUserAccountActivatedEmailTemplateStrategy.name, () => {
       const template = strategy.getTemplate(eventMock);
 
       expect(template.subject).toBe('Account activated');
+      expect(template.to).toIncludeAllMembers([eventMock.email]);
       expect(template.html).toBe(emailHtml);
       expect(template.text).toBe(emailHtml);
     });
 
     it('should return EmailTemplate with first name only if lastname is empty', () => {
       const eventMock = mock<UserAccountActivatedEvent>({
+        email: randomEmail(),
         firstName: randomFirstName(),
         lastName: '',
       });
@@ -30,12 +34,14 @@ describe(SimpleUserAccountActivatedEmailTemplateStrategy.name, () => {
       const template = strategy.getTemplate(eventMock);
 
       expect(template.subject).toBe('Account activated');
+      expect(template.to).toIncludeAllMembers([eventMock.email]);
       expect(template.html).toBe(emailHtml);
       expect(template.text).toBe(emailHtml);
     });
 
     it('should return EmailTemplate with last name only if firstName is empty', () => {
       const eventMock = mock<UserAccountActivatedEvent>({
+        email: randomEmail(),
         firstName: '',
         lastName: randomLastName(),
       });
@@ -43,6 +49,7 @@ describe(SimpleUserAccountActivatedEmailTemplateStrategy.name, () => {
       const template = strategy.getTemplate(eventMock);
 
       expect(template.subject).toBe('Account activated');
+      expect(template.to).toIncludeAllMembers([eventMock.email]);
       expect(template.html).toBe(emailHtml);
       expect(template.text).toBe(emailHtml);
     });
