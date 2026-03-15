@@ -13,10 +13,10 @@ import { DebeziumConnectorMessageParser } from './debezium-connector-message.par
 import { MailingModule } from '@technical/mailing/mailing.module';
 import { UsersOutboxMessageHandler } from './users-outbox-message.handler';
 import { UserAccountActivatedEmailTemplateStrategy } from './interfaces/user-account-activated-email-template.strategy';
-import { SimpleUserAccountActivatedEmailTemplateStrategy } from './strategies/simple-user-account-activated-email-template.strategy';
-import { SimpleUserAccountRegisteredEmailTemplateStrategy } from './strategies/simple-user-account-registered-email-template.strategy';
+import { HtmlUserAccountActivatedEmailTemplateStrategy } from './strategies/html-user-account-activated-email-template.strategy';
+import { HtmlUserAccountRegisteredEmailTemplateStrategy } from './strategies/html-user-account-registered-email-template.strategy';
 import { UserAccountRegisteredEmailTemplateStrategy } from './interfaces/user-account-registered-email-template.strategy';
-import { SimpleUserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy } from './strategies/simple-user-account-registration-attempted-with-existing-email-email-template.strategy';
+import { HtmlUserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy } from './strategies/html-user-account-registration-attempted-with-existing-email-email-template.strategy';
 import { UserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy } from './interfaces/user-account-registration-attempted-with-existing-email-email-template.strategy';
 import { HtmlUserAccountActivationTokenResendRequestedTemplateStrategy } from './strategies/html-user-account-activation-token-resend-requested-template.strategy';
 import { UserAccountActivationTokenResendRequestedTemplateStrategy } from './interfaces/user-account-activation-token-resend-requested-template.strategy';
@@ -37,17 +37,17 @@ import { UserAccountRegistrationAttemptedWithExistingAccountEventMapper } from '
   providers: [
     {
       provide: USER_ACCOUNT_ACTIVATED_EMAIL_TEMPLATE_STRATEGY,
-      useClass: SimpleUserAccountActivatedEmailTemplateStrategy,
+      useClass: HtmlUserAccountActivatedEmailTemplateStrategy,
     } satisfies Provider<UserAccountActivatedEmailTemplateStrategy>,
     {
       provide: USER_ACCOUNT_REGISTERED_EMAIL_TEMPLATE_STRATEGY,
-      useClass: SimpleUserAccountRegisteredEmailTemplateStrategy,
+      useClass: HtmlUserAccountRegisteredEmailTemplateStrategy,
     } satisfies Provider<UserAccountRegisteredEmailTemplateStrategy>,
     {
       provide:
         USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT_EMAIL_TEMPLATE_STRATEGY,
       useClass:
-        SimpleUserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy,
+        HtmlUserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy,
     } satisfies Provider<UserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy>,
     {
       provide: USER_ACCOUNT_ACTIVATION_TOKEN_RESEND_REQUESTED_TEMPLATE_STRATEGY,

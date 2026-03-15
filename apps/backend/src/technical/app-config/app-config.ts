@@ -55,6 +55,7 @@ const appConfigSchema = z
       .min(60),
     ALLOWED_ORIGINS: z.string(),
     FRONTEND_BASE_URL: z.string(),
+    COMPANY_NAME: z.string(),
   })
   .superRefine((data, ctx) => {
     refineMailerTransportMode(data, ctx);
