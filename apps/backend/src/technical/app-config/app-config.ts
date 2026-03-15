@@ -49,6 +49,10 @@ const appConfigSchema = z
     MAILER_SMTP_HOST: z.string().optional(),
     MAILER_SMTP_PORT: z.coerce.number().optional(),
     REDIS_URL: z.string(),
+    ACCOUNT_ACTIVATION_RESEND_TOKEN_TTL_SECONDS: z.coerce
+      .number()
+      .positive()
+      .min(60),
   })
   .superRefine((data, ctx) => {
     refineMailerTransportMode(data, ctx);
