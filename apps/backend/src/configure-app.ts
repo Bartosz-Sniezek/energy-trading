@@ -9,6 +9,7 @@ export const configureApp = (app: INestApplication): void => {
   app.enableCors({
     origin: config.allowedOrigins,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
   });
 
   app.use(cookieParser(config.values.COOKIE_SECRET));
