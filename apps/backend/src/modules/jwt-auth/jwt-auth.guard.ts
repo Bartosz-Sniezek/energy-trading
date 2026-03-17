@@ -1,3 +1,4 @@
+import { UnauthorizedError } from '@domain/auth/errors/unauthorized.error';
 import { TokenService } from '@domain/auth/services/token.service';
 import {
   AccessToken,
@@ -5,12 +6,7 @@ import {
   AuthenticatedUser,
 } from '@domain/auth/types';
 import { UserId } from '@modules/users/types';
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AppConfig } from '@technical/app-config/app-config';
 import { Request } from 'express';
@@ -27,7 +23,7 @@ export class JwtAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const token = request.signedCookies.access_token as string | undefined;
 
-    if (!token) throw new UnauthorizedException();
+    if (!token) throw new UnauthorizedError();
 
     try {
       const payload = await this.jwtService.verifyAsync<AccessTokenPayload>(
@@ -49,7 +45,7 @@ export class JwtAuthGuard implements CanActivate {
       ]);
 
       if (tokenChecks.filter((isBlacklisted) => isBlacklisted).length > 0) {
-        throw new UnauthorizedException();
+        throw new UnauthorizedError();
       }
 
       request.user = <AuthenticatedUser>{
@@ -58,7 +54,7 @@ export class JwtAuthGuard implements CanActivate {
         sessionId: payload.sid,
       };
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedError();
     }
 
     return true;

@@ -217,12 +217,12 @@ describe(AuthController.name, () => {
   describe(AuthController.prototype.logout.name, () => {
     const logoutRoute = '/api/auth/logout';
 
-    it('should return 401 when for authenticated user', async () => {
+    it('should return 401 when for unauthenticated user', async () => {
       const res = await request(server).post(logoutRoute).send();
 
       expect(res.status).toBe(HttpStatus.UNAUTHORIZED);
       expect(res.body).toMatchObject<ProblemDetails>({
-        type: `urn:problem:unauthorized-exception`,
+        type: `urn:problem:${ErrorCode.UNAUTHORIZED}`,
         title: 'Unauthorized',
         status: 401,
         instance: '/api/auth/logout',

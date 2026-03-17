@@ -13,10 +13,13 @@ export abstract class ApiClient {
     url: string,
     method: string,
     init?: ApiClientRequest,
+    retries: number = 0,
   ): Promise<T> {
-    const res = await fetch(url, {
+    const myUrl = new URL(url, "http://127.0.0.1:8000").toString();
+    const res = await fetch(myUrl, {
       ...init,
       method,
+      credentials: "include",
       headers: {
         ...this.headers,
         ...init?.headers,
@@ -26,6 +29,21 @@ export abstract class ApiClient {
     const body = await res.json().catch(() => null);
 
     if (!res.ok) {
+      if (res.status === 401 && retries < 1) {
+        let shouldRefresh = !myUrl.includes("/api/auth/refresh");
+
+        if (shouldRefresh && myUrl.includes("/api/auth")) {
+          shouldRefresh &&= false;
+        }
+
+        if (shouldRefresh) {
+          const retry = retries + 1;
+          await this.request("/api/auth/refresh", "POST", undefined, retry);
+
+          return await this.request(url, method, init, retry);
+        }
+      }
+
       if (res.status === 500)
         throw new ProblemDetailsError({
           type: "about:blank",

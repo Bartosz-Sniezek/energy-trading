@@ -42,9 +42,9 @@ const AccountNotActive = (
         disabled={isPending}
         type="button"
         variant="outline"
-        onClick={() =>
-          mutate(accountNotActiveError.details.properties.challenge)
-        }
+        onClick={() => {
+          mutate(accountNotActiveError.details.properties.challenge);
+        }}
       >
         <span>Resend activation link</span>
       </Button>
@@ -78,10 +78,10 @@ export const LoginForm = () => {
   });
   const router = useRouter();
 
-  const { error, isPending, mutate } = useSignIn();
+  const { error, isPending, mutateAsync } = useSignIn();
 
-  function onSubmit(data: SignInDto): void {
-    mutate(data);
+  async function onSubmit(data: SignInDto): Promise<void> {
+    await mutateAsync(data).then(() => router.replace("/"));
   }
 
   return (

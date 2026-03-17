@@ -24,4 +24,12 @@ export class AuthApiClient extends ApiClient {
   async activateAccount(token: string): Promise<void> {
     return this.post(`/api/auth/activate?token=${token}`);
   }
+
+  async refresh(): Promise<void> {
+    return this.post(`/api/auth/refresh`);
+  }
+
+  async logout(): Promise<void> {
+    return this.post("/api/auth/logout");
+  }
 }
