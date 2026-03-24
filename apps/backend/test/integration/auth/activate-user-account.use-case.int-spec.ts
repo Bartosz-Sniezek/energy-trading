@@ -14,6 +14,7 @@ import { UserEvents } from '@domain/users/events.enum';
 import { DatetimeService } from '@technical/datetime/datetime.service';
 import { vi } from 'vitest';
 import { UserAccountActivatedPayload } from '@modules/users/entities/schemas/outbox-payload.schema';
+import { mock } from 'vitest-mock-extended';
 
 describe(ActivateUserAccountUseCase.name, () => {
   let testingFixture: AppTestingFixture;
@@ -24,7 +25,7 @@ describe(ActivateUserAccountUseCase.name, () => {
   let datetimeService: DatetimeService;
 
   beforeAll(async () => {
-    testingFixture = await AppTestingFixture.create({ mockKafka: true });
+    testingFixture = await AppTestingFixture.createWithMocks();
     app = testingFixture.getApp();
     command = app.get(ActivateUserAccountUseCase);
     usersRepository = testingFixture.getRepository(UserEntity);
@@ -37,7 +38,7 @@ describe(ActivateUserAccountUseCase.name, () => {
   afterEach(() => vi.resetAllMocks());
 
   afterAll(async () => {
-    await app.close();
+    await testingFixture.close();
   });
 
   describe('when user account does not exist', () => {
@@ -53,25 +54,28 @@ describe(ActivateUserAccountUseCase.name, () => {
   describe('when token expired', () => {
     it('should throw EmailVerificationTokenExpiredError', async () => {
       const now = new Date('2026-02-01');
-      vi.spyOn(datetimeService, 'new').mockReturnValue(now);
+      vi.spyOn(DatetimeService.prototype, 'new').mockReturnValue(now);
       const { user } = await usersFixture.createUser();
+      vi.spyOn(DatetimeService.prototype, 'new').mockReturnValue(
+        addDays(now, 2),
+      );
 
-      vi.spyOn(datetimeService, 'new').mockReturnValue(addDays(now, 2));
       await expect(
         command.execute({
           token: user.activationToken,
         }),
       ).rejects.toThrow(EmailVerificationTokenExpiredError);
+      console.log('hmm end');
     });
 
     it('should throw EmailVerificationTokenExpiredError after 24 hours', async () => {
       const now = new Date('2026-02-01');
-      vi.spyOn(datetimeService, 'new').mockReturnValue(now);
+      vi.spyOn(DatetimeService.prototype, 'new').mockReturnValue(now);
       const { user } = await usersFixture.createUser();
       // 1ms after 24h from now
       const expiredDate = new Date(addDays(now, 1).getTime() + 1);
       // vi.resetAllMocks();
-      vi.spyOn(datetimeService, 'new').mockReturnValue(expiredDate);
+      vi.spyOn(DatetimeService.prototype, 'new').mockReturnValue(expiredDate);
 
       await expect(
         command.execute({
@@ -83,16 +87,7 @@ describe(ActivateUserAccountUseCase.name, () => {
 
   describe('when user account is active', () => {
     it('should throw UserAccountAlreadyActivatedError', async () => {
-      const { user } = await usersFixture.createUser();
-
-      await usersRepository.update(
-        {
-          id: user.id,
-        },
-        {
-          isActive: true,
-        },
-      );
+      const { user } = await usersFixture.createActivatedUser();
 
       await expect(
         command.execute({

@@ -80,7 +80,7 @@ export function AuthProvider({
 
   const scheduleRefresh = useCallback(() => {
     if (refreshTimer.current) clearInterval(refreshTimer.current);
-    const intervalMs = 13 * 60 * 1000;
+    const intervalMs = 4 * 60 * 1000;
     refreshTimer.current = setInterval(async () => {
       const refreshed = await refreshToken();
       if (!refreshed) redirectToLogin();

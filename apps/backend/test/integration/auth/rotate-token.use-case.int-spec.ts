@@ -1,5 +1,6 @@
 import { RefreshTokenEntity } from '@domain/auth/entities/refresh-token.entity';
 import { InvalidRefreshToken } from '@domain/auth/errors/invalid-refresh-token.error';
+import { SessionAuthBridge } from '@domain/auth/services/session-auth.bridge';
 import { TokenService } from '@domain/auth/services/token.service';
 import { RotateTokenUseCase } from '@modules/auth/use-cases/rotate-token.use-case';
 import { UserEntity } from '@modules/users/entities/user.entity';
@@ -20,9 +21,7 @@ describe(RotateTokenUseCase.name, () => {
   let tokenService: TokenService;
 
   beforeAll(async () => {
-    testingFixture = await AppTestingFixture.create({
-      mockKafka: true,
-    });
+    testingFixture = await AppTestingFixture.createWithMocks();
     usersFixutre = testingFixture.getUsersFixture();
     refreshTokenFixture = testingFixture.getRefreshTokenFixture();
     refreshTokenRepository = testingFixture
@@ -58,6 +57,11 @@ describe(RotateTokenUseCase.name, () => {
       expect(entity.replacedBy).toBeNull();
       expect(entity.revokedAt).toBeNull();
       expect(entity.createdAt).toBeDate();
+      const authSessionBridge = testingFixture.getApp().get(SessionAuthBridge);
+
+      await expect(
+        authSessionBridge.sessionExists(entity.family),
+      ).resolves.toBeTrue();
     });
 
     it('should chain-rotate token', async () => {

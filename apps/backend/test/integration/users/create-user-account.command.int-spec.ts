@@ -24,7 +24,7 @@ describe(CreateUserAccountCommand.name, () => {
   let datetimeService: DatetimeService;
 
   beforeAll(async () => {
-    testingFixture = await AppTestingFixture.create({ mockKafka: true });
+    testingFixture = await AppTestingFixture.createWithMocks();
     app = testingFixture.getApp();
     createUserAccountCommand = app.get(CreateUserAccountCommand);
     usersRepository = testingFixture.getRepository(UserEntity);

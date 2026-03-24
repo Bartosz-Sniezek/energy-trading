@@ -12,6 +12,7 @@ import { RefreshTokenEntity } from '../../../domain/auth/entities/refresh-token.
 import { AccessToken, RefreshToken } from '@domain/auth/types';
 import { HashingService } from '@modules/hashing/hashing.service';
 import { AccountNotActivatedError } from '@domain/auth/errors/account-not-activated.error';
+import { SessionAuthBridge } from '@domain/auth/services/session-auth.bridge';
 
 export interface LoginInput {
   email: Email;
@@ -32,6 +33,7 @@ export class LoginUseCase {
     private readonly refreshTokenRepository: Repository<RefreshTokenEntity>,
     private readonly tokenService: TokenService,
     private readonly hashingService: HashingService,
+    private readonly sessionAuthBridge: SessionAuthBridge,
   ) {}
 
   async execute(options: LoginInput): Promise<LoginOutput> {
@@ -67,6 +69,7 @@ export class LoginUseCase {
     );
 
     await this.refreshTokenRepository.save(tokenEntity);
+    await this.sessionAuthBridge.setSessionInCache(tokenEntity.family);
 
     return {
       accessToken,
@@ -77,7 +80,8 @@ export class LoginUseCase {
   private async getResendActivationChallenge(
     email: Email,
   ): Promise<AccountActivationChallenge> {
-    const data = await this.tokenService.getAccountActivationChallengeByEmail(email);
+    const data =
+      await this.tokenService.getAccountActivationChallengeByEmail(email);
 
     if (data) return data;
 

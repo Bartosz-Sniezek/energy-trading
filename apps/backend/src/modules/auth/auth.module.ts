@@ -6,7 +6,6 @@ import { RefreshTokenEntity } from '../../domain/auth/entities/refresh-token.ent
 import { TokenService } from '@domain/auth/services/token.service';
 import { AppConfigModule } from '@technical/app-config/app-config.module';
 import { DatetimeModule } from '@technical/datetime/datetime.module';
-import { JwtModule } from '@nestjs/jwt';
 import { CookieService } from './cookie.service';
 import { AuthController } from './auth.controller';
 import { HashingModule } from '@modules/hashing/hashing.module';
@@ -16,14 +15,18 @@ import { RotateTokenUseCase } from './use-cases/rotate-token.use-case';
 import { AccountTokenActivationResendRequestedUseCase } from './use-cases/account-token-activation-resend-requested.use-case';
 import { TokensService } from '@modules/users/token.service';
 import { ActivateUserAccountUseCase } from './use-cases/activate-user-account.use-case';
+import { SessionAuthBridge } from '@domain/auth/services/session-auth.bridge';
+import { RedisModule } from '@technical/redis/redis.module';
+import { JwtAuthModule } from '@modules/jwt-auth/jwt-auth.module';
 
 @Module({
   imports: [
     AppConfigModule,
     AppCacheModule,
-    JwtModule,
+    JwtAuthModule,
     DatetimeModule,
     HashingModule,
+    RedisModule,
     TypeOrmModule.forFeature([UserEntity, RefreshTokenEntity]),
   ],
   providers: [
@@ -32,6 +35,7 @@ import { ActivateUserAccountUseCase } from './use-cases/activate-user-account.us
     CookieService,
     LoginUseCase,
     LogoutUseCase,
+    SessionAuthBridge,
     RotateTokenUseCase,
     ActivateUserAccountUseCase,
     AccountTokenActivationResendRequestedUseCase,
