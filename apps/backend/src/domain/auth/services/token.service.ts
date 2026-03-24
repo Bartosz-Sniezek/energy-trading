@@ -77,14 +77,6 @@ export class TokenService {
     return `blacklist:refresh_token:${token}`;
   }
 
-  private composeResendActivationTokenKeyByEmail(email: Email): string {
-    return `email:resend_activation_token:${email.getValue()}`;
-  }
-
-  private composeResendActivationTokenKeyByToken(email: Email): string {
-    return `token:resend_activation_token:${email.getValue()}`;
-  }
-
   private composeAccountActivationTokenChallengeKeyByEmail(
     email: Email,
   ): string {
@@ -299,4 +291,6 @@ export class TokenService {
   private generateRefreshToken(): RefreshToken {
     return randomBytes(64).toString('hex') as RefreshToken;
   }
+
+
 }

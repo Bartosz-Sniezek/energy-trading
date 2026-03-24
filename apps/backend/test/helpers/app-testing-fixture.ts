@@ -15,11 +15,15 @@ import { AuthenticatedClient } from './authenticated-client';
 import { RefreshTokenFixture } from 'test/fixtures/refresh-token.fixture';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { MAIL_SERVICE } from '@technical/mailing/constants';
-import { MailService } from '@technical/mailing/interfaces/mail-service';
 import { PROBLEM_DETAILS_LOGGER } from '@common/filters/problem-details-error.filter';
+import { PriceEngineRedisConsumer } from '@modules/price-engine-redis-consumer/price-engine-redis-consumer';
+import { PriceEngineGateway } from '@modules/price-engine-gateway/price-engine-gateway';
+import { MailService } from '@technical/mailing/interfaces/mail-service';
+import { createKafkaMock } from 'test/mocks/kafka/kafka.mock';
 
 export interface CreateOptions {
   mockKafka?: true;
+  mockWs?: true;
   useLoggers?: true;
   mailerMock?: MailService;
 }
@@ -46,12 +50,21 @@ export class AppTestingFixture {
     // Intention: Validate flows, not the hashing algorithm itself
     moduleFixture.overrideProvider(HASHING_SERVICE_SALT_ROUNDS).useValue(4);
 
-    if (options?.mockKafka)
+    if (options?.mockKafka) {
+      const kafkaMock = createKafkaMock();
+
       moduleFixture
         .overrideProvider(KAFKA_SERVICE)
-        .useValue(mock<KafkaJS.Kafka>())
-        .overrideProvider(UsersOutboxConsumer)
-        .useValue(mock<UsersOutboxConsumer>());
+        .useValue(kafkaMock.kafkaMock)
+        // .overrideProvider(UsersOutboxConsumer)
+        // .useValue(mock<UsersOutboxConsumer>())
+        // .overrideProvider(PriceEngineRedisConsumer)
+        // .useValue(mock<PriceEngineRedisConsumer>());
+    }
+
+    if (options?.mockWs) {
+      moduleFixture.overrideProvider(PriceEngineGateway).useValue(mock<PriceEngineGateway>());
+    }
 
     if (options?.mailerMock) {
       moduleFixture.overrideProvider(MAIL_SERVICE).useValue(options.mailerMock);
@@ -69,6 +82,14 @@ export class AppTestingFixture {
     configureApp(app);
 
     return new AppTestingFixture(app);
+  }
+
+  static async createWithMocks(): Promise<AppTestingFixture> {
+    return AppTestingFixture.create({
+      mailerMock: mock<MailService>(),
+      mockKafka: true,
+      mockWs: true,
+    });
   }
 
   async init(): Promise<INestApplication<App>> {

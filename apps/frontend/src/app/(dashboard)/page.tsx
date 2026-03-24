@@ -1,5 +1,7 @@
 "use client";
 
+import { PriceFeedDashboard } from "./feed-dashboard";
+
 export default function Dashboard() {
-  return <div>Dashboard</div>;
+  return <PriceFeedDashboard instruments={["NG", "CL", "BZ", "RB", "HO"]} />;
 }

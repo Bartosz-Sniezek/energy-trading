@@ -5,6 +5,7 @@ import { RefreshTokenEntity } from '@domain/auth/entities/refresh-token.entity';
 import { DatetimeService } from '@technical/datetime/datetime.service';
 import { TokenService } from '@domain/auth/services/token.service';
 import { UserId } from '@modules/users/types';
+import { SessionAuthBridge } from '@domain/auth/services/session-auth.bridge';
 
 @Injectable()
 export class LogoutUseCase {
@@ -13,6 +14,7 @@ export class LogoutUseCase {
     private readonly refreshTokenRepository: Repository<RefreshTokenEntity>,
     private readonly datetimeService: DatetimeService,
     private readonly tokenService: TokenService,
+    private readonly sessionAuthBridge: SessionAuthBridge,
   ) {}
 
   async execute(userId: UserId, sessionId: string): Promise<void> {
@@ -35,6 +37,7 @@ export class LogoutUseCase {
     );
 
     await this.tokenService.blacklistSession(userId, sessionId);
+    await this.sessionAuthBridge.removeSessionFromCache(sessionId);
 
     return;
   }

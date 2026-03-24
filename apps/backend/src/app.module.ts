@@ -11,6 +11,9 @@ import {
   PROBLEM_DETAILS_LOGGER,
   ProblemDetailsErrorFilter,
 } from '@common/filters/problem-details-error.filter';
+import { PriceEngineModule } from '@modules/price-engine/price-engine.module';
+import { PriceEngineRedisConsumerModule } from '@modules/price-engine-redis-consumer/price-engine-redis-consumer.module';
+import { PriceEngineGatewayModule } from '@modules/price-engine-gateway/price-engine-gateway.module';
 
 @Module({
   imports: [
@@ -21,6 +24,9 @@ import {
     UsersOutboxEmailConsumerModule,
     HttpApiModule,
     HealthModule,
+    PriceEngineModule,
+    PriceEngineRedisConsumerModule,
+    PriceEngineGatewayModule,
   ],
   controllers: [],
   providers: [

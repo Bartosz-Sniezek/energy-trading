@@ -56,6 +56,8 @@ const appConfigSchema = z
     ALLOWED_ORIGINS: z.string(),
     FRONTEND_BASE_URL: z.string(),
     COMPANY_NAME: z.string(),
+    PRICE_ENGINE_TICK_TOPIC: z.string(),
+    PRICE_ENGINE_TICK_INTERVAL_MS: z.coerce.number().int().positive(),
   })
   .superRefine((data, ctx) => {
     refineMailerTransportMode(data, ctx);
@@ -106,5 +108,12 @@ export class AppConfig {
 
   isProduction(): boolean {
     return this._values.NODE_ENV === 'production';
+  }
+
+  get tickConfig() {
+    return {
+      tickTopic: this._values.PRICE_ENGINE_TICK_TOPIC,
+      tickInterval: this._values.PRICE_ENGINE_TICK_INTERVAL_MS,
+    };
   }
 }

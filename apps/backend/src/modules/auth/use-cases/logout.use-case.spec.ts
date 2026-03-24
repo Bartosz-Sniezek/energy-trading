@@ -8,17 +8,21 @@ import { AuthenticatedUser } from '@domain/auth/types';
 import { randomUserId } from 'test/faker/random-user-id';
 import { randomUUID } from 'crypto';
 import { randomEmail } from 'test/faker/random-email';
+import { createSessionAuthBridgeMock } from 'test/mocks/auth/session-auth-bridge.mock';
 
 describe(LogoutUseCase.name, () => {
   const refreshTokenRepository = mock<Repository<RefreshTokenEntity>>();
   const datetimeService = mock<DatetimeService>();
   const tokenService = mock<TokenService>();
+  const { sessionAuthBridgeMock, resetSessionAuthBridgeMock } =
+    createSessionAuthBridgeMock();
   const now = new Date();
 
   beforeEach(() => {
     mockReset(refreshTokenRepository);
     mockReset(datetimeService);
     mockReset(tokenService);
+    resetSessionAuthBridgeMock();
     datetimeService.new.mockReturnValue(now);
   });
 
@@ -27,10 +31,12 @@ describe(LogoutUseCase.name, () => {
     email: randomEmail().getValue(),
     sessionId: randomUUID(),
   };
+
   const logoutUseCase = new LogoutUseCase(
     refreshTokenRepository,
     datetimeService,
     tokenService,
+    sessionAuthBridgeMock,
   );
 
   describe(LogoutUseCase.prototype.execute.name, () => {
@@ -74,6 +80,18 @@ describe(LogoutUseCase.name, () => {
         {
           revokedAt: now,
         },
+      );
+    });
+
+    it('should remove session from cache', async () => {
+      tokenService.isSessionBlacklisted.mockResolvedValue(false);
+
+      await expect(
+        logoutUseCase.execute(user.userId, user.sessionId),
+      ).toResolve();
+
+      expect(sessionAuthBridgeMock.removeSessionFromCache).toHaveBeenCalledWith(
+        user.sessionId,
       );
     });
   });

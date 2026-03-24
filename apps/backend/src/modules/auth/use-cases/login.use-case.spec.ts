@@ -17,6 +17,7 @@ import {
 import { HashingService } from '@modules/hashing/hashing.service';
 import { Hash } from '@modules/users/types';
 import { AccountNotActivatedError } from '@domain/auth/errors/account-not-activated.error';
+import { createSessionAuthBridgeMock } from 'test/mocks/auth/session-auth-bridge.mock';
 
 describe(LoginUseCase.name, () => {
   const usersRepository = mock<Repository<UserEntity>>();
@@ -31,12 +32,15 @@ describe(LoginUseCase.name, () => {
   });
   const hashingService = mock<HashingService>();
   const accessTokenMock = randomBytes(64).toString('hex') as AccessToken;
+  const { sessionAuthBridgeMock, resetSessionAuthBridgeMock } =
+    createSessionAuthBridgeMock();
 
   const loginUseCase = new LoginUseCase(
     usersRepository,
     refreshTokenRepository,
     tokenService,
     hashingService,
+    sessionAuthBridgeMock,
   );
 
   beforeEach(() => {
@@ -44,6 +48,7 @@ describe(LoginUseCase.name, () => {
     mockReset(refreshTokenRepository);
     mockReset(tokenService);
     mockReset(hashingService);
+    resetSessionAuthBridgeMock();
     tokenService.createRefreshToken.mockReturnValue({
       tokenEntity: refreshTokenEntityMock,
       token: refreshToken,
@@ -159,6 +164,9 @@ describe(LoginUseCase.name, () => {
       expect(tokenService.createRefreshToken).toHaveBeenCalledWith(userMock);
       expect(tokenService.generateAccessToken).toHaveBeenCalledWith(
         userMock,
+        refreshTokenEntityMock.family,
+      );
+      expect(sessionAuthBridgeMock.setSessionInCache).toHaveBeenCalledWith(
         refreshTokenEntityMock.family,
       );
     });

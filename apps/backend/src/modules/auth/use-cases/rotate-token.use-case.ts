@@ -1,15 +1,26 @@
 import { RefreshTokenEntity } from '@domain/auth/entities/refresh-token.entity';
 import { InvalidRefreshToken } from '@domain/auth/errors/invalid-refresh-token.error';
-import { RefreshToken, TokenGenerationOutput } from '@domain/auth/types';
+import {
+  AccessToken,
+  RefreshToken,
+  TokenGenerationOutput,
+} from '@domain/auth/types';
 import { UserEntity } from '@modules/users/entities/user.entity';
 import { DatetimeService } from '@technical/datetime/datetime.service';
 import { DataSource, IsNull } from 'typeorm';
 import { TokenService } from '@domain/auth/services/token.service';
 import { InjectDataSource } from '@nestjs/typeorm';
+import { SessionAuthBridge } from '@domain/auth/services/session-auth.bridge';
 
+type TransactionSuccessResultData = TokenGenerationOutput & {
+  refreshTokenFamiliy: string;
+};
 type TransactionResult =
-  | { success: true; data: TokenGenerationOutput }
-  | { success: false; error: Error };
+  | {
+      success: true;
+      data: TransactionSuccessResultData;
+    }
+  | { success: false; error: InvalidRefreshToken };
 
 export class RotateTokenUseCase {
   constructor(
@@ -17,6 +28,7 @@ export class RotateTokenUseCase {
     private readonly datasource: DataSource,
     private readonly datetimeService: DatetimeService,
     private readonly tokenService: TokenService,
+    private readonly sessionAuthBridge: SessionAuthBridge,
   ) {}
 
   async execute(token: RefreshToken): Promise<TokenGenerationOutput> {
@@ -25,10 +37,21 @@ export class RotateTokenUseCase {
     await this.tokenService.blacklistRefreshToken(token);
 
     if (!result.success) {
+      if (result.error.family)
+        await this.sessionAuthBridge.removeSessionFromCache(
+          result.error.family,
+        );
+
       throw result.error;
     }
 
-    return result.data;
+    await this.sessionAuthBridge.setSessionInCache(
+      result.data.refreshTokenFamiliy,
+    );
+    return {
+      accessToken: result.data.accessToken,
+      refreshToken: result.data.refreshToken,
+    };
   }
 
   private async handle(token: RefreshToken): Promise<TransactionResult> {
@@ -70,12 +93,18 @@ export class RotateTokenUseCase {
             },
           );
 
-          return { success: false, error: new InvalidRefreshToken() };
+          return {
+            success: false,
+            error: new InvalidRefreshToken(existingToken.family),
+          };
         }
 
         //expired
         if (now > existingToken.expiresAt) {
-          return { success: false, error: new InvalidRefreshToken() };
+          return {
+            success: false,
+            error: new InvalidRefreshToken(existingToken.family),
+          };
         }
 
         const user = await entityManager
@@ -83,9 +112,15 @@ export class RotateTokenUseCase {
           .findOneBy({ id: existingToken.userId });
 
         if (user == null)
-          return { success: false, error: new InvalidRefreshToken() };
+          return {
+            success: false,
+            error: new InvalidRefreshToken(existingToken.family),
+          };
         if (!user.isActive)
-          return { success: false, error: new InvalidRefreshToken() };
+          return {
+            success: false,
+            error: new InvalidRefreshToken(existingToken.family),
+          };
 
         const newRefreshToken = this.tokenService.createRefreshToken(
           user,
@@ -112,6 +147,7 @@ export class RotateTokenUseCase {
           data: {
             accessToken,
             refreshToken: newRefreshToken.token,
+            refreshTokenFamiliy: newRefreshToken.tokenEntity.family,
           },
         };
       },
