@@ -8,6 +8,7 @@ import { randomLastName } from 'test/faker/random-last-name';
 import { UserEvents } from '@domain/users/events.enum';
 import { InvalidPayloadDataError } from '@common/errors/invalid-payload-data.error';
 import { InvalidEventTypeError } from '@common/errors/invalid-event-type.error';
+import { randomCorrelationId } from 'test/faker/random-correlation-id';
 
 describe(UserAccountCreatedEvent.name, () => {
   const email = randomEmail();
@@ -26,6 +27,7 @@ describe(UserAccountCreatedEvent.name, () => {
   };
   const validEventData: DebeziumOutboxMessage = {
     id: v7(),
+    correlationId: randomCorrelationId(),
     aggregateId: v7(),
     eventType: UserEvents.USER_ACCOUNT_REGISTERED,
     timestamp,

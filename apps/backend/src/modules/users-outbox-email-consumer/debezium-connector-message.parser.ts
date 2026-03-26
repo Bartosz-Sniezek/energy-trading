@@ -5,6 +5,7 @@ import { InvalidMessagePermanentError } from './errors/invalid-message.permanent
 
 const debeziumMessageSchema = z.object({
   id: z.string(),
+  correlationId: z.uuidv7(),
   aggregateId: z.string(),
   eventType: z.string(),
   timestamp: z.string(),
@@ -29,9 +30,11 @@ export class DebeziumConnectorMessageParser {
       const id = message.headers?.['id']?.toString();
       const aggregateId = key?.['payload'];
       const eventType = message.headers?.['event_type']?.toString();
+      const correlationId = message.headers?.['correlation_id']?.toString();
 
       const eventRawData = <DebeziumOutboxMessage>{
         id,
+        correlationId,
         aggregateId,
         eventType,
         timestamp: message.timestamp,

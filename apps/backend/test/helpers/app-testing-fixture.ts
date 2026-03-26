@@ -1,7 +1,5 @@
-import { KafkaJS } from '@confluentinc/kafka-javascript';
 import { HASHING_SERVICE_SALT_ROUNDS } from '@modules/hashing/constants';
 import { KAFKA_SERVICE } from '@modules/kafka/constants';
-import { UsersOutboxConsumer } from '@modules/users-outbox-email-consumer/users-outbox.consumer';
 import { INestApplication, Logger, Type } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -16,10 +14,15 @@ import { RefreshTokenFixture } from 'test/fixtures/refresh-token.fixture';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { MAIL_SERVICE } from '@technical/mailing/constants';
 import { PROBLEM_DETAILS_LOGGER } from '@common/filters/problem-details-error.filter';
-import { PriceEngineRedisConsumer } from '@modules/price-engine-redis-consumer/price-engine-redis-consumer';
 import { PriceEngineGateway } from '@modules/price-engine-gateway/price-engine-gateway';
 import { MailService } from '@technical/mailing/interfaces/mail-service';
 import { createKafkaMock } from 'test/mocks/kafka/kafka.mock';
+import { ClsService } from 'nestjs-cls';
+import { withCorrelationIdContext } from './with-correlation-id-context';
+import {
+  ContextedFn,
+  withRandomCorrelationContext,
+} from './with-random-correlation-context';
 
 export interface CreateOptions {
   mockKafka?: true;
@@ -55,15 +58,17 @@ export class AppTestingFixture {
 
       moduleFixture
         .overrideProvider(KAFKA_SERVICE)
-        .useValue(kafkaMock.kafkaMock)
-        // .overrideProvider(UsersOutboxConsumer)
-        // .useValue(mock<UsersOutboxConsumer>())
-        // .overrideProvider(PriceEngineRedisConsumer)
-        // .useValue(mock<PriceEngineRedisConsumer>());
+        .useValue(kafkaMock.kafkaMock);
+      // .overrideProvider(UsersOutboxConsumer)
+      // .useValue(mock<UsersOutboxConsumer>())
+      // .overrideProvider(PriceEngineRedisConsumer)
+      // .useValue(mock<PriceEngineRedisConsumer>());
     }
 
     if (options?.mockWs) {
-      moduleFixture.overrideProvider(PriceEngineGateway).useValue(mock<PriceEngineGateway>());
+      moduleFixture
+        .overrideProvider(PriceEngineGateway)
+        .useValue(mock<PriceEngineGateway>());
     }
 
     if (options?.mailerMock) {
@@ -124,6 +129,17 @@ export class AppTestingFixture {
     );
   }
 
+  async runWithRandomCorrelationContext<T>(
+    callback: () => Promise<T>,
+  ): Promise<T> {
+    return withCorrelationIdContext<T>(this.app.get(ClsService), callback);
+  }
+
+  contextedCorrelationIdExecution<TArgs extends unknown[], TResult>(
+    fn: (...args: TArgs) => Promise<TResult>,
+  ): ContextedFn<(...args: TArgs) => Promise<TResult>> {
+    return withRandomCorrelationContext(this.app.get(ClsService), fn);
+  }
   getUsersFixture(): UsersFixture {
     return this._usersFixture;
   }

@@ -7,6 +7,7 @@ import { DatetimeService } from '@technical/datetime/datetime.service';
 import { UserAccountAlreadyActivatedError } from '@domain/auth/errors/user-account-already-activated.error';
 import { InvalidVerificationTokenError } from '@domain/auth/errors/invalid-verification-token.error';
 import { EmailVerificationTokenExpiredError } from '@domain/auth/errors/email-verification-token-expired.error';
+import { ClsService } from 'nestjs-cls';
 
 export interface ActivateUserAccountParams {
   token: string;
@@ -18,6 +19,7 @@ export class ActivateUserAccountUseCase {
     @InjectDataSource()
     private readonly dataSource: DataSource,
     private readonly datetimeService: DatetimeService,
+    private readonly cls: ClsService,
   ) {}
 
   async execute(params: ActivateUserAccountParams): Promise<void> {
@@ -44,7 +46,7 @@ export class ActivateUserAccountUseCase {
       user.isActive = true;
       await usersRepository.save(user);
       await usersOutboxRepository.save(
-        UserOutboxEntity.userAccountActivated(user.id, {
+        UserOutboxEntity.userAccountActivated(user.id, this.cls.getId(), {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,

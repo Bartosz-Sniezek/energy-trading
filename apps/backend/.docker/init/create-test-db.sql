@@ -1,1 +1,1 @@
-CREATE DATABASE energy_trading_test;
+CREATE DATABASE energy_trading_platform_test;

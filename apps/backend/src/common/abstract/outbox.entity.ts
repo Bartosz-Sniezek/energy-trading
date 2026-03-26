@@ -8,6 +8,12 @@ export abstract class OutboxEntity<
   id: string;
 
   @Column({
+    name: 'correlation_id',
+    type: 'uuid',
+  })
+  correlationId: string;
+
+  @Column({
     name: 'aggregate_id',
     type: 'uuid',
   })

@@ -2,6 +2,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class AddUsersTable1771109993911 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
     await queryRunner.query(`
         -- Users table
         CREATE TABLE users (
@@ -20,6 +21,7 @@ export class AddUsersTable1771109993911 implements MigrationInterface {
         -- Outbox table
         CREATE TABLE users_outbox (
             id UUID PRIMARY KEY DEFAULT uuidv7(),
+            correlation_id UUID NOT NULL,
             aggregate_id UUID NOT NULL,
             aggregate_type VARCHAR(255) NOT NULL DEFAULT 'USER',
             event_type VARCHAR(255) NOT NULL,

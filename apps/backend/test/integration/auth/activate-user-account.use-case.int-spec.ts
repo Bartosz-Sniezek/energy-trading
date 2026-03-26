@@ -1,7 +1,5 @@
 import { INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
-import { Repository } from 'typeorm';
-import { UserEntity } from '@modules/users/entities/user.entity';
 import { AppTestingFixture } from 'test/helpers/app-testing-fixture';
 import { ActivateUserAccountUseCase } from '@modules/auth/use-cases/activate-user-account.use-case';
 import { UserOutboxEntity } from '@modules/users/entities/users-outbox.entity';
@@ -14,21 +12,22 @@ import { UserEvents } from '@domain/users/events.enum';
 import { DatetimeService } from '@technical/datetime/datetime.service';
 import { vi } from 'vitest';
 import { UserAccountActivatedPayload } from '@modules/users/entities/schemas/outbox-payload.schema';
-import { mock } from 'vitest-mock-extended';
+import { ContextedFn } from 'test/helpers/with-random-correlation-context';
 
 describe(ActivateUserAccountUseCase.name, () => {
   let testingFixture: AppTestingFixture;
   let app: INestApplication<App>;
-  let command: ActivateUserAccountUseCase;
-  let usersRepository: Repository<UserEntity>;
   let usersFixture: UsersFixture;
   let datetimeService: DatetimeService;
+  let contextedCommand: ContextedFn<ActivateUserAccountUseCase['execute']>;
 
   beforeAll(async () => {
     testingFixture = await AppTestingFixture.createWithMocks();
     app = testingFixture.getApp();
-    command = app.get(ActivateUserAccountUseCase);
-    usersRepository = testingFixture.getRepository(UserEntity);
+    const command = app.get(ActivateUserAccountUseCase);
+    contextedCommand = testingFixture.contextedCorrelationIdExecution(
+      command.execute.bind(command),
+    );
     usersFixture = testingFixture.getUsersFixture();
     datetimeService = app.get(DatetimeService);
   });
@@ -44,7 +43,7 @@ describe(ActivateUserAccountUseCase.name, () => {
   describe('when user account does not exist', () => {
     it('should throw InvalidVerificationTokenError', async () => {
       await expect(
-        command.execute({
+        contextedCommand({
           token: 'token',
         }),
       ).rejects.toThrow(InvalidVerificationTokenError);
@@ -61,11 +60,10 @@ describe(ActivateUserAccountUseCase.name, () => {
       );
 
       await expect(
-        command.execute({
+        contextedCommand({
           token: user.activationToken,
         }),
       ).rejects.toThrow(EmailVerificationTokenExpiredError);
-      console.log('hmm end');
     });
 
     it('should throw EmailVerificationTokenExpiredError after 24 hours', async () => {
@@ -78,7 +76,7 @@ describe(ActivateUserAccountUseCase.name, () => {
       vi.spyOn(DatetimeService.prototype, 'new').mockReturnValue(expiredDate);
 
       await expect(
-        command.execute({
+        contextedCommand({
           token: user.activationToken,
         }),
       ).rejects.toThrow(EmailVerificationTokenExpiredError);
@@ -90,7 +88,7 @@ describe(ActivateUserAccountUseCase.name, () => {
       const { user } = await usersFixture.createActivatedUser();
 
       await expect(
-        command.execute({
+        contextedCommand({
           token: user.activationToken,
         }),
       ).rejects.toThrow(UserAccountAlreadyActivatedError);
@@ -102,7 +100,7 @@ describe(ActivateUserAccountUseCase.name, () => {
       const { user } = await usersFixture.createUser();
 
       await expect(
-        command.execute({
+        contextedCommand({
           token: user.activationToken,
         }),
       ).toResolve();
@@ -119,6 +117,8 @@ describe(ActivateUserAccountUseCase.name, () => {
       expect(userActivatedEvent).toMatchObject<UserOutboxEntity>({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         id: expect.toBeString(),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        correlationId: expect.toBeString(),
         aggregateId: user.id,
         eventType: UserEvents.USER_ACCOUNT_ACTIVATED,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -140,7 +140,7 @@ describe(ActivateUserAccountUseCase.name, () => {
       // upper datetime constraint
       vi.spyOn(datetimeService, 'new').mockReturnValue(addDays(now, 1));
       await expect(
-        command.execute({
+        contextedCommand({
           token: user.activationToken,
         }),
       ).toResolve();
@@ -157,6 +157,8 @@ describe(ActivateUserAccountUseCase.name, () => {
       expect(userActivatedEvent).toMatchObject<UserOutboxEntity>({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         id: expect.toBeString(),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        correlationId: expect.toBeString(),
         aggregateId: user.id,
         eventType: UserEvents.USER_ACCOUNT_ACTIVATED,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

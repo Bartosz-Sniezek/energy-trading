@@ -14,6 +14,7 @@ import {
   UserAccountCreatedPayload,
   UserAccountRegistrationAttemptedPayload,
 } from '@modules/users/entities/schemas/outbox-payload.schema';
+import { type ContextedFn } from 'test/helpers/with-random-correlation-context';
 
 describe(CreateUserAccountCommand.name, () => {
   let testingFixture: AppTestingFixture;
@@ -22,11 +23,15 @@ describe(CreateUserAccountCommand.name, () => {
   let usersRepository: Repository<UserEntity>;
   let usersOutboxRepository: Repository<UserOutboxEntity>;
   let datetimeService: DatetimeService;
+  let contextedCommand: ContextedFn<CreateUserAccountCommand['execute']>;
 
   beforeAll(async () => {
     testingFixture = await AppTestingFixture.createWithMocks();
     app = testingFixture.getApp();
     createUserAccountCommand = app.get(CreateUserAccountCommand);
+    contextedCommand = testingFixture.contextedCorrelationIdExecution(
+      createUserAccountCommand.execute.bind(createUserAccountCommand),
+    );
     usersRepository = testingFixture.getRepository(UserEntity);
     usersOutboxRepository = testingFixture.getRepository(UserOutboxEntity);
     datetimeService = app.get(DatetimeService);
@@ -46,7 +51,7 @@ describe(CreateUserAccountCommand.name, () => {
       const lastName = 'Example';
 
       await expect(
-        createUserAccountCommand.execute({
+        contextedCommand({
           email,
           password,
           firstName,
@@ -85,6 +90,8 @@ describe(CreateUserAccountCommand.name, () => {
       expect(userOutboxEvent).toMatchObject<UserOutboxEntity>({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         id: expect.toBeString(),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        correlationId: expect.toBeString(),
         aggregateId: user.id,
         eventType: UserEvents.USER_ACCOUNT_REGISTERED,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -109,7 +116,7 @@ describe(CreateUserAccountCommand.name, () => {
       const firstName = 'Existing';
       const lastName = 'Example';
 
-      await createUserAccountCommand.execute({
+      await contextedCommand({
         email,
         password,
         firstName,
@@ -121,7 +128,7 @@ describe(CreateUserAccountCommand.name, () => {
       });
 
       await expect(
-        createUserAccountCommand.execute({
+        contextedCommand({
           email,
           password,
           firstName,
@@ -144,6 +151,8 @@ describe(CreateUserAccountCommand.name, () => {
       expect(outboxEvent).toMatchObject<UserOutboxEntity>({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         id: expect.toBeString(),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        correlationId: expect.toBeString(),
         aggregateId: existingUser.id,
         eventType:
           UserEvents.USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT,
@@ -166,13 +175,13 @@ describe(CreateUserAccountCommand.name, () => {
       const password = Password.create('Qwerty12345!');
 
       await Promise.all([
-        createUserAccountCommand.execute({
+        contextedCommand({
           email,
           password,
           firstName: 'Test',
           lastName: 'User',
         }),
-        createUserAccountCommand.execute({
+        contextedCommand({
           email,
           password,
           firstName: 'Test',
@@ -191,13 +200,13 @@ describe(CreateUserAccountCommand.name, () => {
       const password2 = Password.create('Qwerty12345!');
 
       await Promise.all([
-        createUserAccountCommand.execute({
+        contextedCommand({
           email: email1,
           password: password1,
           firstName: 'Test',
           lastName: 'User',
         }),
-        createUserAccountCommand.execute({
+        contextedCommand({
           email: email2,
           password: password2,
           firstName: 'Test',
@@ -219,7 +228,7 @@ describe(CreateUserAccountCommand.name, () => {
       const email = randomEmail();
       const password1 = Password.create('Qwerty12345!');
 
-      await createUserAccountCommand.execute({
+      await contextedCommand({
         email: email,
         password: password1,
         firstName: 'Test',

@@ -7,7 +7,7 @@
     "database.port": "5432",
     "database.user": "postgres",
     "database.password": "postgres",
-    "database.dbname": "energy_trading_dev",
+    "database.dbname": "energy_trading_platform_dev",
     "topic.prefix": "energy_trading",
     "table.include.list": "public.users_outbox",
     "slot.name": "debezium_users_outbox",
@@ -19,7 +19,7 @@
     "transforms.outbox.table.field.event.key": "aggregate_id",
     "transforms.outbox.route.by.field": "aggregate_type",
     "transforms.outbox.route.topic.replacement": "users.events.${routedByValue}",
-    "transforms.outbox.table.fields.additional.placement": "event_type:header,aggregate_type:header",
+    "transforms.outbox.table.fields.additional.placement": "event_type:header,aggregate_type:header,correlation_id:header",
     "tombstones.on.delete": "false",
     "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
     "schema.history.internal.kafka.topic": "schema-changes.users-outbox"

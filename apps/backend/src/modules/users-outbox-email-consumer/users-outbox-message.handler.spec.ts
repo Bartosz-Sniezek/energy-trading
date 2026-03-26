@@ -16,8 +16,9 @@ import { v7 } from 'uuid';
 import { UserAccountActivationTokenResendRequestedEvent } from './events/user-account-activation-token-resend-requested.event';
 import { EventMapper } from './interfaces/event-mapper';
 import { EmailTemplate } from './interfaces/email-template.strategy';
+import { randomCorrelationId } from 'test/faker/random-correlation-id';
 
-describe(UsersOutboxMessageHandler.name, () => {
+describe('UsersOutboxMessageHandler', () => {
   const messageParserMock = mock<DebeziumConnectorMessageParser>();
   const eventMapperRegistryMock = mock<EventMapperRegistry>();
   const mailServiceMock = mock<MailService>();
@@ -35,10 +36,11 @@ describe(UsersOutboxMessageHandler.name, () => {
     mockReset(mailServiceMock);
   });
 
-  describe(UsersOutboxMessageHandler.prototype.handleMessage.name, () => {
+  describe('handleMessage', () => {
     it('should process message', async () => {
       const message: DebeziumOutboxMessage = {
         id: v7(),
+        correlationId: randomCorrelationId(),
         aggregateId: v7(),
         timestamp: new Date().toISOString(),
         eventType: UserEvents.ACTIVATION_TOKEN_RESEND_REQUESTED,
