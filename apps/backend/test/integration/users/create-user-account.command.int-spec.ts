@@ -73,6 +73,7 @@ describe(CreateUserAccountCommand.name, () => {
         email: email.getValue(),
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         passwordHash: expect.toBeString(),
+        balance: 0,
         firstName,
         lastName,
         isActive: false,

@@ -74,6 +74,13 @@ export class UserEntity {
   })
   activationTokenExpiresAt: Date;
 
+  @Column({
+    name: 'balance',
+    type: 'numeric',
+    default: 0,
+  })
+  balance: number = 0;
+
   @CreateDateColumn({
     name: 'created_at',
     type: 'timestamp with time zone',
@@ -93,6 +100,7 @@ export class UserEntity {
       passwordHash: options.passwordHash,
       firstName: options.firstName,
       lastName: options.lastName,
+      balance: 0,
       isActive: false,
       activationToken: options.activationToken,
       activationTokenExpiresAt: options.activationTokenExpiresAt,

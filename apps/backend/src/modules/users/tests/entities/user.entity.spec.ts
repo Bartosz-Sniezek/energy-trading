@@ -38,6 +38,7 @@ describe(UserEntity.name, () => {
       expect(entity.activationTokenExpiresAt.getTime()).toBe(
         expirationDate.getTime(),
       );
+      expect(entity.balance).toBe(0);
       expect(entity.createdAt.getTime()).toBe(now.getTime());
       expect(entity.updatedAt.getTime()).toBe(now.getTime());
     });
