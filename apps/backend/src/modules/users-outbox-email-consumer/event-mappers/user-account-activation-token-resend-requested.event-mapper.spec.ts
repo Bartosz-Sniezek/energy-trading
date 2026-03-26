@@ -10,6 +10,7 @@ import { UserAccountActivationTokenResendRequestedEventMapper } from './user-acc
 import { UserAccountActivationTokenResendRequestedTemplateStrategy } from '../interfaces/user-account-activation-token-resend-requested-template.strategy';
 import { UserAccountActivationTokenResendRequestedEvent } from '../events/user-account-activation-token-resend-requested.event';
 import { randomUUID } from 'crypto';
+import { randomCorrelationId } from 'test/faker/random-correlation-id';
 
 describe(UserAccountActivationTokenResendRequestedEventMapper.name, () => {
   const templateMock =
@@ -22,6 +23,7 @@ describe(UserAccountActivationTokenResendRequestedEventMapper.name, () => {
     it('should parse message', () => {
       const validMessage: DebeziumOutboxMessage = {
         id: v7(),
+        correlationId: randomCorrelationId(),
         aggregateId: v7(),
         timestamp: new Date().toISOString(),
         eventType: UserEvents.ACTIVATION_TOKEN_RESEND_REQUESTED,

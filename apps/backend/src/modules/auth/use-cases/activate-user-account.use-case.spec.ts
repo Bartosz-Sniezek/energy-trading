@@ -14,6 +14,8 @@ import { randomFirstName } from 'test/faker/random-first-name';
 import { randomLastName } from 'test/faker/random-last-name';
 import { randomUUID } from 'crypto';
 import { Hash } from '@modules/users/types';
+import { createClsServiceMock } from 'test/mocks/kafka/cls-service.mock';
+import { randomCorrelationId } from 'test/faker/random-correlation-id';
 
 describe(ActivateUserAccountUseCase.name, () => {
   const usersRepositoryMock = mock<Repository<UserEntity>>();
@@ -21,19 +23,24 @@ describe(ActivateUserAccountUseCase.name, () => {
   const { datasourceMock, entityManagerMock, resetTransactionMock } =
     createTransactionMock();
   const datetimeServiceMock = mock<DatetimeService>();
+  const { clsServiceMock, resetClsServiceMock } = createClsServiceMock();
+  const correlationId = randomCorrelationId();
 
   beforeEach(() => {
     resetTransactionMock();
     mockReset(usersRepositoryMock);
     mockReset(outboxMock);
     mockReset(datetimeServiceMock);
+    resetClsServiceMock();
     entityManagerMock.getRepository.mockReturnValueOnce(usersRepositoryMock);
     entityManagerMock.getRepository.mockReturnValueOnce(outboxMock);
+    clsServiceMock.getId.mockReturnValue(correlationId);
   });
 
   const useCase = new ActivateUserAccountUseCase(
     datasourceMock,
     datetimeServiceMock,
+    clsServiceMock,
   );
 
   describe(useCase.execute.name, () => {
@@ -100,7 +107,7 @@ describe(ActivateUserAccountUseCase.name, () => {
         isActive: true,
       });
       expect(outboxMock.save).toHaveBeenCalledWith(
-        UserOutboxEntity.userAccountActivated(user.id, {
+        UserOutboxEntity.userAccountActivated(user.id, correlationId, {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,

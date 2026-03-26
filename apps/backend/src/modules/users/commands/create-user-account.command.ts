@@ -10,6 +10,7 @@ import { Email } from '@domain/users/value-objects/email';
 import { Password } from '@domain/users/value-objects/password';
 import { handleUniqueViolation } from '@technical/database/helpers/handle-unique-violation';
 import { UniqueViolationError } from '@technical/database/errors/unique-violation.error';
+import { ClsService } from 'nestjs-cls';
 
 export interface CreateUserAccountParams {
   email: Email;
@@ -26,6 +27,7 @@ export class CreateUserAccountCommand {
     private readonly datetimeService: DatetimeService,
     private readonly hashingService: HashingService,
     private readonly tokensService: TokensService,
+    private readonly clsService: ClsService,
   ) {}
 
   async execute(params: CreateUserAccountParams): Promise<void> {
@@ -61,14 +63,18 @@ export class CreateUserAccountCommand {
 
         await entityManager.query('RELEASE SAVEPOINT user_creation_attempt');
         await usersOutboxRepository.save(
-          UserOutboxEntity.userAccountRegistered(newUserAccount.id, {
-            email: newUserAccount.email,
-            firstName: newUserAccount.firstName,
-            lastName: newUserAccount.lastName,
-            activationToken: newUserAccount.activationToken,
-            activationTokenExpirationDate:
-              newUserAccount.activationTokenExpiresAt.toISOString(),
-          }),
+          UserOutboxEntity.userAccountRegistered(
+            newUserAccount.id,
+            this.clsService.getId(),
+            {
+              email: newUserAccount.email,
+              firstName: newUserAccount.firstName,
+              lastName: newUserAccount.lastName,
+              activationToken: newUserAccount.activationToken,
+              activationTokenExpirationDate:
+                newUserAccount.activationTokenExpiresAt.toISOString(),
+            },
+          ),
         );
 
         return;
@@ -117,6 +123,7 @@ export class CreateUserAccountCommand {
     await entityManager.getRepository(UserOutboxEntity).save(
       UserOutboxEntity.userAccountRegistrationAttemptedWithExistingAccount(
         userAccount.id,
+        this.clsService.getId(),
         {
           email: userAccount.email,
           firstName: userAccount.firstName,

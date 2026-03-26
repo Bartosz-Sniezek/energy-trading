@@ -9,6 +9,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DatetimeService } from '@technical/datetime/datetime.service';
 import { DataSource } from 'typeorm';
+import { ClsService } from 'nestjs-cls';
 
 @Injectable()
 export class AccountTokenActivationResendRequestedUseCase {
@@ -18,6 +19,7 @@ export class AccountTokenActivationResendRequestedUseCase {
     private readonly datasource: DataSource,
     private readonly activationTokenService: TokensService,
     private readonly datetimeService: DatetimeService,
+    private readonly clsService: ClsService,
   ) {}
 
   async execute(token: string): Promise<void> {
@@ -61,13 +63,18 @@ export class AccountTokenActivationResendRequestedUseCase {
       );
 
       await outboxRepo.save(
-        UserOutboxEntity.activationTokenResendRequested(user.id, {
-          email: data.email.getValue(),
-          activationToken: newActivationToken,
-          activationTokenExpirationDate: activationTokenExpiresAt.toISOString(),
-          firstName: user.firstName,
-          lastName: user.lastName,
-        }),
+        UserOutboxEntity.activationTokenResendRequested(
+          user.id,
+          this.clsService.getId(),
+          {
+            email: data.email.getValue(),
+            activationToken: newActivationToken,
+            activationTokenExpirationDate:
+              activationTokenExpiresAt.toISOString(),
+            firstName: user.firstName,
+            lastName: user.lastName,
+          },
+        ),
       );
     });
   }

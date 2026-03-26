@@ -7,6 +7,7 @@ import { HttpApiModule } from './http-api/http-api.module';
 import { AuthModule } from '@modules/auth/auth.module';
 import { HealthModule } from '@modules/health/health.module';
 import { APP_FILTER } from '@nestjs/core';
+import { ClsModule } from 'nestjs-cls';
 import {
   PROBLEM_DETAILS_LOGGER,
   ProblemDetailsErrorFilter,
@@ -14,9 +15,20 @@ import {
 import { PriceEngineModule } from '@modules/price-engine/price-engine.module';
 import { PriceEngineRedisConsumerModule } from '@modules/price-engine-redis-consumer/price-engine-redis-consumer.module';
 import { PriceEngineGatewayModule } from '@modules/price-engine-gateway/price-engine-gateway.module';
+import { Request } from 'express';
+import { v7 } from 'uuid';
 
 @Module({
   imports: [
+    ClsModule.forRoot({
+      global: true,
+      middleware: {
+        mount: true,
+        generateId: true,
+        idGenerator: (req: Request) =>
+          req.headers['x-correlation-id']?.toString() ?? v7(),
+      },
+    }),
     AppConfigModule,
     DatabaseModule,
     UsersModule,

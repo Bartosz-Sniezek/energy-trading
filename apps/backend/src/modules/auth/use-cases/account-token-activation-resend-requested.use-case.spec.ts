@@ -24,6 +24,8 @@ import { UserAccountAlreadyActivatedError } from '@domain/auth/errors/user-accou
 import { randomUserId } from 'test/faker/random-user-id';
 import { randomFirstName } from 'test/faker/random-first-name';
 import { randomLastName } from 'test/faker/random-last-name';
+import { createClsServiceMock } from 'test/mocks/kafka/cls-service.mock';
+import { randomCorrelationId } from 'test/faker/random-correlation-id';
 
 describe(AccountTokenActivationResendRequestedUseCase.name, () => {
   const datasourceMock = mock<DataSource>();
@@ -39,13 +41,17 @@ describe(AccountTokenActivationResendRequestedUseCase.name, () => {
   const authTokenServiceMock = mock<TokenService>();
   const usersTokenMock = mock<TokensService>();
   const datetimeServiceMock = mock<DatetimeService>();
+  const { clsServiceMock, resetClsServiceMock } = createClsServiceMock();
   const now = new Date();
   const activationToken = randomUUID();
+  const correlationId = randomCorrelationId();
 
   beforeEach(() => {
     mockReset(entityManagerMock);
     mockReset(usersRepositoryMock);
     mockReset(usersOutboxMock);
+    resetClsServiceMock();
+    clsServiceMock.getId.mockReturnValue(correlationId);
     entityManagerMock.getRepository.mockImplementation(
       (target: EntityTarget<ObjectLiteral>) => {
         if (target === UserEntity) return usersRepositoryMock;
@@ -69,6 +75,7 @@ describe(AccountTokenActivationResendRequestedUseCase.name, () => {
     datasourceMock,
     usersTokenMock,
     datetimeServiceMock,
+    clsServiceMock,
   );
 
   const validChallange: AccountActivationChallenge = {
@@ -165,13 +172,17 @@ describe(AccountTokenActivationResendRequestedUseCase.name, () => {
 
         await expect(useCase.execute('some-token')).toResolve();
         expect(usersOutboxMock.save).toHaveBeenCalledWith(
-          UserOutboxEntity.activationTokenResendRequested(inactiveUserMock.id, {
-            email: inactiveUserMock.email,
-            activationToken,
-            activationTokenExpirationDate: addDays(now, 1).toISOString(),
-            firstName: inactiveUserMock.firstName,
-            lastName: inactiveUserMock.lastName,
-          }),
+          UserOutboxEntity.activationTokenResendRequested(
+            inactiveUserMock.id,
+            correlationId,
+            {
+              email: inactiveUserMock.email,
+              activationToken,
+              activationTokenExpirationDate: addDays(now, 1).toISOString(),
+              firstName: inactiveUserMock.firstName,
+              lastName: inactiveUserMock.lastName,
+            },
+          ),
         );
       });
     },

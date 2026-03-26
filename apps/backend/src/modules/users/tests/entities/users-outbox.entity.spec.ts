@@ -12,6 +12,7 @@ import { randomEmail } from 'test/faker/random-email';
 import { randomFirstName } from 'test/faker/random-first-name';
 import { randomLastName } from 'test/faker/random-last-name';
 import { v7 as uuidv7 } from 'uuid';
+import { randomCorrelationId } from 'test/faker/random-correlation-id';
 
 describe(UserOutboxEntity.name, () => {
   const userId = <UserId>uuidv7();
@@ -20,16 +21,21 @@ describe(UserOutboxEntity.name, () => {
   const email = randomEmail().getValue();
   const activationToken = randomBytes(32).toString('hex');
   const activationTokenExpirationDate = new Date().toISOString();
+  const correlationId = randomCorrelationId();
 
   describe(`${UserOutboxEntity.userAccountRegistered.name}`, () => {
     it(`should create ${UserEvents.USER_ACCOUNT_REGISTERED} user outbox event`, () => {
-      const event = UserOutboxEntity.userAccountRegistered(userId, {
-        email,
-        firstName,
-        lastName,
-        activationToken,
-        activationTokenExpirationDate,
-      });
+      const event = UserOutboxEntity.userAccountRegistered(
+        userId,
+        correlationId,
+        {
+          email,
+          firstName,
+          lastName,
+          activationToken,
+          activationTokenExpirationDate,
+        },
+      );
 
       expect(event.aggregateId).toBe(userId);
       expect(event.eventType).toBe(UserEvents.USER_ACCOUNT_REGISTERED);
@@ -43,14 +49,18 @@ describe(UserOutboxEntity.name, () => {
     });
 
     it(`should create ${UserEvents.USER_ACCOUNT_REGISTERED} without additional fields in payload`, () => {
-      const event = UserOutboxEntity.userAccountRegistered(userId, {
-        email,
-        firstName,
-        lastName,
-        activationToken,
-        activationTokenExpirationDate,
-        newField: 123,
-      } as UserAccountCreatedPayload);
+      const event = UserOutboxEntity.userAccountRegistered(
+        userId,
+        correlationId,
+        {
+          email,
+          firstName,
+          lastName,
+          activationToken,
+          activationTokenExpirationDate,
+          newField: 123,
+        } as UserAccountCreatedPayload,
+      );
 
       expect(event.aggregateId).toBe(userId);
       expect(event.eventType).toBe(UserEvents.USER_ACCOUNT_REGISTERED);
@@ -65,13 +75,21 @@ describe(UserOutboxEntity.name, () => {
 
     it(`should throw ${InvalidPayloadDataError.name} for invalid payload`, () => {
       expect(() =>
-        UserOutboxEntity.userAccountRegistered(userId, {} as any),
+        UserOutboxEntity.userAccountRegistered(
+          userId,
+          correlationId,
+          {} as any,
+        ),
       ).toThrow(InvalidPayloadDataError);
     });
 
     it(`should include field errors in ${InvalidPayloadDataError.name}`, () => {
       try {
-        UserOutboxEntity.userAccountRegistered(userId, {} as any);
+        UserOutboxEntity.userAccountRegistered(
+          userId,
+          correlationId,
+          {} as any,
+        );
       } catch (error: unknown) {
         expect(error).toBeInstanceOf(InvalidPayloadDataError);
 
@@ -91,11 +109,15 @@ describe(UserOutboxEntity.name, () => {
     const eventType = UserEvents.USER_ACCOUNT_ACTIVATED;
 
     it(`should create ${eventType} user outbox event`, () => {
-      const event = UserOutboxEntity.userAccountActivated(userId, {
-        email,
-        firstName,
-        lastName,
-      });
+      const event = UserOutboxEntity.userAccountActivated(
+        userId,
+        correlationId,
+        {
+          email,
+          firstName,
+          lastName,
+        },
+      );
 
       expect(event.aggregateId).toBe(userId);
       expect(event.eventType).toBe(eventType);
@@ -107,13 +129,17 @@ describe(UserOutboxEntity.name, () => {
     });
 
     it(`should create ${eventType} without additional fields in payload`, () => {
-      const event = UserOutboxEntity.userAccountActivated(userId, {
-        email,
-        firstName,
-        lastName,
-        activationToken,
-        activationTokenExpirationDate,
-      } as any);
+      const event = UserOutboxEntity.userAccountActivated(
+        userId,
+        correlationId,
+        {
+          email,
+          firstName,
+          lastName,
+          activationToken,
+          activationTokenExpirationDate,
+        } as any,
+      );
 
       expect(event.aggregateId).toBe(userId);
       expect(event.eventType).toBe(eventType);
@@ -126,13 +152,13 @@ describe(UserOutboxEntity.name, () => {
 
     it(`should throw ${InvalidPayloadDataError.name} for invalid payload`, () => {
       expect(() =>
-        UserOutboxEntity.userAccountActivated(userId, {} as any),
+        UserOutboxEntity.userAccountActivated(userId, correlationId, {} as any),
       ).toThrow(InvalidPayloadDataError);
     });
 
     it(`should include field errors in ${InvalidPayloadDataError.name}`, () => {
       try {
-        UserOutboxEntity.userAccountActivated(userId, {} as any);
+        UserOutboxEntity.userAccountActivated(userId, correlationId, {} as any);
       } catch (error: unknown) {
         expect(error).toBeInstanceOf(InvalidPayloadDataError);
 
@@ -154,6 +180,7 @@ describe(UserOutboxEntity.name, () => {
       const event =
         UserOutboxEntity.userAccountRegistrationAttemptedWithExistingAccount(
           userId,
+          correlationId,
           {
             email,
             firstName,
@@ -176,6 +203,7 @@ describe(UserOutboxEntity.name, () => {
       const event =
         UserOutboxEntity.userAccountRegistrationAttemptedWithExistingAccount(
           userId,
+          correlationId,
           {
             email,
             firstName,
@@ -200,6 +228,7 @@ describe(UserOutboxEntity.name, () => {
       expect(() =>
         UserOutboxEntity.userAccountRegistrationAttemptedWithExistingAccount(
           userId,
+          correlationId,
           {} as any,
         ),
       ).toThrow(InvalidPayloadDataError);
@@ -209,6 +238,7 @@ describe(UserOutboxEntity.name, () => {
       try {
         UserOutboxEntity.userAccountRegistrationAttemptedWithExistingAccount(
           userId,
+          correlationId,
           {} as any,
         );
       } catch (error: unknown) {
