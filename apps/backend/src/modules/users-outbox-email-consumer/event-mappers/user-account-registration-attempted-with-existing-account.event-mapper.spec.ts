@@ -1,4 +1,4 @@
-import { DebeziumOutboxMessage } from '../debezium-connector-message.parser';
+import { DebeziumOutboxMessage } from '../../../common/kafka/debezium-connector-message.parser';
 import { v7 } from 'uuid';
 import { UserEvents } from '@domain/users/events.enum';
 import { randomEmail } from 'test/faker/random-email';

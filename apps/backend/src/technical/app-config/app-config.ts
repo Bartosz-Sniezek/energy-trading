@@ -58,6 +58,7 @@ const appConfigSchema = z
     COMPANY_NAME: z.string(),
     PRICE_ENGINE_TICK_TOPIC: z.string(),
     PRICE_ENGINE_TICK_INTERVAL_MS: z.coerce.number().int().positive(),
+    KAFKA_LEDGER_OUTBOX_TOPIC: z.string(),
   })
   .superRefine((data, ctx) => {
     refineMailerTransportMode(data, ctx);
@@ -114,6 +115,13 @@ export class AppConfig {
     return {
       tickTopic: this._values.PRICE_ENGINE_TICK_TOPIC,
       tickInterval: this._values.PRICE_ENGINE_TICK_INTERVAL_MS,
+    };
+  }
+
+  get balanceLedgerConsumerConfig() {
+    return {
+      topic: this._values.KAFKA_LEDGER_OUTBOX_TOPIC,
+      logLevel: this._values.KAFKA_LOG_LEVEL,
     };
   }
 }

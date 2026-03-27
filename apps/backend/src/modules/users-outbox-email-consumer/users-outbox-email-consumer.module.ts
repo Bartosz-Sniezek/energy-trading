@@ -9,7 +9,7 @@ import {
 } from './constants';
 import { UsersOutboxConsumer } from './users-outbox.consumer';
 import { AppConfigModule } from '@technical/app-config/app-config.module';
-import { DebeziumConnectorMessageParser } from './debezium-connector-message.parser';
+import { DebeziumConnectorMessageParser } from '../../common/kafka/debezium-connector-message.parser';
 import { MailingModule } from '@technical/mailing/mailing.module';
 import { UsersOutboxMessageHandler } from './users-outbox-message.handler';
 import { UserAccountActivatedEmailTemplateStrategy } from './interfaces/user-account-activated-email-template.strategy';

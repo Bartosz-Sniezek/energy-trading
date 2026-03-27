@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DebeziumOutboxMessage } from '../debezium-connector-message.parser';
+import { DebeziumOutboxMessage } from '../../../common/kafka/debezium-connector-message.parser';
 import { UserAccountActivatedEvent } from '../events/user-account-activated.event';
 import { EmailTemplate } from '../interfaces/email-template.strategy';
 import { EventMapper } from '../interfaces/event-mapper';

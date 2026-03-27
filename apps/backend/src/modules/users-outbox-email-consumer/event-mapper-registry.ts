@@ -1,5 +1,5 @@
 import { Injectable, Logger, Optional } from '@nestjs/common';
-import { DebeziumOutboxMessage } from './debezium-connector-message.parser';
+import { DebeziumOutboxMessage } from '../../common/kafka/debezium-connector-message.parser';
 import { UserEvents } from '@domain/users/events.enum';
 import { UnsupportedEventTypeError } from './errors/unsupported-event-type.error';
 import { EventMapper } from './interfaces/event-mapper';

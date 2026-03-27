@@ -11,6 +11,12 @@ export class DepositValue {
     this.amount = amount;
   }
 
+  static parse(value: string): DepositValue {
+    const parsed = parseInt(value);
+
+    return new DepositValue(parsed);
+  }
+
   toString() {
     return this.amount.toFixed(6);
   }

@@ -3,7 +3,7 @@ import { UsersOutboxMessageHandler } from './users-outbox-message.handler';
 import {
   DebeziumConnectorMessageParser,
   DebeziumOutboxMessage,
-} from './debezium-connector-message.parser';
+} from '../../common/kafka/debezium-connector-message.parser';
 import { EachMessagePayload } from '@confluentinc/kafka-javascript/types/kafkajs';
 import { EventMapperRegistry } from './event-mapper-registry';
 import { MailService } from '@technical/mailing/interfaces/mail-service';
