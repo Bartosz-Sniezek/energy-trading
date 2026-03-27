@@ -53,7 +53,7 @@ export class UserAccountActivationTokenResendRequestedEvent implements TUserAcco
     const { data, error } =
       userAccountActivationTokenResendRequestedEventSchema.safeParse({
         id: event.id,
-        userId: event.aggregateId,
+        userId: event.userId,
         email: payload?.['email'],
         firstName: payload?.['firstName'],
         lastName: payload?.['lastName'],

@@ -10,6 +10,7 @@ import { UserAccountRegistrationAttemptedWithExistingAccountEventMapper } from '
 import { UserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy } from '../interfaces/user-account-registration-attempted-with-existing-email-email-template.strategy';
 import { UserAccountRegistrationAttemptedWithExistingAccountEvent } from '../events/user-account-registration-attempted-with-existing-accounter.event';
 import { randomCorrelationId } from 'test/faker/random-correlation-id';
+import { randomUserId } from 'test/faker/random-user-id';
 
 describe(
   UserAccountRegistrationAttemptedWithExistingAccountEventMapper.name,
@@ -25,6 +26,7 @@ describe(
       it('should parse message', () => {
         const validMessage: DebeziumOutboxMessage = {
           id: v7(),
+          userId: randomUserId(),
           correlationId: randomCorrelationId(),
           aggregateId: v7(),
           timestamp: new Date().toISOString(),

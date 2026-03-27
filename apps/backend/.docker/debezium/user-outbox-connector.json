@@ -1,5 +1,5 @@
 {
-  "name": "users-outbox-connector",
+  "name": "outbox-connector",
   "config": {
     "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
     "plugin.name": "pgoutput",
@@ -9,19 +9,23 @@
     "database.password": "postgres",
     "database.dbname": "energy_trading_platform_dev",
     "topic.prefix": "energy_trading",
-    "table.include.list": "public.users_outbox",
-    "slot.name": "debezium_users_outbox",
-    "publication.name": "dbz_publication_user_outbox",
+
+    "table.include.list": "public.users_outbox,public.ledger_outbox",
+
+    "slot.name": "debezium_outbox",
+    "publication.name": "dbz_publication_outbox",
     "publication.autocreate.mode": "filtered",
+
     "transforms": "outbox",
     "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
     "transforms.outbox.table.field.event.type": "event_type",
     "transforms.outbox.table.field.event.key": "aggregate_id",
     "transforms.outbox.route.by.field": "aggregate_type",
-    "transforms.outbox.route.topic.replacement": "users.events.${routedByValue}",
-    "transforms.outbox.table.fields.additional.placement": "event_type:header,aggregate_type:header,correlation_id:header",
+    "transforms.outbox.route.topic.replacement": "${routedByValue}.events",
+    "transforms.outbox.table.fields.additional.placement": "event_type:header,aggregate_type:header,correlation_id:header,user_id:header",
+
     "tombstones.on.delete": "false",
     "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
-    "schema.history.internal.kafka.topic": "schema-changes.users-outbox"
+    "schema.history.internal.kafka.topic": "schema-changes.outbox"
   }
 }

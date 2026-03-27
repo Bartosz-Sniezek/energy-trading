@@ -48,7 +48,7 @@ export class UserAccountRegistrationAttemptedWithExistingAccountEvent implements
     const { data, error } =
       userAccountRegistrationAttemptedWithExistingAccountEventSchema.safeParse({
         id: event.id,
-        userId: event.aggregateId,
+        userId: event.userId,
         email: payload?.['email'],
         firstName: payload?.['firstName'],
         lastName: payload?.['lastName'],

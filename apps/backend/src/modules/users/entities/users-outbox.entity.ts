@@ -14,7 +14,6 @@ import {
   UserOutboxPayload,
 } from './schemas/outbox-payload.schema';
 import z from 'zod';
-import { InvalidPayloadDataError } from '@common/errors/invalid-payload-data.error';
 
 @Entity('users_outbox')
 export class UserOutboxEntity extends OutboxEntity<
@@ -30,23 +29,11 @@ export class UserOutboxEntity extends OutboxEntity<
   ): UserOutboxEntity {
     return Object.assign(new UserOutboxEntity(), {
       aggregateId: userId,
+      userId,
       correlationId,
       eventType,
       payload: UserOutboxEntity.parsePayload(schema, payload),
     });
-  }
-
-  private static parsePayload<T extends z.ZodType>(
-    schema: T,
-    payloadData: unknown,
-  ): z.infer<T> {
-    const { success, data, error } = schema.safeParse(payloadData);
-
-    if (!success) {
-      throw new InvalidPayloadDataError(error.flatten().fieldErrors);
-    }
-
-    return data;
   }
 
   static userAccountRegistered(

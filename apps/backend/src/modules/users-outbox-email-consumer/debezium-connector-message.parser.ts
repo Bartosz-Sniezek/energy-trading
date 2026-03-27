@@ -7,6 +7,7 @@ const debeziumMessageSchema = z.object({
   id: z.string(),
   correlationId: z.uuidv7(),
   aggregateId: z.string(),
+  userId: z.uuidv7(),
   eventType: z.string(),
   timestamp: z.string(),
   payload: z.record(z.string(), z.unknown()),
@@ -31,10 +32,12 @@ export class DebeziumConnectorMessageParser {
       const aggregateId = key?.['payload'];
       const eventType = message.headers?.['event_type']?.toString();
       const correlationId = message.headers?.['correlation_id']?.toString();
+      const userId = message.headers?.['user_id']?.toString();
 
       const eventRawData = <DebeziumOutboxMessage>{
         id,
         correlationId,
+        userId,
         aggregateId,
         eventType,
         timestamp: message.timestamp,

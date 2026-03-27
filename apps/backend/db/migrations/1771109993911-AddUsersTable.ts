@@ -23,8 +23,9 @@ export class AddUsersTable1771109993911 implements MigrationInterface {
             id UUID PRIMARY KEY DEFAULT uuidv7(),
             correlation_id UUID NOT NULL,
             aggregate_id UUID NOT NULL,
-            aggregate_type VARCHAR(255) NOT NULL DEFAULT 'USER',
+            aggregate_type VARCHAR(255) NOT NULL DEFAULT 'users',
             event_type VARCHAR(255) NOT NULL,
+            user_id UUID NOT NULL,
             payload JSONB NOT NULL,
             created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
         );

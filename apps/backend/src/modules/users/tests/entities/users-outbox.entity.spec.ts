@@ -37,6 +37,7 @@ describe(UserOutboxEntity.name, () => {
         },
       );
 
+      expect(event.userId).toBe(userId);
       expect(event.aggregateId).toBe(userId);
       expect(event.eventType).toBe(UserEvents.USER_ACCOUNT_REGISTERED);
       expect(event.payload).toMatchObject<UserAccountCreatedPayload>({
@@ -119,6 +120,7 @@ describe(UserOutboxEntity.name, () => {
         },
       );
 
+      expect(event.userId).toBe(userId);
       expect(event.aggregateId).toBe(userId);
       expect(event.eventType).toBe(eventType);
       expect(event.payload).toMatchObject<UserAccountActivatedPayload>({
@@ -141,6 +143,7 @@ describe(UserOutboxEntity.name, () => {
         } as any,
       );
 
+      expect(event.userId).toBe(userId);
       expect(event.aggregateId).toBe(userId);
       expect(event.eventType).toBe(eventType);
       expect(event.payload).toMatchObject<UserAccountActivatedPayload>({
@@ -188,6 +191,7 @@ describe(UserOutboxEntity.name, () => {
           },
         );
 
+      expect(event.userId).toBe(userId);
       expect(event.aggregateId).toBe(userId);
       expect(event.eventType).toBe(eventType);
       expect(
@@ -213,6 +217,7 @@ describe(UserOutboxEntity.name, () => {
           } as any,
         );
 
+      expect(event.userId).toBe(userId);
       expect(event.aggregateId).toBe(userId);
       expect(event.eventType).toBe(eventType);
       expect(

@@ -91,6 +91,7 @@ describe(CreateUserAccountCommand.name, () => {
       expect(userOutboxEvent).toMatchObject<UserOutboxEntity>({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         id: expect.toBeString(),
+        userId: user.id,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         correlationId: expect.toBeString(),
         aggregateId: user.id,
@@ -152,6 +153,7 @@ describe(CreateUserAccountCommand.name, () => {
       expect(outboxEvent).toMatchObject<UserOutboxEntity>({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         id: expect.toBeString(),
+        userId: existingUser.id,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         correlationId: expect.toBeString(),
         aggregateId: existingUser.id,

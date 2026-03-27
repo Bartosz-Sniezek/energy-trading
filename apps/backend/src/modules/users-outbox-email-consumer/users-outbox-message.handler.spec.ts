@@ -17,6 +17,7 @@ import { UserAccountActivationTokenResendRequestedEvent } from './events/user-ac
 import { EventMapper } from './interfaces/event-mapper';
 import { EmailTemplate } from './interfaces/email-template.strategy';
 import { randomCorrelationId } from 'test/faker/random-correlation-id';
+import { randomUserId } from 'test/faker/random-user-id';
 
 describe('UsersOutboxMessageHandler', () => {
   const messageParserMock = mock<DebeziumConnectorMessageParser>();
@@ -40,6 +41,7 @@ describe('UsersOutboxMessageHandler', () => {
     it('should process message', async () => {
       const message: DebeziumOutboxMessage = {
         id: v7(),
+        userId: randomUserId(),
         correlationId: randomCorrelationId(),
         aggregateId: v7(),
         timestamp: new Date().toISOString(),

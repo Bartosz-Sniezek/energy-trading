@@ -11,6 +11,7 @@ import { HtmlUserAccountRegisteredEmailTemplateStrategy } from '../strategies/ht
 import { UserAccountCreatedEvent } from '../events/user-account-created.event';
 import { randomUUID } from 'crypto';
 import { randomCorrelationId } from 'test/faker/random-correlation-id';
+import { randomUserId } from 'test/faker/random-user-id';
 
 describe(UserAccountCreatedEventMapper.name, () => {
   const templateMock = mock<HtmlUserAccountRegisteredEmailTemplateStrategy>();
@@ -20,6 +21,7 @@ describe(UserAccountCreatedEventMapper.name, () => {
     it('should parse message', () => {
       const validMessage: DebeziumOutboxMessage = {
         id: v7(),
+        userId: randomUserId(),
         correlationId: randomCorrelationId(),
         aggregateId: v7(),
         timestamp: new Date().toISOString(),

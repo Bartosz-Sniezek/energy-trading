@@ -17,6 +17,7 @@ import { PriceEngineRedisConsumerModule } from '@modules/price-engine-redis-cons
 import { PriceEngineGatewayModule } from '@modules/price-engine-gateway/price-engine-gateway.module';
 import { Request } from 'express';
 import { v7 } from 'uuid';
+import { LedgerModule } from '@modules/ledger/ledger.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { v7 } from 'uuid';
     PriceEngineModule,
     PriceEngineRedisConsumerModule,
     PriceEngineGatewayModule,
+    LedgerModule,
   ],
   controllers: [],
   providers: [
