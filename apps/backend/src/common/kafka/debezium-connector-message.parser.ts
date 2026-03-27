@@ -1,7 +1,7 @@
 import { KafkaJS } from '@confluentinc/kafka-javascript';
 import { Injectable } from '@nestjs/common';
 import z from 'zod';
-import { InvalidMessagePermanentError } from './errors/invalid-message.permanent-error';
+import { InvalidMessagePermanentError } from './invalid-message.permanent-error';
 
 const debeziumMessageSchema = z.object({
   id: z.string(),

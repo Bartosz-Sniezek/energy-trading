@@ -1,5 +1,5 @@
 import { mock } from 'vitest-mock-extended';
-import { DebeziumOutboxMessage } from './debezium-connector-message.parser';
+import { DebeziumOutboxMessage } from '../../common/kafka/debezium-connector-message.parser';
 import { UserEvents } from '@domain/users/events.enum';
 import { loggerMock } from 'test/helpers/logger.mock';
 import { UnsupportedEventTypeError } from './errors/unsupported-event-type.error';

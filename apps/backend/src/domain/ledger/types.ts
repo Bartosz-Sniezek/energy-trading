@@ -27,14 +27,16 @@ export enum LedgerEventType {
   FEE_CHARGED = 'fee_charged',
 }
 
+export const ledgerAmountSchema = z
+  .string()
+  .regex(/^\d*\.?\d+$/)
+  .refine((val) => parseFloat(val) > 0, {
+    message: 'Must be a positive numeric value',
+  });
+
 const ledgerOutboxBasePayloadSchema = z.object({
   userId: z.uuidv7(),
-  amount: z
-    .string()
-    .regex(/^\d*\.?\d+$/)
-    .refine((val) => parseFloat(val) > 0, {
-      message: 'Must be a positive numeric value',
-    }),
+  amount: ledgerAmountSchema,
 });
 
 export const depositedLedgerPayloadSchema = ledgerOutboxBasePayloadSchema;

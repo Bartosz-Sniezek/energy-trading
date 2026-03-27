@@ -1,5 +1,5 @@
 import { v7 } from 'uuid';
-import { DebeziumOutboxMessage } from '../debezium-connector-message.parser';
+import { DebeziumOutboxMessage } from '../../../common/kafka/debezium-connector-message.parser';
 import { UserAccountCreatedEvent } from './user-account-created.event';
 import { randomEmail } from 'test/faker/random-email';
 import { randomToken } from 'test/faker/random-token';

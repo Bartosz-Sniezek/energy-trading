@@ -1,4 +1,4 @@
-import { DebeziumOutboxMessage } from '../debezium-connector-message.parser';
+import { DebeziumOutboxMessage } from '../../../common/kafka/debezium-connector-message.parser';
 import { UserAccountActivatedEventMapper } from './user-account-activated.event-mapper';
 import { v7 } from 'uuid';
 import { UserEvents } from '@domain/users/events.enum';

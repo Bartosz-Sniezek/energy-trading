@@ -1,51 +1,46 @@
 import { v7 } from 'uuid';
 import { DebeziumOutboxMessage } from '../../../common/kafka/debezium-connector-message.parser';
-import { UserAccountActivatedEvent } from './user-account-activated.event';
-import { randomEmail } from 'test/faker/random-email';
-import { randomFirstName } from 'test/faker/random-first-name';
-import { randomLastName } from 'test/faker/random-last-name';
-import { UserEvents } from '@domain/users/events.enum';
 import { InvalidPayloadDataError } from '@common/errors/invalid-payload-data.error';
 import { InvalidEventTypeError } from '@common/errors/invalid-event-type.error';
 import { randomCorrelationId } from 'test/faker/random-correlation-id';
 import { randomUserId } from 'test/faker/random-user-id';
+import { DepositedLedgerEntryEvent } from './deposited-ledger-entry.event';
+import { DepositedLedgerPayload, LedgerEventType } from '../types';
+import { DepositValue } from '../value-objects/deposit-value';
 
-describe(UserAccountActivatedEvent.name, () => {
-  const email = randomEmail();
-  const firstName = randomFirstName();
-  const lastName = randomLastName();
+describe('DepositedLedgerEntryEvent', () => {
   const timestamp = Date.now().toString();
-
-  const validEventPayload = {
-    email: email.getValue(),
-    firstName,
-    lastName,
+  const userId = randomUserId();
+  const validEventPayload: DepositedLedgerPayload = {
+    amount: new DepositValue(1000).toString(),
+    userId,
   };
   const validEventData: DebeziumOutboxMessage = {
     id: v7(),
-    userId: randomUserId(),
+    userId,
     correlationId: randomCorrelationId(),
     aggregateId: v7(),
-    eventType: UserEvents.USER_ACCOUNT_ACTIVATED,
+    eventType: LedgerEventType.DEPOSITED,
     timestamp,
     payload: validEventPayload,
   };
 
-  describe(UserAccountActivatedEvent.parse.name, () => {
+  describe('DepositedLedgerEntryEvent.parse', () => {
     it(`should create an event from DebeziumOutboxMessage`, () => {
-      const event = UserAccountActivatedEvent.parse(validEventData);
+      const event = DepositedLedgerEntryEvent.parse(validEventData);
 
       expect(event.id).toBe(validEventData.id);
       expect(event.userId).toBe(validEventData.userId);
-      expect(event.email.getValue()).toBe(email.getValue());
-      expect(event.firstName).toBe(firstName);
-      expect(event.lastName).toBe(lastName);
+      expect(event.correlationId).toBe(validEventData.correlationId);
+      expect(event.amount).toBe(
+        DepositValue.parse(validEventPayload.amount).toString(),
+      );
       expect(event.timestamp).toBe(parseInt(timestamp));
     });
 
     it(`should throw InvalidPayloadData when id is non-uuid string`, () => {
       expect(() =>
-        UserAccountActivatedEvent.parse({
+        DepositedLedgerEntryEvent.parse({
           ...validEventData,
           id: 'invalid-uuid',
         }),
@@ -54,7 +49,7 @@ describe(UserAccountActivatedEvent.name, () => {
 
     it(`should throw InvalidPayloadData when id UUIDv4`, () => {
       expect(() =>
-        UserAccountActivatedEvent.parse({
+        DepositedLedgerEntryEvent.parse({
           ...validEventData,
           id: '92b8e7b4-6a6b-40a1-a450-cf2f2c4a44a8',
         }),
@@ -63,7 +58,7 @@ describe(UserAccountActivatedEvent.name, () => {
 
     it(`should throw InvalidPayloadData when userId is non-uuid string`, () => {
       expect(() =>
-        UserAccountActivatedEvent.parse({
+        DepositedLedgerEntryEvent.parse({
           ...validEventData,
           userId: 'invalid-uuid',
         }),
@@ -72,66 +67,35 @@ describe(UserAccountActivatedEvent.name, () => {
 
     it(`should throw InvalidPayloadData when userId is UUIDv4`, () => {
       expect(() =>
-        UserAccountActivatedEvent.parse({
+        DepositedLedgerEntryEvent.parse({
           ...validEventData,
           userId: '92b8e7b4-6a6b-40a1-a450-cf2f2c4a44a8',
         }),
       ).toThrow(InvalidPayloadDataError);
     });
 
-    it(`should throw InvalidEventTypeError when eventType is not ${UserEvents.USER_ACCOUNT_REGISTERED}`, () => {
+    it(`should throw InvalidEventTypeError when eventType is not LedgerEntryType.DEPOSITED`, () => {
       expect(() =>
-        UserAccountActivatedEvent.parse({
+        DepositedLedgerEntryEvent.parse({
           ...validEventData,
           eventType: 'random-string',
         }),
       ).toThrow(InvalidEventTypeError);
       expect(() =>
-        UserAccountActivatedEvent.parse({
+        DepositedLedgerEntryEvent.parse({
           ...validEventData,
-          eventType: UserEvents.USER_ACCOUNT_REGISTERED,
-        }),
-      ).toThrow(InvalidEventTypeError);
-      expect(() =>
-        UserAccountActivatedEvent.parse({
-          ...validEventData,
-          eventType:
-            UserEvents.USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT,
+          eventType: LedgerEventType.WITHDRAWN,
         }),
       ).toThrow(InvalidEventTypeError);
     });
 
-    it(`should throw InvalidPayloadData when email is not valid email`, () => {
+    it(`should throw InvalidPayloadDataError when amount is not valid positive numeric value`, () => {
       expect(() =>
-        UserAccountActivatedEvent.parse({
+        DepositedLedgerEntryEvent.parse({
           ...validEventData,
           payload: {
             ...validEventPayload,
-            email: 'invalid',
-          },
-        }),
-      ).toThrow(InvalidPayloadDataError);
-    });
-
-    it(`should throw InvalidPayloadData when firstName is not a string`, () => {
-      expect(() =>
-        UserAccountActivatedEvent.parse({
-          ...validEventData,
-          payload: {
-            ...validEventPayload,
-            firstName: 12,
-          },
-        }),
-      ).toThrow(InvalidPayloadDataError);
-    });
-
-    it(`should throw InvalidPayloadData when lastName is not a string`, () => {
-      expect(() =>
-        UserAccountActivatedEvent.parse({
-          ...validEventData,
-          payload: {
-            ...validEventPayload,
-            lastName: 12,
+            amount: 'xd',
           },
         }),
       ).toThrow(InvalidPayloadDataError);
@@ -139,7 +103,7 @@ describe(UserAccountActivatedEvent.name, () => {
 
     it(`should throw InvalidPayloadData when timestamp is not a string`, () => {
       expect(() =>
-        UserAccountActivatedEvent.parse({
+        DepositedLedgerEntryEvent.parse({
           ...validEventData,
           timestamp: undefined as any,
         }),

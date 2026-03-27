@@ -1,5 +1,5 @@
 import z from 'zod';
-import { DebeziumOutboxMessage } from '../debezium-connector-message.parser';
+import { DebeziumOutboxMessage } from '../../../common/kafka/debezium-connector-message.parser';
 import { InvalidPayloadDataError } from '@common/errors/invalid-payload-data.error';
 import { Email } from '@domain/users/value-objects/email';
 import { UserEvents } from '@domain/users/events.enum';

@@ -1,7 +1,7 @@
 import { EachMessagePayload } from '@confluentinc/kafka-javascript/types/kafkajs';
 import { MessageHandler } from '@modules/kafka/message-handler.interface';
 import { Inject, Injectable } from '@nestjs/common';
-import { DebeziumConnectorMessageParser } from './debezium-connector-message.parser';
+import { DebeziumConnectorMessageParser } from '../../common/kafka/debezium-connector-message.parser';
 import { EventMapperRegistry } from './event-mapper-registry';
 import { MAIL_SERVICE } from '@technical/mailing/constants';
 import type { MailService } from '@technical/mailing/interfaces/mail-service';
