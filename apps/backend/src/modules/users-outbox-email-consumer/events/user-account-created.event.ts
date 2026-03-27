@@ -45,7 +45,7 @@ export class UserAccountCreatedEvent implements TUserAccountCreatedEvent {
     const payload = event.payload;
     const { data, error } = userAccountCreatedEventSchema.safeParse({
       id: event.id,
-      userId: event.aggregateId,
+      userId: event.userId,
       email: payload?.['email'],
       firstName: payload?.['firstName'],
       lastName: payload?.['lastName'],

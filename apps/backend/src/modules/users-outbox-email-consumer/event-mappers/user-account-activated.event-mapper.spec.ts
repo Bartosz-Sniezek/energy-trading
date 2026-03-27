@@ -10,6 +10,7 @@ import { UserAccountActivatedEmailTemplateStrategy } from '../interfaces/user-ac
 import { UserAccountActivatedEvent } from '../events/user-account-activated.event';
 import { EmailTemplate } from '../interfaces/email-template.strategy';
 import { randomCorrelationId } from 'test/faker/random-correlation-id';
+import { randomUserId } from 'test/faker/random-user-id';
 
 describe(UserAccountActivatedEventMapper.name, () => {
   const templateMock = mock<UserAccountActivatedEmailTemplateStrategy>();
@@ -19,6 +20,7 @@ describe(UserAccountActivatedEventMapper.name, () => {
     it('should parse message', () => {
       const validMessage: DebeziumOutboxMessage = {
         id: v7(),
+        userId: randomUserId(),
         correlationId: randomCorrelationId(),
         aggregateId: v7(),
         timestamp: new Date().toISOString(),

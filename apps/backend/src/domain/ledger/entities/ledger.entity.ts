@@ -1,33 +1,35 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { LedgerEntryType, type LedgerId, LedgerReferenceType } from '../types';
+import {
+  LedgerEntryDirection,
+  LedgerEntryType,
+  type LedgerEntryId,
+} from '../types';
 import type { Nullable } from '@utils/nullable';
 import type { UserId } from '@modules/users/types';
 import { v7 } from 'uuid';
-import { InvalidDepositValueError } from '../errors/invalid-deposit-value.error';
-import { InvalidWithdrawalValueError } from '../errors/invalid-withdrawal-value.error';
+import { DepositValue } from '../value-objects/deposit-value';
+import { WithdrawalValue } from '../value-objects/withdrawal-value';
+import { OrderId } from '@domain/orders/types';
+import { TradeId } from '@domain/trades/types';
 
-export type DepositLedgerOptions = {
+type BaseLedgerOptions = {
   correlationId: string;
   userId: UserId;
-  amount: number;
-  runningBalance: number;
   createdAt: Date;
-  description?: string;
 };
 
-export type WithdrawalLedgerOptions = {
-  correlationId: string;
-  userId: UserId;
-  amount: number;
-  runningBalance: number;
-  createdAt: Date;
-  description?: string;
+export type DepositLedgerOptions = BaseLedgerOptions & {
+  deposit: DepositValue;
 };
 
-@Entity('ledger')
-export class LedgerEntity {
+export type WithdrawalLedgerOptions = BaseLedgerOptions & {
+  withdrawal: WithdrawalValue;
+};
+
+@Entity('ledger_entries')
+export class LedgerEntryEntity {
   @PrimaryGeneratedColumn('uuid')
-  readonly id: LedgerId;
+  readonly id: LedgerEntryId;
 
   @Column({ name: 'correlation_id', type: 'uuid' })
   readonly correlationId: string;
@@ -35,54 +37,49 @@ export class LedgerEntity {
   @Column({ name: 'user_id', type: 'uuid' })
   readonly userId: UserId;
 
-  @Column({ name: 'entry_type', type: 'text' })
+  @Column({ name: 'order_id', type: 'uuid', nullable: true })
+  readonly orderId: Nullable<OrderId> = null;
+
+  @Column({ name: 'trade_id', type: 'uuid', nullable: true })
+  readonly tradeId: Nullable<TradeId> = null;
+
+  @Column({ name: 'entry_type', type: 'varchar' })
   readonly entryType: LedgerEntryType;
 
   @Column({ name: 'amount', type: 'numeric' })
-  readonly amount: number;
+  readonly amount: string;
 
-  @Column({ name: 'running_balance', type: 'numeric' })
-  readonly runningBalance: number;
+  @Column({ name: 'direction', type: 'varchar' })
+  readonly direction: LedgerEntryDirection;
 
-  @Column({ name: 'reference_type', type: 'text', nullable: true })
-  readonly referenceType: Nullable<LedgerReferenceType> = null;
-
-  @Column({ name: 'reference_id', type: 'text', nullable: true })
-  readonly referenceId: Nullable<string> = null;
-
-  @Column({ name: 'description', type: 'text', nullable: true })
-  readonly description: Nullable<string> = null;
+  @Column({ name: 'idempotency_key', type: 'uuid', unique: true })
+  readonly idempotencyKey: string;
 
   @Column({ name: 'created_at', type: 'timestamptz' })
   readonly createdAt: Date;
 
-  static deposit(options: DepositLedgerOptions): LedgerEntity {
-    if (options.amount <= 0) throw new InvalidDepositValueError(options.amount);
-
-    return Object.assign(new LedgerEntity(), {
+  static deposit(options: DepositLedgerOptions): LedgerEntryEntity {
+    return Object.assign(new LedgerEntryEntity(), {
       id: v7(),
       correlationId: options.correlationId,
       userId: options.userId,
       entryType: LedgerEntryType.DEPOSIT,
-      amount: options.amount,
-      runningBalance: options.runningBalance,
-      description: options.description ?? `Deposit: ${options.amount}`,
+      direction: LedgerEntryDirection.CREDIT,
+      amount: options.deposit.toString(),
+      idempotencyKey: v7(),
       createdAt: options.createdAt,
     });
   }
 
-  static withdrawal(options: DepositLedgerOptions): LedgerEntity {
-    if (options.amount <= 0)
-      throw new InvalidWithdrawalValueError(options.amount);
-
-    return Object.assign(new LedgerEntity(), {
+  static withdrawal(options: WithdrawalLedgerOptions): LedgerEntryEntity {
+    return Object.assign(new LedgerEntryEntity(), {
       id: v7(),
       correlationId: options.correlationId,
       userId: options.userId,
       entryType: LedgerEntryType.WITHDRAWAL,
-      amount: options.amount,
-      runningBalance: options.runningBalance,
-      description: options.description ?? `Withdrawal: ${options.amount}`,
+      direction: LedgerEntryDirection.DEBIT,
+      amount: options.withdrawal.toString(),
+      idempotencyKey: v7(),
       createdAt: options.createdAt,
     });
   }

@@ -8,6 +8,7 @@ import { UserEvents } from '@domain/users/events.enum';
 import { InvalidPayloadDataError } from '@common/errors/invalid-payload-data.error';
 import { InvalidEventTypeError } from '@common/errors/invalid-event-type.error';
 import { randomCorrelationId } from 'test/faker/random-correlation-id';
+import { randomUserId } from 'test/faker/random-user-id';
 
 describe(UserAccountActivatedEvent.name, () => {
   const email = randomEmail();
@@ -22,6 +23,7 @@ describe(UserAccountActivatedEvent.name, () => {
   };
   const validEventData: DebeziumOutboxMessage = {
     id: v7(),
+    userId: randomUserId(),
     correlationId: randomCorrelationId(),
     aggregateId: v7(),
     eventType: UserEvents.USER_ACCOUNT_ACTIVATED,
@@ -34,7 +36,7 @@ describe(UserAccountActivatedEvent.name, () => {
       const event = UserAccountActivatedEvent.parse(validEventData);
 
       expect(event.id).toBe(validEventData.id);
-      expect(event.userId).toBe(validEventData.aggregateId);
+      expect(event.userId).toBe(validEventData.userId);
       expect(event.email.getValue()).toBe(email.getValue());
       expect(event.firstName).toBe(firstName);
       expect(event.lastName).toBe(lastName);
@@ -59,20 +61,20 @@ describe(UserAccountActivatedEvent.name, () => {
       ).toThrow(InvalidPayloadDataError);
     });
 
-    it(`should throw InvalidPayloadData when aggregateId is non-uuid string`, () => {
+    it(`should throw InvalidPayloadData when userId is non-uuid string`, () => {
       expect(() =>
         UserAccountActivatedEvent.parse({
           ...validEventData,
-          aggregateId: 'invalid-uuid',
+          userId: 'invalid-uuid',
         }),
       ).toThrow(InvalidPayloadDataError);
     });
 
-    it(`should throw InvalidPayloadData when aggregateId UUIDv4`, () => {
+    it(`should throw InvalidPayloadData when userId is UUIDv4`, () => {
       expect(() =>
         UserAccountActivatedEvent.parse({
           ...validEventData,
-          aggregateId: '92b8e7b4-6a6b-40a1-a450-cf2f2c4a44a8',
+          userId: '92b8e7b4-6a6b-40a1-a450-cf2f2c4a44a8',
         }),
       ).toThrow(InvalidPayloadDataError);
     });
