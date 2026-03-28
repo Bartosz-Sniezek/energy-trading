@@ -7,23 +7,15 @@ import {
 import type { Nullable } from '@utils/nullable';
 import type { UserId } from '@modules/users/types';
 import { v7 } from 'uuid';
-import { DepositValue } from '../value-objects/deposit-value';
-import { WithdrawalValue } from '../value-objects/withdrawal-value';
 import { OrderId } from '@domain/orders/types';
 import { TradeId } from '@domain/trades/types';
+import { MinorUnitValue } from '../value-objects/minor-unit-value';
 
-type BaseLedgerOptions = {
+export type BalanceOperationOptions = {
   correlationId: string;
   userId: UserId;
   createdAt: Date;
-};
-
-export type DepositLedgerOptions = BaseLedgerOptions & {
-  deposit: DepositValue;
-};
-
-export type WithdrawalLedgerOptions = BaseLedgerOptions & {
-  withdrawal: WithdrawalValue;
+  value: MinorUnitValue;
 };
 
 @Entity('ledger_entries')
@@ -58,27 +50,27 @@ export class LedgerEntryEntity {
   @Column({ name: 'created_at', type: 'timestamptz' })
   readonly createdAt: Date;
 
-  static deposit(options: DepositLedgerOptions): LedgerEntryEntity {
+  static deposit(options: BalanceOperationOptions): LedgerEntryEntity {
     return Object.assign(new LedgerEntryEntity(), {
       id: v7(),
       correlationId: options.correlationId,
       userId: options.userId,
       entryType: LedgerEntryType.DEPOSIT,
       direction: LedgerEntryDirection.CREDIT,
-      amount: options.deposit.toString(),
+      amount: options.value.toLedgerFormat(),
       idempotencyKey: v7(),
       createdAt: options.createdAt,
     });
   }
 
-  static withdrawal(options: WithdrawalLedgerOptions): LedgerEntryEntity {
+  static withdrawal(options: BalanceOperationOptions): LedgerEntryEntity {
     return Object.assign(new LedgerEntryEntity(), {
       id: v7(),
       correlationId: options.correlationId,
       userId: options.userId,
       entryType: LedgerEntryType.WITHDRAWAL,
       direction: LedgerEntryDirection.DEBIT,
-      amount: options.withdrawal.toString(),
+      amount: options.value.toLedgerFormat(),
       idempotencyKey: v7(),
       createdAt: options.createdAt,
     });

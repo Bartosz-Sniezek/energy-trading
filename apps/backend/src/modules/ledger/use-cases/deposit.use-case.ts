@@ -1,6 +1,6 @@
 import { LedgerOutboxEntity } from '@domain/ledger/entities/ledger-outbox.entity';
 import { LedgerEntryEntity } from '@domain/ledger/entities/ledger.entity';
-import { DepositValue } from '@domain/ledger/value-objects/deposit-value';
+import { MinorUnitValue } from '@domain/ledger/value-objects/minor-unit-value';
 import { UserDoesNotExistError } from '@domain/users/errors/user-does-not-exist.error';
 import { UserEntity } from '@modules/users/entities/user.entity';
 import { UserId } from '@modules/users/types';
@@ -19,7 +19,7 @@ export class DepositUseCase {
     private readonly clsSerivce: ClsService,
   ) {}
 
-  async execute(userId: UserId, deposit: DepositValue): Promise<void> {
+  async execute(userId: UserId, value: MinorUnitValue): Promise<void> {
     await this.datasource.transaction(async (entityManager) => {
       const userRepository = entityManager.getRepository(UserEntity);
       const user = await userRepository.findOne({
@@ -39,7 +39,7 @@ export class DepositUseCase {
       const depositEntry = LedgerEntryEntity.deposit({
         correlationId,
         userId,
-        deposit,
+        value,
         createdAt: this.datetimeService.new(),
       });
       await ledgerRepository.save(depositEntry);

@@ -7,12 +7,12 @@ import { createLedgerRepositoryMock } from 'test/mocks/ledger/ledger-repository.
 import { createLedgerOutboxRepositoryMock } from 'test/mocks/ledger/ledger-outbox-repository.mock';
 import { randomUserId } from 'test/faker/random-user-id';
 import { randomCorrelationId } from 'test/faker/random-correlation-id';
-import { DepositValue } from '@domain/ledger/value-objects/deposit-value';
 import { UserEntity } from '@modules/users/entities/user.entity';
 import { mock } from 'vitest-mock-extended';
 import { LedgerEntryEntity } from '@domain/ledger/entities/ledger.entity';
 import { LedgerOutboxEntity } from '@domain/ledger/entities/ledger-outbox.entity';
 import { UserDoesNotExistError } from '@domain/users/errors/user-does-not-exist.error';
+import { MinorUnitValue } from '@domain/ledger/value-objects/minor-unit-value';
 
 describe('DepositUseCase', () => {
   const { datasourceMock, entityManagerMock, resetTransactionMock } =
@@ -58,7 +58,7 @@ describe('DepositUseCase', () => {
   describe('execute', () => {
     it('should create ledger entry with outbox event for active user', async () => {
       const userId = randomUserId();
-      const depositValue = new DepositValue(123);
+      const value = new MinorUnitValue(123);
       const activeUserMock = mock<UserEntity>({
         id: userId,
         isActive: true,
@@ -66,13 +66,13 @@ describe('DepositUseCase', () => {
 
       usersRepositoryMock.findOne.mockResolvedValue(activeUserMock);
 
-      await useCase.execute(userId, depositValue);
+      await useCase.execute(userId, value);
 
       const ledgerEntry = LedgerEntryEntity.deposit({
         userId,
         correlationId,
         createdAt: now,
-        deposit: depositValue,
+        value,
       });
       const ledgerOutboxEntry = LedgerOutboxEntity.deposited(ledgerEntry);
 
@@ -89,11 +89,11 @@ describe('DepositUseCase', () => {
 
     it('should throw UserDoesNotExistError if user does not exist', async () => {
       const userId = randomUserId();
-      const depositValue = new DepositValue(123);
+      const value = new MinorUnitValue(123);
 
       usersRepositoryMock.findOne.mockResolvedValue(null);
 
-      await expect(useCase.execute(userId, depositValue)).rejects.toThrow(
+      await expect(useCase.execute(userId, value)).rejects.toThrow(
         UserDoesNotExistError,
       );
     });

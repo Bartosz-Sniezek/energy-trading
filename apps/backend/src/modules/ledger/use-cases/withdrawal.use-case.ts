@@ -3,7 +3,7 @@ import { LedgerUserLockEntity } from '@domain/ledger/entities/ledger-user-lock.e
 import { LedgerEntryEntity } from '@domain/ledger/entities/ledger.entity';
 import { InsufficientFundsError } from '@domain/ledger/errors/insufficient-funds.error';
 import { InvalidBalanceValueError } from '@domain/ledger/errors/invalid-balance-value.error';
-import { WithdrawalValue } from '@domain/ledger/value-objects/withdrawal-value';
+import { MinorUnitValue } from '@domain/ledger/value-objects/minor-unit-value';
 import { UserId } from '@modules/users/types';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
@@ -20,7 +20,7 @@ export class WithdrawalUseCase {
     private readonly clsSerivce: ClsService,
   ) {}
 
-  async execute(userId: UserId, withdrawal: WithdrawalValue): Promise<void> {
+  async execute(userId: UserId, value: MinorUnitValue): Promise<void> {
     await this.datasource.transaction(async (entityManager) => {
       const lockRepository = entityManager.getRepository(LedgerUserLockEntity);
       const _lock = await lockRepository.findOne({
@@ -45,7 +45,7 @@ export class WithdrawalUseCase {
         .then((rows) => parseFloat(rows[0]?.balance));
 
       if (Number.isNaN(balance)) throw new InvalidBalanceValueError();
-      if (balance < withdrawal.amount) throw new InsufficientFundsError();
+      if (balance < value.decimalValue) throw new InsufficientFundsError();
 
       const ledgerOutboxRepository =
         entityManager.getRepository(LedgerOutboxEntity);
@@ -54,7 +54,7 @@ export class WithdrawalUseCase {
       const withdrawalEntry = LedgerEntryEntity.withdrawal({
         correlationId,
         userId,
-        withdrawal,
+        value,
         createdAt: this.datetimeService.new(),
       });
 

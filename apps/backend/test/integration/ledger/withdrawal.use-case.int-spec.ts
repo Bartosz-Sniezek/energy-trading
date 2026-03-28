@@ -6,8 +6,7 @@ import {
   LedgerEntryType,
   LedgerEventType,
 } from '@domain/ledger/types';
-import { DepositValue } from '@domain/ledger/value-objects/deposit-value';
-import { WithdrawalValue } from '@domain/ledger/value-objects/withdrawal-value';
+import { MinorUnitValue } from '@domain/ledger/value-objects/minor-unit-value';
 import { WithdrawalUseCase } from '@modules/ledger/use-cases/withdrawal.use-case';
 import { LedgerFixture } from 'test/fixtures/ledger-fixture';
 import { UsersFixture } from 'test/fixtures/users-fixture';
@@ -43,9 +42,9 @@ describe('WithdrawalUseCase', () => {
   describe('execute', () => {
     it('should deposit successfully for active user', async () => {
       const { user } = await usersFixture.createActivatedUser();
-      await ledgerFixture.initializeForUser(user, new DepositValue(1000));
+      await ledgerFixture.initializeForUser(user, new MinorUnitValue(1000));
 
-      await contextedUseCase(user.id, new WithdrawalValue(1000));
+      await contextedUseCase(user.id, new MinorUnitValue(1000));
 
       const ledgerEntries = await ledgerRepository.findBy({ userId: user.id });
 
@@ -57,7 +56,7 @@ describe('WithdrawalUseCase', () => {
           userId: user.id,
           entryType: LedgerEntryType.WITHDRAWAL,
           direction: LedgerEntryDirection.DEBIT,
-          amount: '1000.000000',
+          amount: '10.000000',
           idempotencyKey: expect.toBeString(),
           orderId: null,
           tradeId: null,
@@ -79,7 +78,7 @@ describe('WithdrawalUseCase', () => {
           eventType: LedgerEventType.WITHDRAWN,
           payload: {
             userId: user.id,
-            amount: '1000.000000',
+            amount: '10.000000',
           },
           createdAt: expect.toBeDate(),
         },
@@ -88,10 +87,10 @@ describe('WithdrawalUseCase', () => {
 
     it('should throw InsufficientFundsError with insufficient funds', async () => {
       const { user } = await usersFixture.createActivatedUser();
-      await ledgerFixture.initializeForUser(user, new DepositValue(1));
+      await ledgerFixture.initializeForUser(user, new MinorUnitValue(1));
 
       await expect(
-        contextedUseCase(user.id, new WithdrawalValue(1000)),
+        contextedUseCase(user.id, new MinorUnitValue(1000)),
       ).rejects.toThrow(InsufficientFundsError);
 
       await expect(
@@ -111,18 +110,21 @@ describe('WithdrawalUseCase', () => {
 
     it('should handle concurrent requests', async () => {
       const { user } = await usersFixture.createActivatedUser();
-      await ledgerFixture.initializeForUser(user, new DepositValue(1000));
+      await ledgerFixture.initializeForUser(user, new MinorUnitValue(1000));
 
       await Promise.allSettled([
-        contextedUseCase(user.id, new WithdrawalValue(1000)),
-        contextedUseCase(user.id, new WithdrawalValue(1000)),
-        contextedUseCase(user.id, new WithdrawalValue(1000)),
-        contextedUseCase(user.id, new WithdrawalValue(1000)),
-        contextedUseCase(user.id, new WithdrawalValue(1000)),
-        contextedUseCase(user.id, new WithdrawalValue(1000)),
-        contextedUseCase(user.id, new WithdrawalValue(1000)),
-        contextedUseCase(user.id, new WithdrawalValue(1000)),
-        contextedUseCase(user.id, new WithdrawalValue(1000)),
+        contextedUseCase(user.id, new MinorUnitValue(1000)),
+        contextedUseCase(user.id, new MinorUnitValue(1000)),
+        contextedUseCase(user.id, new MinorUnitValue(1000)),
+        contextedUseCase(user.id, new MinorUnitValue(1000)),
+        contextedUseCase(user.id, new MinorUnitValue(1000)),
+        contextedUseCase(user.id, new MinorUnitValue(1000)),
+        contextedUseCase(user.id, new MinorUnitValue(1000)),
+        contextedUseCase(user.id, new MinorUnitValue(1000)),
+        contextedUseCase(user.id, new MinorUnitValue(1000)),
+        contextedUseCase(user.id, new MinorUnitValue(1000)),
+        contextedUseCase(user.id, new MinorUnitValue(1000)),
+        contextedUseCase(user.id, new MinorUnitValue(1000)),
       ]);
 
       await expect(

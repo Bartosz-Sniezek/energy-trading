@@ -6,24 +6,23 @@ import {
   LedgerEventType,
   WithdrawnLedgerPayload,
 } from '../types';
-import { WithdrawalValue } from '../value-objects/withdrawal-value';
-import { DepositValue } from '../value-objects/deposit-value';
 import { version } from 'uuid';
 import { LedgerOutboxEntity } from './ledger-outbox.entity';
 import { LedgerEntryEntity } from './ledger.entity';
 import { InvalidLedgerEntryTypeError } from '../errors/invalid-ledger-entry-type.error';
+import { MinorUnitValue } from '../value-objects/minor-unit-value';
 
 describe('LedgerOutboxEntity', () => {
   const userId = randomUserId();
   const correlationId = randomCorrelationId();
+  const value = new MinorUnitValue(111);
 
   describe('deposit', () => {
-    const deposit = new DepositValue(123);
     const entity = LedgerEntryEntity.deposit({
       userId,
       correlationId,
       createdAt: new Date(),
-      deposit,
+      value,
     });
 
     it(`should create DEPOSITED ledger outbox event`, () => {
@@ -51,12 +50,11 @@ describe('LedgerOutboxEntity', () => {
   });
 
   describe('withdrawn', () => {
-    const withdrawalValue = new WithdrawalValue(123);
     const entity = LedgerEntryEntity.withdrawal({
       userId,
       correlationId,
       createdAt: new Date(),
-      withdrawal: withdrawalValue,
+      value,
     });
 
     it(`should create WITHDRAWN ledger outbox event`, () => {

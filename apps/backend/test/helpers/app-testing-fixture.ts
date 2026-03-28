@@ -24,6 +24,7 @@ import {
   withRandomCorrelationContext,
 } from './with-random-correlation-context';
 import { LedgerFixture } from 'test/fixtures/ledger-fixture';
+import { UnauthenticatedClient } from './unauthenticated-client';
 
 export interface CreateOptions {
   mockKafka?: true;
@@ -124,6 +125,10 @@ export class AppTestingFixture {
       this.app.getHttpServer(),
       this._usersFixture,
     );
+  }
+
+  createUnauthenticatedClient(): UnauthenticatedClient {
+    return UnauthenticatedClient.create(this.app.getHttpServer());
   }
 
   async runWithRandomCorrelationContext<T>(

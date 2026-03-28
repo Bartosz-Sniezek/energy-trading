@@ -1,5 +1,6 @@
 import { Email } from '@domain/users/value-objects/email';
 import { Password } from '@domain/users/value-objects/password';
+import { UserEntity } from '@modules/users/entities/user.entity';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { UsersFixture } from 'test/fixtures/users-fixture';
@@ -8,6 +9,7 @@ export class AuthenticatedClient {
   constructor(
     private server: App,
     public cookie: string[],
+    public user: UserEntity,
     public email: Email,
     public password: Password,
   ) {}
@@ -29,7 +31,7 @@ export class AuthenticatedClient {
   }
 
   static async create(server: App, usersFixture: UsersFixture) {
-    const { email, password } = await usersFixture.createActivatedUser();
+    const { email, password, user } = await usersFixture.createActivatedUser();
 
     const loginRes = await request(server).post('/api/auth/login').send({
       email: email.getValue(),
@@ -39,6 +41,7 @@ export class AuthenticatedClient {
     return new AuthenticatedClient(
       server,
       loginRes.get('Set-Cookie')!,
+      user,
       email,
       password,
     );
