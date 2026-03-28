@@ -1,4 +1,4 @@
-import { UserAccountRegistrationAttemptedWithExistingAccountEvent } from '../events/user-account-registration-attempted-with-existing-accounter.event';
+import { UserAccountRegistrationAttemptedWithExistingAccountEvent } from '../../../domain/users/events/user-account-registration-attempted-with-existing-accounter.event';
 import { emailLayout } from './base.layout';
 
 interface EmailOptions {

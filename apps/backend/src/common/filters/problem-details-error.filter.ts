@@ -4,7 +4,6 @@ import {
   Catch,
   ArgumentsHost,
   HttpException,
-  Optional,
   Logger,
   Inject,
 } from '@nestjs/common';
@@ -37,6 +36,20 @@ export class ProblemDetailsErrorFilter implements ExceptionFilter {
 
     if (exception instanceof DomainError) {
       this.logger?.error(exception);
+      if (exception.statusCode >= 500) {
+        this.logger?.error(exception);
+        response
+          .status(500)
+          .contentType(contentType)
+          .json(<ProblemDetails>{
+            type: 'urn:problem:internal-server-exception',
+            title: 'Internal Server Error',
+            status: 500,
+            instance,
+          });
+
+        return;
+      }
       response
         .status(exception.statusCode)
         .contentType(contentType)
@@ -72,7 +85,7 @@ export class ProblemDetailsErrorFilter implements ExceptionFilter {
       .status(500)
       .contentType(contentType)
       .json(<ProblemDetails>{
-        type: 'urn:problem:internal-exception',
+        type: 'urn:problem:internal-server-exception',
         title: 'Internal Server Error',
         status: 500,
         instance,

@@ -4,10 +4,11 @@ import { randomLastName } from 'test/faker/random-last-name';
 import { randomToken } from 'test/faker/random-token';
 import { randomEmail } from 'test/faker/random-email';
 import { HtmlUserAccountActivationTokenResendRequestedTemplateStrategy } from './html-user-account-activation-token-resend-requested-template.strategy';
-import { UserAccountActivationTokenResendRequestedEvent } from '../events/user-account-activation-token-resend-requested.event';
+import { UserAccountActivationTokenResendRequestedEvent } from '../../../domain/users/events/user-account-activation-token-resend-requested.event';
 import { AppConfig } from '@technical/app-config/app-config';
 import { userAccountActivationTokenResentEmail } from '../html-templates/user-account-activation-token-resend-requested.layout';
 import { v7 } from 'uuid';
+import { randomUserId } from 'test/faker/random-user-id';
 
 describe(
   HtmlUserAccountActivationTokenResendRequestedTemplateStrategy.name,
@@ -24,7 +25,7 @@ describe(
       );
     const eventMock = mock<UserAccountActivationTokenResendRequestedEvent>({
       id: v7(),
-      userId: v7(),
+      userId: randomUserId(),
       email: randomEmail(),
       firstName: randomFirstName(),
       lastName: randomLastName(),

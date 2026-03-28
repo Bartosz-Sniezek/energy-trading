@@ -8,7 +8,7 @@ import { mock } from 'vitest-mock-extended';
 import { EmailTemplate } from '../interfaces/email-template.strategy';
 import { UserAccountActivationTokenResendRequestedEventMapper } from './user-account-activation-token-resend-requested.event-mapper';
 import { UserAccountActivationTokenResendRequestedTemplateStrategy } from '../interfaces/user-account-activation-token-resend-requested-template.strategy';
-import { UserAccountActivationTokenResendRequestedEvent } from '../events/user-account-activation-token-resend-requested.event';
+import { UserAccountActivationTokenResendRequestedEvent } from '../../../domain/users/events/user-account-activation-token-resend-requested.event';
 import { randomUUID } from 'crypto';
 import { randomCorrelationId } from 'test/faker/random-correlation-id';
 import { randomUserId } from 'test/faker/random-user-id';

@@ -8,7 +8,7 @@ import { mock } from 'vitest-mock-extended';
 import { EmailTemplate } from '../interfaces/email-template.strategy';
 import { UserAccountRegistrationAttemptedWithExistingAccountEventMapper } from './user-account-registration-attempted-with-existing-account.event-mapper';
 import { UserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy } from '../interfaces/user-account-registration-attempted-with-existing-email-email-template.strategy';
-import { UserAccountRegistrationAttemptedWithExistingAccountEvent } from '../events/user-account-registration-attempted-with-existing-accounter.event';
+import { UserAccountRegistrationAttemptedWithExistingAccountEvent } from '../../../domain/users/events/user-account-registration-attempted-with-existing-accounter.event';
 import { randomCorrelationId } from 'test/faker/random-correlation-id';
 import { randomUserId } from 'test/faker/random-user-id';
 

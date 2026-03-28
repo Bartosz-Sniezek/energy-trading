@@ -4,6 +4,7 @@ import { InvalidPayloadDataError } from '@common/errors/invalid-payload-data.err
 import { Email } from '@domain/users/value-objects/email';
 import { UserEvents } from '@domain/users/events.enum';
 import { InvalidEventTypeError } from '@common/errors/invalid-event-type.error';
+import { UserId } from '@modules/users/types';
 
 export const userAccountCreatedEventSchema = z.object({
   id: z.uuidv7(),
@@ -25,7 +26,7 @@ export type TUserAccountCreatedEvent = z.infer<
 export class UserAccountCreatedEvent implements TUserAccountCreatedEvent {
   readonly __type: UserEvents.USER_ACCOUNT_REGISTERED;
   readonly id: string;
-  readonly userId: string;
+  readonly userId: UserId;
   readonly email: Email;
   readonly firstName: string;
   readonly lastName: string;

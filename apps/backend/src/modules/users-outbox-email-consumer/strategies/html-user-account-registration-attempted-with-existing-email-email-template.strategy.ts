@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserAccountRegistrationAttemptedWithExistingAccountEvent } from '../events/user-account-registration-attempted-with-existing-accounter.event';
+import { UserAccountRegistrationAttemptedWithExistingAccountEvent } from '../../../domain/users/events/user-account-registration-attempted-with-existing-accounter.event';
 import { EmailTemplate } from '../interfaces/email-template.strategy';
 import { UserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy } from '../interfaces/user-account-registration-attempted-with-existing-email-email-template.strategy';
 import { AppConfig } from '@technical/app-config/app-config';

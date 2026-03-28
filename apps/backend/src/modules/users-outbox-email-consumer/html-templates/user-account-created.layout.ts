@@ -1,4 +1,4 @@
-import { UserAccountCreatedEvent } from '../events/user-account-created.event';
+import { UserAccountCreatedEvent } from '../../../domain/users/events/user-account-created.event';
 import { emailLayout } from './base.layout';
 
 interface EmailOptions {

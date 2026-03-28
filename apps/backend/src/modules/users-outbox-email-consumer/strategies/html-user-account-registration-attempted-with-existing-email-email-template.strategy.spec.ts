@@ -2,11 +2,12 @@ import { mock } from 'vitest-mock-extended';
 import { randomFirstName } from 'test/faker/random-first-name';
 import { randomLastName } from 'test/faker/random-last-name';
 import { HtmlUserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy } from './html-user-account-registration-attempted-with-existing-email-email-template.strategy';
-import { UserAccountRegistrationAttemptedWithExistingAccountEvent } from '../events/user-account-registration-attempted-with-existing-accounter.event';
+import { UserAccountRegistrationAttemptedWithExistingAccountEvent } from '../../../domain/users/events/user-account-registration-attempted-with-existing-accounter.event';
 import { randomEmail } from 'test/faker/random-email';
 import { AppConfig } from '@technical/app-config/app-config';
 import { existingAccountRegistrationEmail } from '../html-templates/existing-account-registration-attempt.layout';
 import { v7 } from 'uuid';
+import { randomUserId } from 'test/faker/random-user-id';
 
 describe(
   HtmlUserAccountRegistrationAttemptedWithExistingAccountEmailTemplateStrategy.name,
@@ -25,7 +26,7 @@ describe(
     const eventMock =
       mock<UserAccountRegistrationAttemptedWithExistingAccountEvent>({
         id: v7(),
-        userId: v7(),
+        userId: randomUserId(),
         email: randomEmail(),
         firstName: randomFirstName(),
         lastName: randomLastName(),

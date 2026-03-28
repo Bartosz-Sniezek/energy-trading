@@ -7,7 +7,7 @@ import { randomFirstName } from 'test/faker/random-first-name';
 import { randomLastName } from 'test/faker/random-last-name';
 import { mock } from 'vitest-mock-extended';
 import { UserAccountActivatedEmailTemplateStrategy } from '../interfaces/user-account-activated-email-template.strategy';
-import { UserAccountActivatedEvent } from '../events/user-account-activated.event';
+import { UserAccountActivatedEvent } from '../../../domain/users/events/user-account-activated.event';
 import { EmailTemplate } from '../interfaces/email-template.strategy';
 import { randomCorrelationId } from 'test/faker/random-correlation-id';
 import { randomUserId } from 'test/faker/random-user-id';

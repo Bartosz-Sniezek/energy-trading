@@ -1,5 +1,5 @@
 import { mock } from 'vitest-mock-extended';
-import { UserAccountActivatedEvent } from '../events/user-account-activated.event';
+import { UserAccountActivatedEvent } from '../../../domain/users/events/user-account-activated.event';
 import { randomFirstName } from 'test/faker/random-first-name';
 import { randomLastName } from 'test/faker/random-last-name';
 import { HtmlUserAccountActivatedEmailTemplateStrategy } from './html-user-account-activated-email-template.strategy';
@@ -7,6 +7,7 @@ import { randomEmail } from 'test/faker/random-email';
 import { AppConfig } from '@technical/app-config/app-config';
 import { v7 } from 'uuid';
 import { userAccountActivatedEmail } from '../html-templates/user-account-activated.layout';
+import { randomUserId } from 'test/faker/random-user-id';
 
 describe(HtmlUserAccountActivatedEmailTemplateStrategy.name, () => {
   const appConfigMock = mock<AppConfig>({
@@ -20,8 +21,8 @@ describe(HtmlUserAccountActivatedEmailTemplateStrategy.name, () => {
   );
 
   const eventMock = mock<UserAccountActivatedEvent>({
-    userId: v7(),
     id: v7(),
+    userId: randomUserId(),
     email: randomEmail(),
     firstName: randomFirstName(),
     lastName: randomLastName(),

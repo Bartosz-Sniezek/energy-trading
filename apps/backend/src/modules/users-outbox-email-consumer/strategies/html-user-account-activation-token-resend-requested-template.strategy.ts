@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserAccountActivationTokenResendRequestedEvent } from '../events/user-account-activation-token-resend-requested.event';
+import { UserAccountActivationTokenResendRequestedEvent } from '../../../domain/users/events/user-account-activation-token-resend-requested.event';
 import { EmailTemplate } from '../interfaces/email-template.strategy';
 import { UserAccountActivationTokenResendRequestedTemplateStrategy } from '../interfaces/user-account-activation-token-resend-requested-template.strategy';
 import { AppConfig } from '@technical/app-config/app-config';

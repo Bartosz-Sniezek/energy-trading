@@ -13,8 +13,8 @@ import { randomEmail } from 'test/faker/random-email';
 import { randomFirstName } from 'test/faker/random-first-name';
 import { randomLastName } from 'test/faker/random-last-name';
 import { v7 } from 'uuid';
-import { UserAccountActivationTokenResendRequestedEvent } from './events/user-account-activation-token-resend-requested.event';
-import { EventMapper } from './interfaces/event-mapper';
+import { UserAccountActivationTokenResendRequestedEvent } from '../../domain/users/events/user-account-activation-token-resend-requested.event';
+import { EmailTemplateEventMapper } from './interfaces/event-mapper';
 import { EmailTemplate } from './interfaces/email-template.strategy';
 import { randomCorrelationId } from 'test/faker/random-correlation-id';
 import { randomUserId } from 'test/faker/random-user-id';
@@ -63,7 +63,7 @@ describe('UsersOutboxMessageHandler', () => {
         text: 'text',
       };
 
-      const mapperMock = mock<EventMapper<unknown>>();
+      const mapperMock = mock<EmailTemplateEventMapper<unknown>>();
       mapperMock.parse.mockReturnValue(event);
       mapperMock.createTemplate.mockReturnValue(emailTemplate);
 
