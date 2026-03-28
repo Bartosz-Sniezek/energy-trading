@@ -18,6 +18,7 @@ import { PriceEngineGatewayModule } from '@modules/price-engine-gateway/price-en
 import { Request } from 'express';
 import { v7 } from 'uuid';
 import { LedgerModule } from '@modules/ledger/ledger.module';
+import { LedgerUsersOutboxConsumerModule } from '@modules/ledger-users-outbox-consumer/ledger-users-outbox-consumer.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { LedgerModule } from '@modules/ledger/ledger.module';
     PriceEngineRedisConsumerModule,
     PriceEngineGatewayModule,
     LedgerModule,
+    LedgerUsersOutboxConsumerModule,
   ],
   controllers: [],
   providers: [

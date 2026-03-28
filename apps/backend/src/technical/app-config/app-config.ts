@@ -59,6 +59,8 @@ const appConfigSchema = z
     PRICE_ENGINE_TICK_TOPIC: z.string(),
     PRICE_ENGINE_TICK_INTERVAL_MS: z.coerce.number().int().positive(),
     KAFKA_LEDGER_OUTBOX_TOPIC: z.string(),
+    KAFKA_LEDGER_USERS_OUTBOX_TOPIC_DLQ: z.string(),
+    KAFKA_LEDGER_USERS_ACCOUNT_CREATED_GROUP: z.string(),
   })
   .superRefine((data, ctx) => {
     refineMailerTransportMode(data, ctx);
@@ -121,6 +123,15 @@ export class AppConfig {
   get balanceLedgerConsumerConfig() {
     return {
       topic: this._values.KAFKA_LEDGER_OUTBOX_TOPIC,
+      logLevel: this._values.KAFKA_LOG_LEVEL,
+    };
+  }
+
+  get ledgerUsersOutboxConsumerConfig() {
+    return {
+      groupId: this._values.KAFKA_LEDGER_USERS_ACCOUNT_CREATED_GROUP,
+      topic: this._values.KAFKA_USERS_OUTBOX_TOPIC,
+      dlq: this._values.KAFKA_LEDGER_USERS_OUTBOX_TOPIC_DLQ,
       logLevel: this._values.KAFKA_LOG_LEVEL,
     };
   }

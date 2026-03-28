@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserAccountActivatedEvent } from '../events/user-account-activated.event';
+import { UserAccountActivatedEvent } from '../../../domain/users/events/user-account-activated.event';
 import { userAccountActivatedEmail } from '../html-templates/user-account-activated.layout';
 import { EmailTemplate } from '../interfaces/email-template.strategy';
 import { UserAccountActivatedEmailTemplateStrategy } from '../interfaces/user-account-activated-email-template.strategy';

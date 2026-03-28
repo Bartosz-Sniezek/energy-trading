@@ -23,6 +23,7 @@ import {
   ContextedFn,
   withRandomCorrelationContext,
 } from './with-random-correlation-context';
+import { LedgerFixture } from 'test/fixtures/ledger-fixture';
 
 export interface CreateOptions {
   mockKafka?: true;
@@ -59,10 +60,6 @@ export class AppTestingFixture {
       moduleFixture
         .overrideProvider(KAFKA_SERVICE)
         .useValue(kafkaMock.kafkaMock);
-      // .overrideProvider(UsersOutboxConsumer)
-      // .useValue(mock<UsersOutboxConsumer>())
-      // .overrideProvider(PriceEngineRedisConsumer)
-      // .useValue(mock<PriceEngineRedisConsumer>());
     }
 
     if (options?.mockWs) {
@@ -146,5 +143,9 @@ export class AppTestingFixture {
 
   getRefreshTokenFixture(): RefreshTokenFixture {
     return new RefreshTokenFixture(this.app);
+  }
+
+  getLedgerFixture(): LedgerFixture {
+    return new LedgerFixture(this.app);
   }
 }

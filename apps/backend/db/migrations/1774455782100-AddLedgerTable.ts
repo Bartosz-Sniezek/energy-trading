@@ -44,6 +44,14 @@ export class AddLedgerTable1774455782100 implements MigrationInterface {
         CREATE INDEX idx_ledger_outbox_created_at ON ledger_outbox(created_at);
         CREATE INDEX idx_ledger_outbox_user_id ON ledger_outbox(user_id);
         CREATE INDEX idx_ledger_outbox_aggregate ON ledger_outbox(aggregate_id, event_type);
+
+
+        CREATE TABLE ledger_user_locks (
+            user_id     UUID PRIMARY KEY,
+            created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+        );
+
+        CREATE INDEX idx_ledger_user_locks_user_id ON ledger_user_locks(user_id);
     `);
   }
 
