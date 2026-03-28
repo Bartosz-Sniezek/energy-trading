@@ -6,13 +6,13 @@ import { randomCorrelationId } from 'test/faker/random-correlation-id';
 import { randomUserId } from 'test/faker/random-user-id';
 import { DepositedLedgerEntryEvent } from './deposited-ledger-entry.event';
 import { DepositedLedgerPayload, LedgerEventType } from '../types';
-import { DepositValue } from '../value-objects/deposit-value';
+import { MinorUnitValue } from '../value-objects/minor-unit-value';
 
 describe('DepositedLedgerEntryEvent', () => {
   const timestamp = Date.now().toString();
   const userId = randomUserId();
   const validEventPayload: DepositedLedgerPayload = {
-    amount: new DepositValue(1000).toString(),
+    amount: new MinorUnitValue(1000).toLedgerFormat(),
     userId,
   };
   const validEventData: DebeziumOutboxMessage = {
@@ -32,9 +32,7 @@ describe('DepositedLedgerEntryEvent', () => {
       expect(event.id).toBe(validEventData.id);
       expect(event.userId).toBe(validEventData.userId);
       expect(event.correlationId).toBe(validEventData.correlationId);
-      expect(event.amount).toBe(
-        DepositValue.parse(validEventPayload.amount).toString(),
-      );
+      expect(event.amount).toBe('10.000000');
       expect(event.timestamp).toBe(parseInt(timestamp));
     });
 

@@ -5,7 +5,7 @@ import {
   LedgerEntryType,
   LedgerEventType,
 } from '@domain/ledger/types';
-import { DepositValue } from '@domain/ledger/value-objects/deposit-value';
+import { MinorUnitValue } from '@domain/ledger/value-objects/minor-unit-value';
 import { DepositUseCase } from '@modules/ledger/use-cases/deposit.use-case';
 import { UsersFixture } from 'test/fixtures/users-fixture';
 import { AppTestingFixture } from 'test/helpers/app-testing-fixture';
@@ -39,7 +39,7 @@ describe('DeposiUseCase', () => {
     it('should deposit successfully for active user', async () => {
       const { user } = await usersFixture.createActivatedUser();
 
-      await contextedUseCase(user.id, new DepositValue(1000));
+      await contextedUseCase(user.id, new MinorUnitValue(1000));
 
       const ledgerEntries = await ledgerRepository.findBy({ userId: user.id });
 
@@ -50,7 +50,7 @@ describe('DeposiUseCase', () => {
         userId: user.id,
         entryType: LedgerEntryType.DEPOSIT,
         direction: LedgerEntryDirection.CREDIT,
-        amount: '1000.000000',
+        amount: '10.000000',
         idempotencyKey: expect.toBeString(),
         orderId: null,
         tradeId: null,

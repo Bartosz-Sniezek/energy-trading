@@ -1,4 +1,4 @@
-import { DepositValue } from '@domain/ledger/value-objects/deposit-value';
+import { MinorUnitValue } from '@domain/ledger/value-objects/minor-unit-value';
 import { LedgerUserLocksService } from '@modules/ledger-users-outbox-consumer/ledger-user-locks.service';
 import { DepositUseCase } from '@modules/ledger/use-cases/deposit.use-case';
 import { UserEntity } from '@modules/users/entities/user.entity';
@@ -20,7 +20,7 @@ export class LedgerFixture {
 
   async initializeForUser(
     user: UserEntity,
-    defaultDeposit?: DepositValue,
+    defaultDeposit?: MinorUnitValue,
   ): Promise<void> {
     await withCorrelationIdContext(this.clsService, async () => {
       await this.ledgerUserLocksService.initializeLedgerUserLock(user.id);
