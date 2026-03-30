@@ -12,11 +12,14 @@ describe('Users outbox email consumer', () => {
       mockWs: true,
     });
     await testingFixture.init();
-    await testingFixture.truncateDatabase();
   });
 
   afterAll(async () => {
     await testingFixture.close();
+  });
+
+  beforeEach(async () => {
+    await testingFixture.truncateDatabase();
   });
 
   it('should process', async () => {
