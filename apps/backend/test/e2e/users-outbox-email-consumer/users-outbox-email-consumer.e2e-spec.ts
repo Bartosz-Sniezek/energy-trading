@@ -9,6 +9,7 @@ describe('Users outbox email consumer', () => {
   beforeAll(async () => {
     testingFixture = await AppTestingFixture.create({
       mailerMock: mailer,
+      mockWs: true,
     });
     await testingFixture.init();
     await testingFixture.truncateDatabase();
