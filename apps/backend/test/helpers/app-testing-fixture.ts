@@ -1,5 +1,6 @@
 import { HASHING_SERVICE_SALT_ROUNDS } from '@modules/hashing/constants';
 import { KAFKA_SERVICE } from '@modules/kafka/constants';
+import { KafkaJS } from '@confluentinc/kafka-javascript';
 import { INestApplication, Logger, Type } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -97,6 +98,18 @@ export class AppTestingFixture {
 
   async init(): Promise<INestApplication<App>> {
     return this.app.init();
+  }
+
+  async truncateTopics(topics: string[]): Promise<void> {
+    const kafka = this.app.get<KafkaJS.Kafka>(KAFKA_SERVICE);
+    const admin = kafka.admin({ log_level: 0 });
+    await admin.connect();
+    try {
+      await admin.deleteTopics({ topics, timeout: 5000 });
+    } catch {
+      // topics may not exist yet
+    }
+    await admin.disconnect();
   }
 
   getApp(): INestApplication<App> {
