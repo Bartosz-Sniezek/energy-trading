@@ -123,24 +123,24 @@ energy-trading/
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| `POST` | `/api/auth/login` | — | Login, sets access + refresh cookies |
+| `POST` | `/api/auth/login` | - | Login, sets access + refresh cookies |
 | `POST` | `/api/auth/refresh` | refresh cookie | Rotate tokens |
 | `POST` | `/api/auth/logout` | JWT | Blacklist session, clear cookies |
-| `POST` | `/api/auth/activate` | — | Activate account via token |
-| `POST` | `/api/auth/resend-activation-email` | — | Resend activation email |
-| `POST` | `/api/users` | — | Register |
+| `POST` | `/api/auth/activate` | - | Activate account via token |
+| `POST` | `/api/auth/resend-activation-email` | - | Resend activation email |
+| `POST` | `/api/users` | - | Register |
 | `GET` | `/api/users/me` | JWT | Get own profile |
 | `POST` | `/api/ledger/deposit` | JWT | Deposit funds |
 | `POST` | `/api/ledger/withdrawal` | JWT | Withdraw funds |
 | `GET` | `/api/ledger/balance` | JWT | Get available + locked balance |
-| `GET` | `/api/health` | — | Health check |
+| `GET` | `/api/health` | - | Health check |
 
 **WebSocket** namespace `/price-feed`:
 
 | Event (client → server) | Payload | Description |
 |---|---|---|
 | `subscribe` | `{ instruments: string[] }` | Join price rooms |
-| `keepalive` | — | Reset 30s inactivity timer |
+| `keepalive` | - | Reset 30s inactivity timer |
 
 | Event (server → client) | Description |
 |---|---|
@@ -179,7 +179,7 @@ sequenceDiagram
     API->>R: update session:{family}
     API-->>C: Set-Cookie: new access_token + refresh_token
 
-    Note over C,R: Theft detection — reuse of revoked token
+    Note over C,R: Theft detection - reuse of revoked token
     C->>API: POST /auth/refresh (stolen old token)
     API->>DB: token.isRevoked() == true
     API->>DB: revoke all tokens in family
@@ -197,7 +197,7 @@ sequenceDiagram
 
 ---
 
-## CreateUserAccountUseCase — Outbox Pattern
+## CreateUserAccountUseCase - Outbox Pattern
 
 Registration uses the **Transactional Outbox** pattern. The use case writes to both `users` and `users_outbox` in one transaction. Debezium CDC picks up the outbox row from the Postgres WAL and publishes it to Kafka. Two independent consumer groups consume the **same topic** for different purposes.
 
@@ -232,7 +232,7 @@ sequenceDiagram
     DB-->>DEB: Postgres WAL (new users_outbox row)
     DEB->>K: produce DebeziumMessage\n(headers: event_type, correlation_id, user_id, id)
 
-    par UsersOutboxEmailConsumerModule — group: EMAIL_NOTIFIER_CONSUMER_GROUP_ID
+    par UsersOutboxEmailConsumerModule - group: EMAIL_NOTIFIER_CONSUMER_GROUP_ID
         K->>EH: EachMessagePayload
         EH->>EH: DebeziumConnectorMessageParser.parse()
         EH->>REG: getMapper(event)
@@ -240,7 +240,7 @@ sequenceDiagram
         EH->>EM: mapper.parse(event) → UserAccountCreatedEvent
         EH->>EM: mapper.createTemplate(event) → EmailTemplate
         EH->>MAIL: send({ to, subject, html })
-    and LedgerUsersOutboxConsumerModule — group: KAFKA_LEDGER_USERS_ACCOUNT_CREATED_GROUP
+    and LedgerUsersOutboxConsumerModule - group: KAFKA_LEDGER_USERS_ACCOUNT_CREATED_GROUP
         K->>LH: EachMessagePayload
         LH->>LH: DebeziumConnectorMessageParser.parse()
         LH->>LH: skip if eventType ≠ USER_ACCOUNT_REGISTERED
@@ -254,7 +254,7 @@ sequenceDiagram
     Note over K: On PermanentError or max retries → DLQ topic
 ```
 
-**Duplicate email** is handled gracefully with `SAVEPOINT`: if the `INSERT INTO users` violates the unique constraint on `email`, the savepoint rolls back just that insert, the transaction continues, and a `UserAccountRegistrationAttemptedWithExistingAccount` event is written to the outbox instead — which triggers a security notification email to the existing account owner.
+**Duplicate email** is handled gracefully with `SAVEPOINT`: if the `INSERT INTO users` violates the unique constraint on `email`, the savepoint rolls back just that insert, the transaction continues, and a `UserAccountRegistrationAttemptedWithExistingAccount` event is written to the outbox instead - which triggers a security notification email to the existing account owner.
 
 ---
 
@@ -277,7 +277,7 @@ sequenceDiagram
     UC-->>C: 200
 ```
 
-> Balance projection (`ledger_users_balances`) is updated **synchronously** inside the same transaction as the ledger entry — no eventual consistency lag on deposit/withdrawal.
+> Balance projection (`ledger_users_balances`) is updated **synchronously** inside the same transaction as the ledger entry - no eventual consistency lag on deposit/withdrawal.
 
 ---
 
@@ -399,5 +399,3 @@ erDiagram
 
     refresh_tokens ||--o| refresh_tokens : "replaced_by"
 ```
-
-`entry_type` values: `deposit`, `withdrawal`, `reservation`, `reservation_release`, `trade_debit`, `trade_credit`, `fee`
