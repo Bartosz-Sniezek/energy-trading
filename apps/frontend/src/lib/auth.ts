@@ -7,8 +7,6 @@ export const getUser = cache(async (): Promise<MeDto | null> => {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("access_token");
 
-  console.log(cookieStore.getAll());
-
   if (accessToken == null) return null;
 
   try {
