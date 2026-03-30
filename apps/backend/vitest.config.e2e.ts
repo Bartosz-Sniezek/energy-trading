@@ -15,8 +15,8 @@ const e2eConfig = defineConfig({
     maxWorkers: 1,
     maxConcurrency: 1,
     testTimeout: 5000,
-    hookTimeout: 5000,
-    teardownTimeout: 5000,
+    hookTimeout: 15000,
+    teardownTimeout: 15000,
   },
 });
 

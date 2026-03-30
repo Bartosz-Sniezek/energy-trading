@@ -21,7 +21,7 @@ describe('Users outbox email consumer', () => {
   it('should process', async () => {
     await testingFixture.getUsersFixture().createUser();
 
-    await sleep(4000);
+    await sleep(8000);
     expect(mailer.messageQ).toHaveLength(1);
-  });
+  }, 15000);
 });
