@@ -11,6 +11,9 @@ describe('Users outbox email consumer', () => {
       mailerMock: mailer,
       mockWs: true,
     });
+    await testingFixture.truncateTopics([
+      process.env.KAFKA_USERS_OUTBOX_TOPIC!,
+    ]);
     await testingFixture.init();
   });
 
