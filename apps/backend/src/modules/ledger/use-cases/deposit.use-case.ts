@@ -2,6 +2,7 @@ import { LedgerOutboxEntity } from '@domain/ledger/entities/ledger-outbox.entity
 import { LedgerEntryEntity } from '@domain/ledger/entities/ledger.entity';
 import { MinorUnitValue } from '@domain/ledger/value-objects/minor-unit-value';
 import { UserDoesNotExistError } from '@domain/users/errors/user-does-not-exist.error';
+import { LedgerUsersBalancesService } from '@domain/ledger/ledger-users-balances.service';
 import { UserEntity } from '@modules/users/entities/user.entity';
 import { UserId } from '@modules/users/types';
 import { Injectable } from '@nestjs/common';
@@ -17,6 +18,7 @@ export class DepositUseCase {
     @InjectDataSource()
     private readonly datasource: DataSource,
     private readonly clsSerivce: ClsService,
+    private readonly ledgerUserBalancesService: LedgerUsersBalancesService,
   ) {}
 
   async execute(userId: UserId, value: MinorUnitValue): Promise<void> {
@@ -45,6 +47,12 @@ export class DepositUseCase {
       await ledgerRepository.save(depositEntry);
       await ledgerOutboxRepository.save(
         LedgerOutboxEntity.deposited(depositEntry),
+      );
+      await this.ledgerUserBalancesService.updateBalance(
+        entityManager,
+        userId,
+        depositEntry.amount,
+        '0',
       );
     });
   }

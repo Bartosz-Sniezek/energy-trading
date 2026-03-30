@@ -1,17 +1,18 @@
 import { mock } from 'vitest-mock-extended';
 import { randomUserId } from 'test/faker/random-user-id';
 import { createDatetimeServiceMock } from 'test/mocks/technical/datetime-service.mock';
-import { createLedgerUserLockRepositoryMock } from 'test/mocks/ledger/ledger-user-lock-repository.mock';
 import { InsertQueryBuilder, SelectQueryBuilder } from 'typeorm';
 import { LedgerUserLockEntity } from '@domain/ledger/entities/ledger-user-lock.entity';
 import { vi } from 'vitest';
-import { LedgerUserLocksService } from './ledger-user-locks.service';
+import { LedgerUserStateInitializerService } from './ledger-user-state-initializer.service';
+import { createTransactionMock } from 'test/helpers/transaction.mock';
+import { LedgerUserBalanceEntity } from '@domain/ledger/entities/ledger-user-balance.entity';
 
-describe('LedgerUserLocksService', () => {
+describe('LedgerUserStateInitializerService', () => {
+  const { datasourceMock, entityManagerMock, resetTransactionMock } =
+    createTransactionMock();
   const { datetimeServiceMock, resetDatetimeServiceMock } =
     createDatetimeServiceMock();
-  const { ledgerUserLockRepositoryMock, resetLedgerUserLockRepositoryMock } =
-    createLedgerUserLockRepositoryMock();
 
   const queryBuilderMock = mock<InsertQueryBuilder<LedgerUserLockEntity>>({
     insert: vi.fn().mockReturnThis(),
@@ -24,32 +25,44 @@ describe('LedgerUserLocksService', () => {
   const now = new Date();
   const userId = randomUserId();
 
-  const service = new LedgerUserLocksService(
-    ledgerUserLockRepositoryMock,
+  const service = new LedgerUserStateInitializerService(
     datetimeServiceMock,
+    datasourceMock,
   );
 
   beforeEach(() => {
     resetDatetimeServiceMock();
     datetimeServiceMock.new.mockReturnValue(now);
 
-    resetLedgerUserLockRepositoryMock();
-    ledgerUserLockRepositoryMock.createQueryBuilder.mockReturnValue(
+    resetTransactionMock();
+    entityManagerMock.createQueryBuilder.mockReturnValueOnce(
       queryBuilderMock as unknown as SelectQueryBuilder<LedgerUserLockEntity>,
+    );
+    entityManagerMock.createQueryBuilder.mockReturnValueOnce(
+      queryBuilderMock as unknown as SelectQueryBuilder<LedgerUserBalanceEntity>,
     );
   });
 
-  describe('initializeLedgerUserLock', () => {
+  describe('initializeLedgerUserState', () => {
     it('should create entry', async () => {
-      await service.initializeLedgerUserLock(userId);
+      await service.initializeLedgerUserState(userId);
 
-      expect(
-        ledgerUserLockRepositoryMock.createQueryBuilder,
-      ).toHaveBeenCalled();
+      expect(entityManagerMock.createQueryBuilder).toHaveBeenCalled();
       expect(queryBuilderMock.insert).toHaveBeenCalled();
       expect(queryBuilderMock.into).toHaveBeenCalledWith(LedgerUserLockEntity);
       expect(queryBuilderMock.values).toHaveBeenCalledWith(
         LedgerUserLockEntity.create(userId, now),
+      );
+      expect(queryBuilderMock.orIgnore).toHaveBeenCalled();
+      expect(queryBuilderMock.execute).toHaveBeenCalled();
+
+      expect(entityManagerMock.createQueryBuilder).toHaveBeenCalled();
+      expect(queryBuilderMock.insert).toHaveBeenCalled();
+      expect(queryBuilderMock.into).toHaveBeenCalledWith(
+        LedgerUserBalanceEntity,
+      );
+      expect(queryBuilderMock.values).toHaveBeenCalledWith(
+        LedgerUserBalanceEntity.create(userId),
       );
       expect(queryBuilderMock.orIgnore).toHaveBeenCalled();
       expect(queryBuilderMock.execute).toHaveBeenCalled();

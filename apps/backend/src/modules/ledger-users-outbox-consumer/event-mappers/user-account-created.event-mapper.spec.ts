@@ -9,10 +9,10 @@ import { UserAccountCreatedEventMapper } from './user-account-created.event-mapp
 import { randomUUID } from 'crypto';
 import { randomCorrelationId } from 'test/faker/random-correlation-id';
 import { randomUserId } from 'test/faker/random-user-id';
-import { LedgerUserLocksService } from '../ledger-user-locks.service';
+import { LedgerUserStateInitializerService } from '../ledger-user-state-initializer.service';
 
 describe('UserAccountCreatedEventMapper', () => {
-  const ledgerUserLocksServiceMock = mock<LedgerUserLocksService>();
+  const ledgerUserLocksServiceMock = mock<LedgerUserStateInitializerService>();
 
   const mapper = new UserAccountCreatedEventMapper(ledgerUserLocksServiceMock);
 
@@ -42,7 +42,7 @@ describe('UserAccountCreatedEventMapper', () => {
       await mapper.execute(event);
 
       expect(
-        ledgerUserLocksServiceMock.initializeLedgerUserLock,
+        ledgerUserLocksServiceMock.initializeLedgerUserState,
       ).toHaveBeenCalledWith(event.userId);
     });
   });

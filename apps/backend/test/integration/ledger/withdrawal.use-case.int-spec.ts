@@ -35,6 +35,10 @@ describe('WithdrawalUseCase', () => {
     );
   });
 
+  beforeEach(async () => {
+    await testingFixture.truncateDatabase();
+  });
+
   afterAll(async () => {
     await testingFixture.close();
   });
