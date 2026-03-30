@@ -7,7 +7,7 @@ import request from 'supertest';
 import { HttpStatus } from '@nestjs/common';
 import { App } from 'supertest/types';
 import { Repository } from 'typeorm';
-import { UserEntity } from '@modules/users/entities/user.entity';
+import { UserEntity } from '@domain/users/entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ProblemDetails } from '@energy-trading/shared/types';
 import {

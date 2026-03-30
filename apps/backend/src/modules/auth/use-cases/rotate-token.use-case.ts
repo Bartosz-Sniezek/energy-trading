@@ -1,11 +1,7 @@
 import { RefreshTokenEntity } from '@domain/auth/entities/refresh-token.entity';
 import { InvalidRefreshToken } from '@domain/auth/errors/invalid-refresh-token.error';
-import {
-  AccessToken,
-  RefreshToken,
-  TokenGenerationOutput,
-} from '@domain/auth/types';
-import { UserEntity } from '@modules/users/entities/user.entity';
+import { RefreshToken, TokenGenerationOutput } from '@domain/auth/types';
+import { UserEntity } from '@domain/users/entities/user.entity';
 import { DatetimeService } from '@technical/datetime/datetime.service';
 import { DataSource, IsNull } from 'typeorm';
 import { TokenService } from '@domain/auth/services/token.service';

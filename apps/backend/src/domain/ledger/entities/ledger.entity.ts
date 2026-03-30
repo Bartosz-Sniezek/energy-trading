@@ -5,7 +5,7 @@ import {
   type LedgerEntryId,
 } from '../types';
 import type { Nullable } from '@utils/nullable';
-import type { UserId } from '@modules/users/types';
+import type { UserId } from '@domain/users/types';
 import { v7 } from 'uuid';
 import { OrderId } from '@domain/orders/types';
 import { TradeId } from '@domain/trades/types';

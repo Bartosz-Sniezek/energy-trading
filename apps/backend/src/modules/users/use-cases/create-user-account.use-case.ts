@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { UserEntity } from '../entities/user.entity';
+import { UserEntity } from '../../../domain/users/entities/user.entity';
 import { DataSource, EntityManager } from 'typeorm';
-import { UserOutboxEntity } from '../entities/users-outbox.entity';
+import { UserOutboxEntity } from '../../../domain/users/entities/users-outbox.entity';
 import { DatetimeService } from '@technical/datetime/datetime.service';
 import { HashingService } from '../../hashing/hashing.service';
-import { TokensService } from '../token.service';
 import { Email } from '@domain/users/value-objects/email';
 import { Password } from '@domain/users/value-objects/password';
 import { handleUniqueViolation } from '@technical/database/helpers/handle-unique-violation';
 import { UniqueViolationError } from '@technical/database/errors/unique-violation.error';
 import { ClsService } from 'nestjs-cls';
+import { AccountActivationTokenGenerator } from '@domain/auth/services/account-activation-token.generator';
 
 export interface CreateUserAccountParams {
   email: Email;
@@ -20,13 +20,13 @@ export interface CreateUserAccountParams {
 }
 
 @Injectable()
-export class CreateUserAccountCommand {
+export class CreateUserAccountUseCase {
   constructor(
     @InjectDataSource()
     private readonly dataSource: DataSource,
     private readonly datetimeService: DatetimeService,
     private readonly hashingService: HashingService,
-    private readonly tokensService: TokensService,
+    private readonly accountActivationTokenGenerator: AccountActivationTokenGenerator,
     private readonly clsService: ClsService,
   ) {}
 
@@ -34,7 +34,7 @@ export class CreateUserAccountCommand {
     const passwordHash = await this.hashingService.hash(
       params.password.getValue(),
     );
-    const token = this.tokensService.generateToken();
+    const token = this.accountActivationTokenGenerator.generate();
 
     await this.dataSource.transaction(async (entityManager) => {
       const usersRepository = entityManager.getRepository(UserEntity);

@@ -1,6 +1,6 @@
 import { Email } from '@domain/users/value-objects/email';
 import { Password } from '@domain/users/value-objects/password';
-import { UserEntity } from '@modules/users/entities/user.entity';
+import { UserEntity } from '@domain/users/entities/user.entity';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { UsersFixture } from 'test/fixtures/users-fixture';

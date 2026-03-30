@@ -1,6 +1,6 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { Hash } from '../users/types';
+import { Hash } from '../../domain/users/types';
 import { HASHING_SERVICE_SALT_ROUNDS } from './constants';
 import { randomBytes } from 'crypto';
 

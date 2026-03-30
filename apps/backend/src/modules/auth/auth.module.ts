@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { LoginUseCase } from './use-cases/login.use-case';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from '@modules/users/entities/user.entity';
+import { UserEntity } from '@domain/users/entities/user.entity';
 import { RefreshTokenEntity } from '../../domain/auth/entities/refresh-token.entity';
 import { TokenService } from '@domain/auth/services/token.service';
 import { AppConfigModule } from '@technical/app-config/app-config.module';
@@ -13,11 +13,11 @@ import { LogoutUseCase } from './use-cases/logout.use-case';
 import { AppCacheModule } from '@technical/cache/app-cache.module';
 import { RotateTokenUseCase } from './use-cases/rotate-token.use-case';
 import { AccountTokenActivationResendRequestedUseCase } from './use-cases/account-token-activation-resend-requested.use-case';
-import { TokensService } from '@modules/users/token.service';
 import { ActivateUserAccountUseCase } from './use-cases/activate-user-account.use-case';
 import { SessionAuthBridge } from '@domain/auth/services/session-auth.bridge';
 import { RedisModule } from '@technical/redis/redis.module';
 import { JwtAuthModule } from '@modules/jwt-auth/jwt-auth.module';
+import { AccountActivationTokenGenerator } from '@domain/auth/services/account-activation-token.generator';
 
 @Module({
   imports: [
@@ -31,7 +31,7 @@ import { JwtAuthModule } from '@modules/jwt-auth/jwt-auth.module';
   ],
   providers: [
     TokenService,
-    TokensService,
+    AccountActivationTokenGenerator,
     CookieService,
     LoginUseCase,
     LogoutUseCase,

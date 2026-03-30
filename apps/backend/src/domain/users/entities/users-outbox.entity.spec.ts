@@ -3,10 +3,10 @@ import {
   UserAccountActivatedPayload,
   UserAccountCreatedPayload,
   UserAccountRegistrationAttemptedPayload,
-} from '@modules/users/entities/schemas/outbox-payload.schema';
-import { UserOutboxEntity } from '@modules/users/entities/users-outbox.entity';
+} from '@domain/users/entities/schemas/outbox-payload.schema';
+import { UserOutboxEntity } from '@domain/users/entities/users-outbox.entity';
 import { InvalidPayloadDataError } from '@common/errors/invalid-payload-data.error';
-import { UserId } from '@modules/users/types';
+import { UserId } from '@domain/users/types';
 import { randomBytes } from 'crypto';
 import { randomEmail } from 'test/faker/random-email';
 import { randomFirstName } from 'test/faker/random-first-name';

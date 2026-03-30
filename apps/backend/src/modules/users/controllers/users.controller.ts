@@ -2,18 +2,17 @@ import {
   Body,
   Controller,
   Get,
-  Param,
   Post,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { Email } from '@domain/users/value-objects/email';
 import { Password } from '@domain/users/value-objects/password';
-import { CreateUserAccountCommand } from '@modules/users/commands/create-user-account.command';
+import { CreateUserAccountUseCase } from '@modules/users/use-cases/create-user-account.use-case';
 import { RegisterUserDto } from './dtos/register-user.dto';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { MeDto } from './dtos/me.dto';
-import { GetAuthenticatedUserProfileUseCase } from './use-cases/get-authenticated-user-profile.use-case';
+import { GetAuthenticatedUserProfileUseCase } from '../use-cases/get-authenticated-user-profile.use-case';
 import { JwtAuthGuard } from '@modules/jwt-auth/jwt-auth.guard';
 import { CurrentUser } from '@modules/jwt-auth/current-user.decorator';
 import type { AuthenticatedUser } from '@domain/auth/types';
@@ -22,7 +21,7 @@ import type { AuthenticatedUser } from '@domain/auth/types';
 @UsePipes(ZodValidationPipe)
 export class UsersController {
   constructor(
-    private readonly createUserAccountCommand: CreateUserAccountCommand,
+    private readonly createUserAccountCommand: CreateUserAccountUseCase,
     private readonly getAuthenticatedUserProfileUseCase: GetAuthenticatedUserProfileUseCase,
   ) {}
 

@@ -4,7 +4,7 @@ import { IsNull, Repository } from 'typeorm';
 import { RefreshTokenEntity } from '@domain/auth/entities/refresh-token.entity';
 import { DatetimeService } from '@technical/datetime/datetime.service';
 import { TokenService } from '@domain/auth/services/token.service';
-import { UserId } from '@modules/users/types';
+import { UserId } from '@domain/users/types';
 import { SessionAuthBridge } from '@domain/auth/services/session-auth.bridge';
 
 @Injectable()

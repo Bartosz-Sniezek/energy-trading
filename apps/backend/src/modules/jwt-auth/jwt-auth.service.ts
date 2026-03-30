@@ -5,7 +5,7 @@ import {
   AccessTokenPayload,
   AuthenticatedUser,
 } from '@domain/auth/types';
-import { UserId } from '@modules/users/types';
+import { UserId } from '@domain/users/types';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AppConfig } from '@technical/app-config/app-config';

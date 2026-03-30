@@ -1,4 +1,4 @@
-import { UserEntity } from '@modules/users/entities/user.entity';
+import { UserEntity } from '@domain/users/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AppConfig } from '@technical/app-config/app-config';
@@ -11,7 +11,7 @@ import {
 } from '../types';
 import { RefreshTokenEntity } from '@domain/auth/entities/refresh-token.entity';
 import { randomBytes, randomUUID } from 'crypto';
-import { UserId } from '@modules/users/types';
+import { UserId } from '@domain/users/types';
 import { AppCacheService } from '@technical/cache/app-cache.service';
 import crypto from 'crypto';
 import { Email } from '@domain/users/value-objects/email';
@@ -291,6 +291,4 @@ export class TokenService {
   private generateRefreshToken(): RefreshToken {
     return randomBytes(64).toString('hex') as RefreshToken;
   }
-
-
 }

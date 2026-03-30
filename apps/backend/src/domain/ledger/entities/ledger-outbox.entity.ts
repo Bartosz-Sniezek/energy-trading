@@ -9,7 +9,7 @@ import {
   WithdrawnLedgerPayload,
   withdrawnLedgerPayloadSchema,
 } from '../types';
-import type { UserId } from '@modules/users/types';
+import type { UserId } from '@domain/users/types';
 import z from 'zod';
 import { LedgerEntryEntity } from './ledger.entity';
 import { InvalidLedgerEntryTypeError } from '../errors/invalid-ledger-entry-type.error';

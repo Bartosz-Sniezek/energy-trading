@@ -1,7 +1,7 @@
-import { UserEntity } from '@modules/users/entities/user.entity';
+import { UserEntity } from '@domain/users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { MeDto } from '../dtos/me.dto';
+import { MeDto } from '../controllers/dtos/me.dto';
 import { AuthenticatedUser } from '@domain/auth/types';
 import { UserDoesNotExistError } from '@domain/users/errors/user-does-not-exist.error';
 
