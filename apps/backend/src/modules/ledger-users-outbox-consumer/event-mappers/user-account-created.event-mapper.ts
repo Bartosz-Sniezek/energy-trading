@@ -9,7 +9,9 @@ export class UserAccountCreatedEventMapper
   extends BaseUserAccountCreatedEventMapper
   implements EventMapper<UserAccountCreatedEvent>
 {
-  constructor(private readonly ledgerUserLocksService: LedgerUserStateInitializerService) {
+  constructor(
+    private readonly ledgerUserLocksService: LedgerUserStateInitializerService,
+  ) {
     super();
   }
 

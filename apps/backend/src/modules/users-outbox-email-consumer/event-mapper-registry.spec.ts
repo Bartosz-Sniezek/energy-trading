@@ -26,7 +26,7 @@ describe(EventMapperRegistry.name, () => {
   );
 
   describe(registry.getMapper.name, () => {
-    it('should resolve for USER_ACCOUNT_REGISTERED event', async () => {
+    it('should resolve for USER_ACCOUNT_REGISTERED event', () => {
       const eventMock = mock<DebeziumOutboxMessage>({
         eventType: UserEvents.USER_ACCOUNT_REGISTERED,
       });
@@ -34,7 +34,7 @@ describe(EventMapperRegistry.name, () => {
       expect(registry.getMapper(eventMock)).toBe(userAccountCreatedEventMapper);
     });
 
-    it('should resolve for USER_ACCOUNT_ACTIVATED event', async () => {
+    it('should resolve for USER_ACCOUNT_ACTIVATED event', () => {
       const eventMock = mock<DebeziumOutboxMessage>({
         eventType: UserEvents.USER_ACCOUNT_ACTIVATED,
       });
@@ -44,7 +44,7 @@ describe(EventMapperRegistry.name, () => {
       );
     });
 
-    it('should resolve for USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT event', async () => {
+    it('should resolve for USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT event', () => {
       const eventMock = mock<DebeziumOutboxMessage>({
         eventType:
           UserEvents.USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT,
@@ -55,7 +55,7 @@ describe(EventMapperRegistry.name, () => {
       );
     });
 
-    it('should resolve for ACTIVATION_TOKEN_RESEND_REQUESTED event', async () => {
+    it('should resolve for ACTIVATION_TOKEN_RESEND_REQUESTED event', () => {
       const eventMock = mock<DebeziumOutboxMessage>({
         eventType: UserEvents.ACTIVATION_TOKEN_RESEND_REQUESTED,
       });
@@ -65,7 +65,7 @@ describe(EventMapperRegistry.name, () => {
       );
     });
 
-    it('should throw UnsupportedEventTypeError when event is not supported', async () => {
+    it('should throw UnsupportedEventTypeError when event is not supported', () => {
       const eventMock = mock<DebeziumOutboxMessage>({
         eventType: '__UNSUPPORTED_EVENT__',
       });

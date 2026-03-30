@@ -51,7 +51,5 @@ export type WithdrawnLedgerPayload = z.infer<
 >;
 
 export type LedgerOutboxPayload =
-  // eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
   | DepositedLedgerPayload
-  // eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
   | WithdrawnLedgerPayload;

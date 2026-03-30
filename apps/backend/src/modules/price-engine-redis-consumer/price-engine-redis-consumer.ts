@@ -64,7 +64,7 @@ export class PriceEngineRedisConsumer implements OnModuleInit, OnModuleDestroy {
         throw new PermanentError('Data is null');
       }
 
-      const parsed: PriceTick = JSON.parse(data);
+      const parsed = JSON.parse(data) as PriceTick;
 
       await Promise.all([
         this.client.set(`price:${parsed.symbol}`, data),

@@ -58,7 +58,7 @@ export class PriceEngineGateway
         `Client connected: ${socket.id} (user ${socket.user.userId}) (session ${socket.user.sessionId})`,
       );
     } catch (err) {
-      this.logger.warn(`Auth failed for ${socket.id}: ${err.message}`);
+      this.logger.warn(`Auth failed for ${socket.id}: ${err}`);
       socket.emit('error', { message: 'Authentication failed' });
       socket.disconnect(true);
     }
@@ -102,7 +102,7 @@ export class PriceEngineGateway
   }
 
   async onModuleInit(): Promise<void> {
-    await this.redisSub.psubscribe('feed:*', (err, count) => {
+    await this.redisSub.psubscribe('feed:*', (err) => {
       if (err) {
         this.logger.error(`Failed to psub to feed:*`);
         this.logger.error(err);
@@ -111,7 +111,7 @@ export class PriceEngineGateway
       }
     });
 
-    await this.redisSub.subscribe('auth:session:remove', async (err) => {
+    await this.redisSub.subscribe('auth:session:remove', (err) => {
       if (err) {
         this.logger.error('Failed to sub on "auth:session:remove"');
       } else {
@@ -121,7 +121,7 @@ export class PriceEngineGateway
 
     this.redisSub.on(
       'pmessage',
-      async (_pattern: string, channel: string, message: string) => {
+      (_pattern: string, channel: string, message: string) => {
         this.broadcast(channel.substring(5), message);
       },
     );
@@ -136,7 +136,7 @@ export class PriceEngineGateway
     });
   }
 
-  private async broadcast(symbol: string, data: string): Promise<void> {
+  private broadcast(symbol: string, data: string): void {
     this.server.to(`price:${symbol}`).emit('price', data);
   }
 
@@ -145,12 +145,12 @@ export class PriceEngineGateway
   async handleSubscribe(
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody() payload: { instruments: string[] },
-  ) {
+  ): Promise<void> {
     const subs = this.subscriptions.get(client.id) ?? new Set();
 
     for (const instrument of payload.instruments) {
       const room = `price:${instrument}`;
-      client.join(room);
+      await client.join(room);
       subs.add(instrument);
     }
 
@@ -159,9 +159,7 @@ export class PriceEngineGateway
 
   @UseGuards(GatewayAuthGuard)
   @SubscribeMessage('keepalive')
-  async keepAlive(
-    @ConnectedSocket() client: AuthenticatedSocket,
-  ): Promise<void> {
+  keepAlive(@ConnectedSocket() client: AuthenticatedSocket): void {
     client.timer.restart();
   }
 }

@@ -301,9 +301,7 @@ describe(TokenService.name, () => {
         };
         const queue = [data.challengeKey, data];
 
-        cacheMock.get.mockImplementation((_key: string) =>
-          Promise.resolve(queue.shift()),
-        );
+        cacheMock.get.mockImplementation(() => Promise.resolve(queue.shift()));
 
         const activationChallenge =
           await service.getAccountActivationChallengeByEmail(email);

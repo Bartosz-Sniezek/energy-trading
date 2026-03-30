@@ -40,7 +40,8 @@ export class PriceTickProducer implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit() {
     await this.producer.connect();
-    this.startFeed();
+
+    void this.startFeed();
   }
 
   async onModuleDestroy() {

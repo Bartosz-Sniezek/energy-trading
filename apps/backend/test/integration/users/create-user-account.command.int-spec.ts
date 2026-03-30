@@ -1,6 +1,5 @@
 import { INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
-import { CreateUserAccountUseCase } from '@modules/users/use-cases/create-user-account.use-case';
 import { Email } from '@domain/users/value-objects/email';
 import { Password } from '@domain/users/value-objects/password';
 import { Repository } from 'typeorm';
@@ -15,6 +14,7 @@ import {
   UserAccountRegistrationAttemptedPayload,
 } from '@domain/users/entities/schemas/outbox-payload.schema';
 import { type ContextedFn } from 'test/helpers/with-random-correlation-context';
+import { CreateUserAccountUseCase } from '@modules/users/use-cases/create-user-account.use-case';
 
 describe(CreateUserAccountUseCase.name, () => {
   let testingFixture: AppTestingFixture;
@@ -68,35 +68,26 @@ describe(CreateUserAccountUseCase.name, () => {
       });
 
       expect(user).toMatchObject<UserEntity>({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         id: expect.toBeString(),
         email: email.getValue(),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         passwordHash: expect.toBeString(),
         balance: 0,
         firstName,
         lastName,
         isActive: false,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         activationToken: expect.toBeString(),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         activationTokenExpiresAt: expect.toBeDate(),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         updatedAt: expect.toBeDate(),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         createdAt: expect.toBeDate(),
       });
       expect(user.passwordHash).not.toBe(password.getValue());
 
       expect(userOutboxEvent).toMatchObject<UserOutboxEntity>({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         id: expect.toBeString(),
         userId: user.id,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         correlationId: expect.toBeString(),
         aggregateId: user.id,
         eventType: UserEvents.USER_ACCOUNT_REGISTERED,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         payload: expect.objectContaining<UserAccountCreatedPayload>({
           email: email.getValue(),
           firstName,
@@ -105,7 +96,6 @@ describe(CreateUserAccountUseCase.name, () => {
           activationTokenExpirationDate:
             user.activationTokenExpiresAt.toISOString(),
         }),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         createdAt: expect.toBeDate(),
       });
     });
@@ -151,22 +141,21 @@ describe(CreateUserAccountUseCase.name, () => {
       });
 
       expect(outboxEvent).toMatchObject<UserOutboxEntity>({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         id: expect.toBeString(),
         userId: existingUser.id,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
         correlationId: expect.toBeString(),
         aggregateId: existingUser.id,
         eventType:
           UserEvents.USER_ACCOUNT_REGISTRATION_ATTEMPTED_WITH_EXISTING_ACCOUNT,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
         payload:
           expect.objectContaining<UserAccountRegistrationAttemptedPayload>({
             email: email.getValue(),
             firstName,
             lastName,
           }),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
         createdAt: expect.toBeDate(),
       });
     });

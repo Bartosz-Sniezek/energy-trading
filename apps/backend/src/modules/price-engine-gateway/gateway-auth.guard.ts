@@ -42,7 +42,7 @@ export class GatewayAuthGuard implements CanActivate {
       if (sessionExists) return true;
 
       throw new UnauthorizedError();
-    } catch (error) {
+    } catch {
       socket.emit('unauthorized');
       socket.disconnect(true);
 

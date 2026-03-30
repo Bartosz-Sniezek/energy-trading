@@ -1,16 +1,13 @@
 import { MinorUnitValue } from '@domain/ledger/value-objects/minor-unit-value';
 import { LedgerFixture } from 'test/fixtures/ledger-fixture';
-import { UsersFixture } from 'test/fixtures/users-fixture';
 import { AppTestingFixture } from 'test/helpers/app-testing-fixture';
 
 describe('LedgerController', () => {
   let appTestingFixture: AppTestingFixture;
-  let usersFixture: UsersFixture;
   let ledgerFixture: LedgerFixture;
 
   beforeAll(async () => {
     appTestingFixture = await AppTestingFixture.createWithMocks();
-    usersFixture = appTestingFixture.getUsersFixture();
     ledgerFixture = appTestingFixture.getLedgerFixture();
 
     await appTestingFixture.init();

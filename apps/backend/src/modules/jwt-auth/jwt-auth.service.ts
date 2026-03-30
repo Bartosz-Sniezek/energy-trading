@@ -23,7 +23,7 @@ export class JwtAuthService {
       .verifyAsync<AccessTokenPayload>(accessToken, {
         secret: this.appConfig.values.JWT_ACCESS_TOKEN_SECRET,
       })
-      .catch((_err) => {
+      .catch(() => {
         throw new UnauthorizedError();
       });
 
