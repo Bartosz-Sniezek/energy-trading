@@ -13,6 +13,10 @@ describe('LedgerController', () => {
     await appTestingFixture.init();
   });
 
+  beforeEach(async () => {
+    await appTestingFixture.truncateDatabase();
+  });
+
   afterAll(async () => {
     await appTestingFixture.close();
   });
