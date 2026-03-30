@@ -62,6 +62,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build shared
+        run: pnpm --filter @energy-trading/shared build
+
       - name: Lint
         run: pnpm --filter @energy-trading/backend lint
 
