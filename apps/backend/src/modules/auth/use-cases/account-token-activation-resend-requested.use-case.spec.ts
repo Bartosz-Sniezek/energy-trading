@@ -33,7 +33,7 @@ describe(AccountTokenActivationResendRequestedUseCase.name, () => {
 
   datasourceMock.transaction.mockImplementation(async (...args: any[]) => {
     const cb = args.find((a) => typeof a === 'function');
-    return cb(entityManagerMock);
+    return await cb(entityManagerMock);
   });
 
   const usersRepositoryMock = mock<Repository<UserEntity>>();

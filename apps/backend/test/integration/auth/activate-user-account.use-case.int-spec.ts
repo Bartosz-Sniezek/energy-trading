@@ -115,20 +115,16 @@ describe(ActivateUserAccountUseCase.name, () => {
 
       expect(userActivatedEvent).toBeDefined();
       expect(userActivatedEvent).toMatchObject<UserOutboxEntity>({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         id: expect.toBeString(),
         userId: user.id,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         correlationId: expect.toBeString(),
         aggregateId: user.id,
         eventType: UserEvents.USER_ACCOUNT_ACTIVATED,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         payload: expect.objectContaining<UserAccountActivatedPayload>({
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
         }),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         createdAt: expect.toBeDate(),
       });
     });
@@ -156,20 +152,16 @@ describe(ActivateUserAccountUseCase.name, () => {
 
       expect(userActivatedEvent).toBeDefined();
       expect(userActivatedEvent).toMatchObject<UserOutboxEntity>({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         id: expect.toBeString(),
         userId: user.id,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         correlationId: expect.toBeString(),
         aggregateId: user.id,
         eventType: UserEvents.USER_ACCOUNT_ACTIVATED,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         payload: expect.objectContaining<UserAccountActivatedPayload>({
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
         }),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         createdAt: expect.toBeDate(),
       });
     });

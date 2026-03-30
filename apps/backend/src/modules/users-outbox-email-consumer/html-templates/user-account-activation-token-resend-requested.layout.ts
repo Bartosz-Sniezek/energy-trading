@@ -38,7 +38,7 @@ Activate Account
 
 <p>
 This activation link will expire on:<br>
-<strong>${options.event.activationTokenExpirationDate}</strong>
+<strong>${options.event.activationTokenExpirationDate.toISOString()}</strong>
 </p>
 
 <p>If you did not request this email, you can safely ignore it.</p>

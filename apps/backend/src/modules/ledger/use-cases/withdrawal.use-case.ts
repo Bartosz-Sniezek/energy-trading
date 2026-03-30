@@ -24,7 +24,7 @@ export class WithdrawalUseCase {
   async execute(userId: UserId, value: MinorUnitValue): Promise<void> {
     await this.datasource.transaction(async (entityManager) => {
       const lockRepository = entityManager.getRepository(LedgerUserLockEntity);
-      const _lock = await lockRepository.findOne({
+      await lockRepository.findOne({
         where: {
           userId,
         },

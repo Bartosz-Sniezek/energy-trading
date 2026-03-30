@@ -40,6 +40,5 @@ export type ActivationTokenResendRequestedPayload = z.infer<
 export type UserOutboxPayload =
   | UserAccountCreatedPayload
   | UserAccountActivatedPayload
-  // eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
   | UserAccountRegistrationAttemptedPayload
   | ActivationTokenResendRequestedPayload;
