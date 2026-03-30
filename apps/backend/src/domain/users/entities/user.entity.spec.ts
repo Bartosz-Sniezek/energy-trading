@@ -1,4 +1,4 @@
-import { UserEntity } from '@modules/users/entities/user.entity';
+import { UserEntity } from '@domain/users/entities/user.entity';
 import { addDays } from 'date-fns';
 import { randomEmail } from 'test/faker/random-email';
 import { randomFirstName } from 'test/faker/random-first-name';

@@ -7,7 +7,7 @@ import {
 import { AppConfig } from '@technical/app-config/app-config';
 import { JwtService } from '@nestjs/jwt';
 import { DatetimeService } from '@technical/datetime/datetime.service';
-import { UserEntity } from '@modules/users/entities/user.entity';
+import { UserEntity } from '@domain/users/entities/user.entity';
 import { randomUserId } from 'test/faker/random-user-id';
 import { vi } from 'vitest';
 import { randomBytes, randomUUID } from 'crypto';

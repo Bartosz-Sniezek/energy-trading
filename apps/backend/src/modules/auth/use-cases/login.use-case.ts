@@ -4,7 +4,7 @@ import {
   TokenService,
 } from '@domain/auth/services/token.service';
 import { Email } from '@domain/users/value-objects/email';
-import { UserEntity } from '@modules/users/entities/user.entity';
+import { UserEntity } from '@domain/users/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';

@@ -1,4 +1,4 @@
-import { UserId } from '@modules/users/types';
+import { UserId } from '@domain/users/types';
 
 export type RefreshTokenId = string & { readonly __type: unique symbol };
 export type RefreshToken = string & { readonly __type: unique symbol };

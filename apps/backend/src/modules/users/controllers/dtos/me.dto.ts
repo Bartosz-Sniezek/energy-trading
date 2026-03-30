@@ -1,5 +1,5 @@
 import { meDtoSchema } from '@energy-trading/shared/schemas';
-import { UserEntity } from '@modules/users/entities/user.entity';
+import { UserEntity } from '@domain/users/entities/user.entity';
 import { createZodDto } from 'nestjs-zod';
 
 export class MeDto extends createZodDto(meDtoSchema) {

@@ -1,7 +1,7 @@
 import { mock, mockReset } from 'vitest-mock-extended';
 import { LoginOutput, LoginUseCase } from './login.use-case';
 import { Repository } from 'typeorm';
-import { UserEntity } from '@modules/users/entities/user.entity';
+import { UserEntity } from '@domain/users/entities/user.entity';
 import { RefreshTokenEntity } from '../../../domain/auth/entities/refresh-token.entity';
 import { TokenService } from '@domain/auth/services/token.service';
 import { randomEmail } from 'test/faker/random-email';
@@ -15,7 +15,7 @@ import {
   RefreshTokenId,
 } from '@domain/auth/types';
 import { HashingService } from '@modules/hashing/hashing.service';
-import { Hash } from '@modules/users/types';
+import { Hash } from '@domain/users/types';
 import { AccountNotActivatedError } from '@domain/auth/errors/account-not-activated.error';
 import { createSessionAuthBridgeMock } from 'test/mocks/auth/session-auth-bridge.mock';
 

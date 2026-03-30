@@ -1,4 +1,4 @@
-import { type UserId } from '@modules/users/types';
+import { type UserId } from '@domain/users/types';
 import { Injectable } from '@nestjs/common';
 import { EntityManager, Repository } from 'typeorm';
 import { Decimal } from 'decimal.js';

@@ -1,5 +1,5 @@
 import { InvalidPayloadDataError } from '@common/errors/invalid-payload-data.error';
-import type { UserId } from '@modules/users/types';
+import type { UserId } from '@domain/users/types';
 import { Column, CreateDateColumn, PrimaryGeneratedColumn } from 'typeorm';
 import z from 'zod';
 

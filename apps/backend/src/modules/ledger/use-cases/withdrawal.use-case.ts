@@ -4,7 +4,7 @@ import { LedgerEntryEntity } from '@domain/ledger/entities/ledger.entity';
 import { InsufficientFundsError } from '@domain/ledger/errors/insufficient-funds.error';
 import { MinorUnitValue } from '@domain/ledger/value-objects/minor-unit-value';
 import { LedgerUsersBalancesService } from '@domain/ledger/ledger-users-balances.service';
-import { UserId } from '@modules/users/types';
+import { UserId } from '@domain/users/types';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DatetimeService } from '@technical/datetime/datetime.service';

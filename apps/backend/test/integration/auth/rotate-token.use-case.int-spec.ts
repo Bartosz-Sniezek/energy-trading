@@ -3,7 +3,7 @@ import { InvalidRefreshToken } from '@domain/auth/errors/invalid-refresh-token.e
 import { SessionAuthBridge } from '@domain/auth/services/session-auth.bridge';
 import { TokenService } from '@domain/auth/services/token.service';
 import { RotateTokenUseCase } from '@modules/auth/use-cases/rotate-token.use-case';
-import { UserEntity } from '@modules/users/entities/user.entity';
+import { UserEntity } from '@domain/users/entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { subDays } from 'date-fns';
 import { randomRefreshToken } from 'test/faker/random-refresh-token';

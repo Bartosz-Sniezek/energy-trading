@@ -7,7 +7,7 @@ import { createLedgerRepositoryMock } from 'test/mocks/ledger/ledger-repository.
 import { createLedgerOutboxRepositoryMock } from 'test/mocks/ledger/ledger-outbox-repository.mock';
 import { randomUserId } from 'test/faker/random-user-id';
 import { randomCorrelationId } from 'test/faker/random-correlation-id';
-import { UserEntity } from '@modules/users/entities/user.entity';
+import { UserEntity } from '@domain/users/entities/user.entity';
 import { mock } from 'vitest-mock-extended';
 import { LedgerEntryEntity } from '@domain/ledger/entities/ledger.entity';
 import { LedgerOutboxEntity } from '@domain/ledger/entities/ledger-outbox.entity';

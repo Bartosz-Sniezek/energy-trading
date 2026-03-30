@@ -1,6 +1,6 @@
 import { LedgerUserBalanceEntity } from '@domain/ledger/entities/ledger-user-balance.entity';
 import { LedgerUserLockEntity } from '@domain/ledger/entities/ledger-user-lock.entity';
-import { type UserId } from '@modules/users/types';
+import { type UserId } from '@domain/users/types';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DatetimeService } from '@technical/datetime/datetime.service';

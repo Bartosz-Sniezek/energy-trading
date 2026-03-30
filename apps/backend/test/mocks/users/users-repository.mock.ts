@@ -1,4 +1,4 @@
-import { UserEntity } from '@modules/users/entities/user.entity';
+import { UserEntity } from '@domain/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { mock, MockProxy, mockReset } from 'vitest-mock-extended';
 

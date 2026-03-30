@@ -1,4 +1,4 @@
-import type { UserId } from '@modules/users/types';
+import type { UserId } from '@domain/users/types';
 import { Column, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('ledger_users_balances')

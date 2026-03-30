@@ -3,7 +3,6 @@ import { UsersModule } from '@modules/users/users.module';
 import { Logger, Module } from '@nestjs/common';
 import { AppConfigModule } from '@technical/app-config/app-config.module';
 import { DatabaseModule } from '@technical/database/database.module';
-import { HttpApiModule } from './http-api/http-api.module';
 import { AuthModule } from '@modules/auth/auth.module';
 import { HealthModule } from '@modules/health/health.module';
 import { APP_FILTER } from '@nestjs/core';
@@ -36,7 +35,6 @@ import { LedgerUsersOutboxConsumerModule } from '@modules/ledger-users-outbox-co
     UsersModule,
     AuthModule,
     UsersOutboxEmailConsumerModule,
-    HttpApiModule,
     HealthModule,
     PriceEngineModule,
     PriceEngineRedisConsumerModule,

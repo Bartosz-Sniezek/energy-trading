@@ -1,15 +1,15 @@
 import { AccountActivationResendRequestChallengeExpiredError } from '@domain/auth/errors/account-activation-resend-request-challenge-expired.error';
 import { InvalidAccountActivationResendChallengeError } from '@domain/auth/errors/invalid-account-activation-resend-challenge.error';
 import { TokenService } from '@domain/auth/services/token.service';
-import { UserEntity } from '@modules/users/entities/user.entity';
-import { UserOutboxEntity } from '@modules/users/entities/users-outbox.entity';
+import { UserEntity } from '@domain/users/entities/user.entity';
+import { UserOutboxEntity } from '@domain/users/entities/users-outbox.entity';
 import { UserAccountAlreadyActivatedError } from '@domain/auth/errors/user-account-already-activated.error';
-import { TokensService } from '@modules/users/token.service';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DatetimeService } from '@technical/datetime/datetime.service';
 import { DataSource } from 'typeorm';
 import { ClsService } from 'nestjs-cls';
+import { AccountActivationTokenGenerator } from '@domain/auth/services/account-activation-token.generator';
 
 @Injectable()
 export class AccountTokenActivationResendRequestedUseCase {
@@ -17,7 +17,7 @@ export class AccountTokenActivationResendRequestedUseCase {
     private readonly tokenService: TokenService,
     @InjectDataSource()
     private readonly datasource: DataSource,
-    private readonly activationTokenService: TokensService,
+    private readonly accountActivationTokenGenerator: AccountActivationTokenGenerator,
     private readonly datetimeService: DatetimeService,
     private readonly clsService: ClsService,
   ) {}
@@ -47,7 +47,8 @@ export class AccountTokenActivationResendRequestedUseCase {
 
       if (user.isActive) throw new UserAccountAlreadyActivatedError();
 
-      const newActivationToken = this.activationTokenService.generateToken();
+      const newActivationToken =
+        this.accountActivationTokenGenerator.generate();
       const now = this.datetimeService.new();
       const activationTokenExpiresAt =
         this.datetimeService.getDateIn24Hours(now);

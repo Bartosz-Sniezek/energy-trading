@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
 import { AppTestingFixture } from 'test/helpers/app-testing-fixture';
 import { ActivateUserAccountUseCase } from '@modules/auth/use-cases/activate-user-account.use-case';
-import { UserOutboxEntity } from '@modules/users/entities/users-outbox.entity';
+import { UserOutboxEntity } from '@domain/users/entities/users-outbox.entity';
 import { EmailVerificationTokenExpiredError } from '@domain/auth/errors/email-verification-token-expired.error';
 import { UsersFixture } from 'test/fixtures/users-fixture';
 import { InvalidVerificationTokenError } from '@domain/auth/errors/invalid-verification-token.error';
@@ -11,7 +11,7 @@ import { UserAccountAlreadyActivatedError } from '@domain/auth/errors/user-accou
 import { UserEvents } from '@domain/users/events.enum';
 import { DatetimeService } from '@technical/datetime/datetime.service';
 import { vi } from 'vitest';
-import { UserAccountActivatedPayload } from '@modules/users/entities/schemas/outbox-payload.schema';
+import { UserAccountActivatedPayload } from '@domain/users/entities/schemas/outbox-payload.schema';
 import { ContextedFn } from 'test/helpers/with-random-correlation-context';
 
 describe(ActivateUserAccountUseCase.name, () => {

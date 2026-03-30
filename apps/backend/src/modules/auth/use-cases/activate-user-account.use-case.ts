@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { UserEntity } from '../../users/entities/user.entity';
+import { UserEntity } from '../../../domain/users/entities/user.entity';
 import { DataSource } from 'typeorm';
-import { UserOutboxEntity } from '../../users/entities/users-outbox.entity';
+import { UserOutboxEntity } from '../../../domain/users/entities/users-outbox.entity';
 import { DatetimeService } from '@technical/datetime/datetime.service';
 import { UserAccountAlreadyActivatedError } from '@domain/auth/errors/user-account-already-activated.error';
 import { InvalidVerificationTokenError } from '@domain/auth/errors/invalid-verification-token.error';

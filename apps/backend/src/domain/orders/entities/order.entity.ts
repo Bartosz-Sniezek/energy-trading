@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import type { OrderId } from '../types';
-import type { UserId } from '@modules/users/types';
+import type { UserId } from '@domain/users/types';
 
 @Entity('orders')
 export class OrderEntity {

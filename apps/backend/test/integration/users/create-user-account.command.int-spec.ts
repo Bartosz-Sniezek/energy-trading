@@ -1,34 +1,34 @@
 import { INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
-import { CreateUserAccountCommand } from '@modules/users/commands/create-user-account.command';
+import { CreateUserAccountUseCase } from '@modules/users/use-cases/create-user-account.use-case';
 import { Email } from '@domain/users/value-objects/email';
 import { Password } from '@domain/users/value-objects/password';
 import { Repository } from 'typeorm';
 import { randomEmail } from 'test/faker/random-email';
 import { AppTestingFixture } from 'test/helpers/app-testing-fixture';
 import { UserEvents } from '@domain/users/events.enum';
-import { UserEntity } from '@modules/users/entities/user.entity';
-import { UserOutboxEntity } from '@modules/users/entities/users-outbox.entity';
+import { UserEntity } from '@domain/users/entities/user.entity';
+import { UserOutboxEntity } from '@domain/users/entities/users-outbox.entity';
 import { DatetimeService } from '@technical/datetime/datetime.service';
 import {
   UserAccountCreatedPayload,
   UserAccountRegistrationAttemptedPayload,
-} from '@modules/users/entities/schemas/outbox-payload.schema';
+} from '@domain/users/entities/schemas/outbox-payload.schema';
 import { type ContextedFn } from 'test/helpers/with-random-correlation-context';
 
-describe(CreateUserAccountCommand.name, () => {
+describe(CreateUserAccountUseCase.name, () => {
   let testingFixture: AppTestingFixture;
   let app: INestApplication<App>;
-  let createUserAccountCommand: CreateUserAccountCommand;
+  let createUserAccountCommand: CreateUserAccountUseCase;
   let usersRepository: Repository<UserEntity>;
   let usersOutboxRepository: Repository<UserOutboxEntity>;
   let datetimeService: DatetimeService;
-  let contextedCommand: ContextedFn<CreateUserAccountCommand['execute']>;
+  let contextedCommand: ContextedFn<CreateUserAccountUseCase['execute']>;
 
   beforeAll(async () => {
     testingFixture = await AppTestingFixture.createWithMocks();
     app = testingFixture.getApp();
-    createUserAccountCommand = app.get(CreateUserAccountCommand);
+    createUserAccountCommand = app.get(CreateUserAccountUseCase);
     contextedCommand = testingFixture.contextedCorrelationIdExecution(
       createUserAccountCommand.execute.bind(createUserAccountCommand),
     );

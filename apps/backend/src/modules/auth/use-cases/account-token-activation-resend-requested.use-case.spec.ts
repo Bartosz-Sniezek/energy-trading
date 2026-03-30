@@ -7,14 +7,13 @@ import {
   ObjectLiteral,
   Repository,
 } from 'typeorm';
-import { UserEntity } from '@modules/users/entities/user.entity';
-import { UserOutboxEntity } from '@modules/users/entities/users-outbox.entity';
+import { UserEntity } from '@domain/users/entities/user.entity';
+import { UserOutboxEntity } from '@domain/users/entities/users-outbox.entity';
 import {
   AccountActivationChallenge,
   TokenService,
 } from '@domain/auth/services/token.service';
 import { DatetimeService } from '@technical/datetime/datetime.service';
-import { TokensService } from '@modules/users/token.service';
 import { randomUUID } from 'crypto';
 import { InvalidAccountActivationResendChallengeError } from '@domain/auth/errors/invalid-account-activation-resend-challenge.error';
 import { randomEmail } from 'test/faker/random-email';
@@ -26,6 +25,7 @@ import { randomFirstName } from 'test/faker/random-first-name';
 import { randomLastName } from 'test/faker/random-last-name';
 import { createClsServiceMock } from 'test/mocks/kafka/cls-service.mock';
 import { randomCorrelationId } from 'test/faker/random-correlation-id';
+import { AccountActivationTokenGenerator } from '@domain/auth/services/account-activation-token.generator';
 
 describe(AccountTokenActivationResendRequestedUseCase.name, () => {
   const datasourceMock = mock<DataSource>();
@@ -39,7 +39,8 @@ describe(AccountTokenActivationResendRequestedUseCase.name, () => {
   const usersRepositoryMock = mock<Repository<UserEntity>>();
   const usersOutboxMock = mock<Repository<UserOutboxEntity>>();
   const authTokenServiceMock = mock<TokenService>();
-  const usersTokenMock = mock<TokensService>();
+  const accountActivationTokenGeneratorMock =
+    mock<AccountActivationTokenGenerator>();
   const datetimeServiceMock = mock<DatetimeService>();
   const { clsServiceMock, resetClsServiceMock } = createClsServiceMock();
   const now = new Date();
@@ -61,8 +62,10 @@ describe(AccountTokenActivationResendRequestedUseCase.name, () => {
       },
     );
 
-    mockReset(usersTokenMock);
-    usersTokenMock.generateToken.mockReturnValue(activationToken);
+    mockReset(accountActivationTokenGeneratorMock);
+    accountActivationTokenGeneratorMock.generate.mockReturnValue(
+      activationToken,
+    );
     mockReset(datetimeServiceMock);
     datetimeServiceMock.new.mockReturnValue(now);
     datetimeServiceMock.getDateIn24Hours.mockImplementation((date) =>
@@ -73,7 +76,7 @@ describe(AccountTokenActivationResendRequestedUseCase.name, () => {
   const useCase = new AccountTokenActivationResendRequestedUseCase(
     authTokenServiceMock,
     datasourceMock,
-    usersTokenMock,
+    accountActivationTokenGeneratorMock,
     datetimeServiceMock,
     clsServiceMock,
   );

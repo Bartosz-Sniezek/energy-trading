@@ -1,4 +1,4 @@
-import { Hash } from '@modules/users/types';
+import { Hash } from '@domain/users/types';
 import { randomBytes } from 'crypto';
 
 export const randomHash = (): Hash => {

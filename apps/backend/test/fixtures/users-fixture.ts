@@ -1,9 +1,9 @@
 import { Email } from '@domain/users/value-objects/email';
 import { Password } from '@domain/users/value-objects/password';
-import { CreateUserAccountCommand } from '@modules/users/commands/create-user-account.command';
-import { UserEntity } from '@modules/users/entities/user.entity';
-import { UserOutboxEntity } from '@modules/users/entities/users-outbox.entity';
-import { UserId } from '@modules/users/types';
+import { CreateUserAccountUseCase } from '@modules/users/use-cases/create-user-account.use-case';
+import { UserEntity } from '@domain/users/entities/user.entity';
+import { UserOutboxEntity } from '@domain/users/entities/users-outbox.entity';
+import { UserId } from '@domain/users/types';
 import { INestApplication } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ClsService } from 'nestjs-cls';
@@ -24,13 +24,13 @@ export interface UserCredentials {
 export class UsersFixture {
   private readonly usersRepository: Repository<UserEntity>;
   private readonly usersOutboxRepository: Repository<UserOutboxEntity>;
-  private readonly createUserAccountCommand: CreateUserAccountCommand;
+  private readonly createUserAccountCommand: CreateUserAccountUseCase;
   private readonly clsService: ClsService;
 
   constructor(app: INestApplication<App>) {
     this.usersRepository = app.get(getRepositoryToken(UserEntity));
     this.usersOutboxRepository = app.get(getRepositoryToken(UserOutboxEntity));
-    this.createUserAccountCommand = app.get(CreateUserAccountCommand);
+    this.createUserAccountCommand = app.get(CreateUserAccountUseCase);
     this.clsService = app.get(ClsService);
   }
 

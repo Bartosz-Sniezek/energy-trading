@@ -1,7 +1,7 @@
 import { MinorUnitValue } from '@domain/ledger/value-objects/minor-unit-value';
 import { LedgerUserStateInitializerService } from '@modules/ledger-users-outbox-consumer/ledger-user-state-initializer.service';
 import { DepositUseCase } from '@modules/ledger/use-cases/deposit.use-case';
-import { UserEntity } from '@modules/users/entities/user.entity';
+import { UserEntity } from '@domain/users/entities/user.entity';
 import { INestApplication } from '@nestjs/common';
 import { ClsService } from 'nestjs-cls';
 import { App } from 'supertest/types';

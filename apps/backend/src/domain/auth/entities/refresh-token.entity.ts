@@ -5,7 +5,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import type { RefreshTokenHash, RefreshTokenId } from '@domain/auth/types';
-import type { UserId } from '@modules/users/types';
+import type { UserId } from '@domain/users/types';
 import { v7 } from 'uuid';
 import type { Nullable } from '@utils/nullable';
 
