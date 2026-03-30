@@ -27,8 +27,8 @@ jobs:
       NODE_ENV: test
       MAILER_FROM: test@example.com
       MAILER_TRANSPORT_MODE: console
-      KAFKA_USERS_OUTBOX_TOPIC: users.events.USER
-      KAFKA_USERS_OUTBOX_TOPIC_DLQ: users.events.USER.dlq
+      KAFKA_USERS_OUTBOX_TOPIC: users.events
+      KAFKA_USERS_OUTBOX_TOPIC_DLQ: users.events.dlq
       EMAIL_NOTIFIER_CONSUMER_GROUP_ID: users.outbox.email-notifiers
       EMAIL_NOTIFIER_CONSUMER_RETRY_BASE_DELAY: 100
       EMAIL_NOTIFIER_CONSUMER_MAX_RETRIES: 5
