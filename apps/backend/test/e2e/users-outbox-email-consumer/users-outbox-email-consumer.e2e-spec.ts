@@ -1,3 +1,4 @@
+import { sleep } from '@utils/sleep';
 import { AppTestingFixture } from 'test/helpers/app-testing-fixture';
 import { MockMailer } from 'test/mocks/q-mailer';
 
@@ -20,7 +21,7 @@ describe('Users outbox email consumer', () => {
   it('should process', async () => {
     await testingFixture.getUsersFixture().createUser();
 
-    await new Promise((resolve) => setTimeout(resolve, 4000));
+    await sleep(4000);
     expect(mailer.messageQ).toHaveLength(1);
   });
 });
