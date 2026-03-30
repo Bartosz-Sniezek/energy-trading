@@ -22,7 +22,7 @@ describe(AuthController.name, () => {
   let server: App;
 
   beforeAll(async () => {
-    testingFixture = await AppTestingFixture.create({ mockKafka: true });
+    testingFixture = await AppTestingFixture.createWithMocks();
     usersFixture = testingFixture.getUsersFixture();
     server = (await testingFixture.init()).getHttpServer();
     usersRepository = testingFixture

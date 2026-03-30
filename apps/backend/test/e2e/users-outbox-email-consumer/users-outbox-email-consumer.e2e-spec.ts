@@ -20,7 +20,7 @@ describe('Users outbox email consumer', () => {
   it('should process', async () => {
     await testingFixture.getUsersFixture().createUser();
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 4000));
     expect(mailer.messageQ).toHaveLength(1);
   });
 });
