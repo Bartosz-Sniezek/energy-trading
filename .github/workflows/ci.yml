@@ -4,14 +4,27 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'packages/**'
+      - 'apps/backend/**'
   pull_request:
     branches:
       - '**'
+    paths:
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'packages/**'
+      - 'apps/backend/**'
 
 jobs:
-  test:
+  backend:
     runs-on: ubuntu-latest
     env:
+      NODE_ENV: test
       MAILER_FROM: test@example.com
       MAILER_TRANSPORT_MODE: console
       KAFKA_USERS_OUTBOX_TOPIC: users.events.USER
@@ -20,10 +33,19 @@ jobs:
       EMAIL_NOTIFIER_CONSUMER_RETRY_BASE_DELAY: 100
       EMAIL_NOTIFIER_CONSUMER_MAX_RETRIES: 5
       KAFKA_LOG_LEVEL: 0
+      KAFKA_LEDGER_OUTBOX_TOPIC: ledger.events
+      KAFKA_LEDGER_USERS_OUTBOX_TOPIC_DLQ: ledger.users.dlq
+      KAFKA_LEDGER_USERS_ACCOUNT_CREATED_GROUP: ledger.users.account-created
       JWT_ACCESS_TOKEN_SECRET: access_token_secret
       JWT_ACCESS_TOKEN_EXPIRATION_SEC: 900
       JWT_REFRESH_TOKEN_EXPIRATION_SEC: 604800
       COOKIE_SECRET: cookie_secret
+      ACCOUNT_ACTIVATION_RESEND_TOKEN_TTL_SECONDS: 3600
+      ALLOWED_ORIGINS: http://localhost:3000
+      FRONTEND_BASE_URL: http://localhost:3000
+      COMPANY_NAME: EnergyTrading
+      PRICE_ENGINE_TICK_TOPIC: price.tick
+      PRICE_ENGINE_TICK_INTERVAL_MS: 500
 
     steps:
       - uses: actions/checkout@v4
@@ -41,16 +63,16 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: pnpm lint
+        run: pnpm --filter @energy-trading/backend lint
 
       - name: Build
-        run: pnpm build
+        run: pnpm --filter @energy-trading/backend build
 
       - name: Unit Tests
-        run: pnpm test:unit
+        run: pnpm --filter @energy-trading/backend test:unit
 
       - name: Integration Tests
-        run: pnpm test:integration
+        run: pnpm --filter @energy-trading/backend test:integration
 
       - name: E2E Tests
-        run: pnpm test:e2e
+        run: pnpm --filter @energy-trading/backend test:e2e
