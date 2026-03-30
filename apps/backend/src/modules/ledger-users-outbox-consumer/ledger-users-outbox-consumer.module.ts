@@ -6,7 +6,7 @@ import { LedgerOutboxEntity } from '@domain/ledger/entities/ledger-outbox.entity
 import { LedgerUsersOutboxConsumer } from './ledger-users-outbox.consumer';
 import { KafkaModule } from '@modules/kafka/kafka.module';
 import { AppConfigModule } from '@technical/app-config/app-config.module';
-import { LedgerUserLocksService } from './ledger-user-locks.service';
+import { LedgerUserStateInitializerService } from './ledger-user-state-initializer.service';
 import { LedgerUserLockEntity } from '@domain/ledger/entities/ledger-user-lock.entity';
 import { LedgerUsersOutboxMessageHandler } from './ledger-users-outbox-message.handler';
 import { UserAccountCreatedEventMapper } from './event-mappers/user-account-created.event-mapper';
@@ -27,7 +27,7 @@ import { DebeziumConnectorMessageParser } from '@common/kafka/debezium-connector
   ],
   providers: [
     LedgerUsersOutboxConsumer,
-    LedgerUserLocksService,
+    LedgerUserStateInitializerService,
     LedgerUsersOutboxMessageHandler,
     UserAccountCreatedEventMapper,
     DebeziumConnectorMessageParser,

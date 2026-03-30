@@ -2,8 +2,8 @@ import { LedgerOutboxEntity } from '@domain/ledger/entities/ledger-outbox.entity
 import { LedgerUserLockEntity } from '@domain/ledger/entities/ledger-user-lock.entity';
 import { LedgerEntryEntity } from '@domain/ledger/entities/ledger.entity';
 import { InsufficientFundsError } from '@domain/ledger/errors/insufficient-funds.error';
-import { InvalidBalanceValueError } from '@domain/ledger/errors/invalid-balance-value.error';
 import { MinorUnitValue } from '@domain/ledger/value-objects/minor-unit-value';
+import { LedgerUsersBalancesService } from '@domain/ledger/ledger-users-balances.service';
 import { UserId } from '@modules/users/types';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
@@ -18,6 +18,7 @@ export class WithdrawalUseCase {
     @InjectDataSource()
     private readonly datasource: DataSource,
     private readonly clsSerivce: ClsService,
+    private readonly ledgerUserBalancesService: LedgerUsersBalancesService,
   ) {}
 
   async execute(userId: UserId, value: MinorUnitValue): Promise<void> {
@@ -33,19 +34,13 @@ export class WithdrawalUseCase {
       });
 
       const ledgerRepository = entityManager.getRepository(LedgerEntryEntity);
-      const balance = await entityManager
-        .createQueryBuilder()
-        .from(LedgerEntryEntity, 'l')
-        .select(
-          `COALESCE(SUM(CASE l.direction WHEN 'credit' THEN l.amount ELSE -l.amount END), 0)`,
-          'balance',
-        )
-        .where('l.user_id = :userId', { userId })
-        .execute()
-        .then((rows) => parseFloat(rows[0]?.balance));
+      const canWithdraw = await this.ledgerUserBalancesService.canWithdraw(
+        entityManager,
+        userId,
+        value.toLedgerFormat(),
+      );
 
-      if (Number.isNaN(balance)) throw new InvalidBalanceValueError();
-      if (balance < value.decimalValue) throw new InsufficientFundsError();
+      if (!canWithdraw) throw new InsufficientFundsError();
 
       const ledgerOutboxRepository =
         entityManager.getRepository(LedgerOutboxEntity);
@@ -61,6 +56,12 @@ export class WithdrawalUseCase {
       await ledgerRepository.save(withdrawalEntry);
       await ledgerOutboxRepository.save(
         LedgerOutboxEntity.withdrawn(withdrawalEntry),
+      );
+      await this.ledgerUserBalancesService.updateBalance(
+        entityManager,
+        userId,
+        `-${withdrawalEntry.amount}`,
+        '0',
       );
     });
   }

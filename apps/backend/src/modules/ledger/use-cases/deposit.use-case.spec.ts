@@ -13,6 +13,7 @@ import { LedgerEntryEntity } from '@domain/ledger/entities/ledger.entity';
 import { LedgerOutboxEntity } from '@domain/ledger/entities/ledger-outbox.entity';
 import { UserDoesNotExistError } from '@domain/users/errors/user-does-not-exist.error';
 import { MinorUnitValue } from '@domain/ledger/value-objects/minor-unit-value';
+import { createLedgerUserBalancesService } from 'test/mocks/ledger/ledger-user-balances-service.mock';
 
 describe('DepositUseCase', () => {
   const { datasourceMock, entityManagerMock, resetTransactionMock } =
@@ -26,6 +27,8 @@ describe('DepositUseCase', () => {
     createLedgerRepositoryMock();
   const { ledgerOutboxRepositoryMock, resetLedgerOutboxRepositoryMock } =
     createLedgerOutboxRepositoryMock();
+  const { ledgerUserBalancesServiceMock, resetLedgerUserBalancesService } =
+    createLedgerUserBalancesService();
 
   const now = new Date();
   const correlationId = randomCorrelationId();
@@ -34,6 +37,7 @@ describe('DepositUseCase', () => {
     datetimeServiceMock,
     datasourceMock,
     clsServiceMock,
+    ledgerUserBalancesServiceMock,
   );
 
   beforeEach(() => {
@@ -46,6 +50,7 @@ describe('DepositUseCase', () => {
     resetTransactionMock();
     resetUsersRepositoryMock();
     resetLedgerRepositoryMock();
+    resetLedgerUserBalancesService();
     resetLedgerOutboxRepositoryMock();
 
     entityManagerMock.getRepository.mockReturnValueOnce(usersRepositoryMock);
@@ -85,6 +90,12 @@ describe('DepositUseCase', () => {
         ...ledgerOutboxEntry,
         aggregateId: expect.toBeString(),
       });
+      expect(ledgerUserBalancesServiceMock.updateBalance).toHaveBeenCalledWith(
+        entityManagerMock,
+        userId,
+        value.toLedgerFormat(),
+        '0',
+      );
     });
 
     it('should throw UserDoesNotExistError if user does not exist', async () => {

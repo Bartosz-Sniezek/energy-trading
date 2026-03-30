@@ -2,6 +2,7 @@ import { JwtAuthGuard } from '@modules/jwt-auth/jwt-auth.guard';
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -16,6 +17,9 @@ import { DepositUseCase } from '../use-cases/deposit.use-case';
 import { WithdrawalUseCase } from '../use-cases/withdrawal.use-case';
 import { MinorUnitValue } from '@domain/ledger/value-objects/minor-unit-value';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { BalanceResponseDto } from './dtos/balance-reponse.dto';
+import { LedgerUsersBalancesService } from '@domain/ledger/ledger-users-balances.service';
+import { MissingLedgerUserBalanceError } from '@domain/ledger/errors/missing-ledger-user-balance.error';
 
 @UseGuards(JwtAuthGuard)
 @UsePipes(ZodValidationPipe)
@@ -24,6 +28,7 @@ export class LedgerController {
   constructor(
     private readonly depositUseCase: DepositUseCase,
     private readonly withdrawalUseCase: WithdrawalUseCase,
+    private readonly balanceService: LedgerUsersBalancesService,
   ) {}
 
   @Post('deposit')
@@ -48,5 +53,19 @@ export class LedgerController {
       user.userId,
       new MinorUnitValue(withdrawal.amount),
     );
+  }
+
+  @Get('balance')
+  async getBalance(
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<BalanceResponseDto> {
+    const balanceEntry = await this.balanceService.getBalance(user.userId);
+
+    if (balanceEntry === null) throw new MissingLedgerUserBalanceError();
+
+    return {
+      available: balanceEntry.available,
+      locked: balanceEntry.locked,
+    };
   }
 }
